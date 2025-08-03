@@ -1,0 +1,102 @@
+
+Título del Juego: EdgePlay21 (Duelo de Cartas Estratégico)
+
+
+Objetivo: Desarrollar un juego de cartas digital para 2 jugadores basado en las siguientes reglas. El juego debe simular un tablero, manejo de cartas, acciones por turno, movimiento de unidades y combate
+
+Menú inicial, para jugar contra IA (Implementarla )  o con P2, en caso de estar jugando con player dos, ventana flotante para cambiar de jugador y avisar para que no vean sus manos.
+
+
+Requisitos Generales del Juego:
+Jugadores: 2 jugadores.
+Mazo: Cada jugador usa una baraja estándar de 52 cartas (se pueden incluir 4 Jokers por jugador). Un jugador usa las cartas negras, el otro las rojas.
+Tablero: Cuadrícula de 4 columnas x 5 filas.
+Cada jugador tiene una "Zona de Salida" en la fila más cercana a él.
+La "Zona de Salida Enemiga" es la fila más cercana al oponente.
+la zona de meta, es decir más allá de las zonas de salida. es donde podemos encontrar las cartas que anotaron el daño.
+Condición de Victoria: Un jugador gana cuando su oponente acumula 21 o más puntos de daño.
+Manejo de Mano: No hay límite de cartas en la mano.
+Componentes del Juego (Entidades):
+Jugador:
+Puntos de daño (inicialmente 0).
+Mano de cartas.
+Mazo de cartas.
+Pila de descarte.
+Carta (Clase Base):
+Valor (2-10, J, Q, K, A, Joker).
+Unidad (Tipo de Carta: Cartas de Número 2-10):
+velocidad: Número máximo de casillas que puede moverse por turno.
+daño_base: Valor original de daño de la carta.
+daño_actual: Valor de daño actual (puede reducirse por combate).
+posicion: Coordenadas (fila, columna) en el tablero.
+puede_moverse: Booleano para asegurar que solo se mueve una vez por turno.
+Tipos de Unidades (Cartas de Número):
+Unidades Ligeras (2, 3, 4):
+velocidad: 3
+daño_base: Su número
+Unidades Medias (5, 6, 7):
+velocidad: 2
+daño_base: Su número
+Unidades Pesadas (8, 9, 10):
+velocidad: 1
+daño_base: Su número
+Cartas Especiales (Clase CartaEspecial o Habilidad):
+Jota (J - El Turbo):
+Efecto: Selecciona una unidad propia en el tablero. Esa unidad gana +1 a su velocidad en su siguiente movimiento. Se coloca el J apilado encima de la carta seleccionada.
+Uso: Se juega desde la mano, consume 1 acción y se va a pila de descarte después de que se aplique el turbo.
+Ejmplo, al aplicar su acción. podremos elegir una unidad en el tablero. la j se pondrá en el lomo de esa carta. Luego decidimos mover esa carta. en una acción, está extenderá su velocidad a +1, una vez usada ese +1. se quita ese J y regresará a velocidad normal.
+Reina (Q - La Curandera):
+Efecto: Se aplica encima de  una unidad propia en el tablero que haya recibido daño (su daño actual es menor que daño base). Restaura su daño actual a su daño_base.y eliminará unidades apiladas sobre esta unidad mandandolas al descarte.
+Uso: Se juega desde la mano, consume 1 acción  y se va a pila de descarte.
+Ejemplo. Su una unidad recibió daño, es una 10 por ejemplo, que fue atacada por un 5 y un 8, pues su daños se redujo a 2, pero al seleccionar la habilidad de la Q, elegimos esta carta en su casilla y la restauramos a su valor original de daños 10.
+Rey (K - El Dictador Loco):
+Efecto: Todas las unidades propias en el tablero avanzan 1 casilla, el jugador debe elegir una por una, a qué dirección ortogonal  moverse (arriba, abajo, izquierda, derecha, no diagonal). Si una unidad no es movida durante y la acción del  jugador que usó la K, y este da al botón terminar acción K, esa unidad que no movió ya sea por estrategia u omisión será eliminada al descarte.  Si el un movimiento resulta en un choque, aplicar reglas de combate para cada caso donde esto pase..
+Uso: Se juega desde la mano, consume 1 acción  y se va a pila de descarte.
+AS (A - El Mísil Kamikaze):
+Efecto: Inflige 1 punto de daño directo al rival. No entra al tablero.
+Uso: Se juega desde la mano, consume 1 acción. se va a zona de anotación.
+Joker (El Sicario de las Sombras - MODO VALIENTE):
+Efecto: Elimina instantáneamente (descarte) cualquier carta enemiga en el tablero.
+Uso: Se juega desde la mano, consume 1 acción. La carta se descarta después de usarla.
+Flujo del Turno (Turno de un Jugador):
+Fase de Robo: Si es la primera ronda Roba 3 cartas del mazo( Solo al inicio del juego).
+Fase de Acciones: Tiene 3 acciones para gastar. Puede repetir acciones.
+Opciones de Acción:
+Poner Carta: Jugar una carta de número (2-10) de la mano a una casilla vacía en su Zona de Salida.
+Mover Carta:
+Selecciona una de sus unidades en el tablero.
+Mueve la unidad X casillas (hasta su velocidad) en direcciones ortogonales (arriba, abajo, izquierda, derecha). No puede moverse a una casilla ya ocupada por una unidad propia , pero si donde está una  unidad enemiga (Esto se resolvería con el combate) .
+Una unidad sólo puede moverse una vez por turno, si fue puesta en la acción previa de la misma ronda zona de meta, esta puede volverse.
+Si el movimiento termina en una casilla ocupada por una unidad enemiga, se resuelve un combate.
+Robar Carta: Roba 1 carta adicional del mazo.
+Usar Habilidad: Jugar una carta especial (J, Q, K, A, Joker) de la mano para activar su efecto.
+Mecánicas de Juego:
+Movimiento:
+Las unidades solo pueden moverse una vez por turno.
+Las unidades pueden moverse hasta su velocidad en cualquier dirección ortogonal (arriba, abajo, izquierda, derecha), siempre que las casillas estén vacías o ocupadas por un enemigo (lo que inicia un combate).
+No se puede mover sobre una casilla ocupada por una unidad propia.
+La velocidad puede ser flexible (se puede mover menos de su velocidad máxima).
+Anote de Daño (Touchdown):
+Si una unidad propia completa su movimiento y aterriza en la Zona meta Enemiga(es decir, más allá de la zona de salida del adversario ), el rival suma el daño actual de esa unidad a sus puntos de daño.
+La unidad que anotó daño es dejada en esta zona de meta.
+Combate (Cuando una unidad termina su movimiento en una casilla ocupada por una unidad enemiga):
+Atacante: La unidad que se mueve a la casilla del oponente.
+Defensor: La unidad enemiga en la casilla.
+Comparación: Se compara el daño_base del atacante y el daño_base del defensor para determinar el caso.
+Caso A: Atacante (daño_base) > Defensor (daño_base)
+Resultado: Ambas unidades (atacante y defensor) son destruidas y van a la pila de descarte.
+Caso B: Atacante (daño_base) <= Defensor (daño_base)
+Resultado: La unidad atacante apila por encima de la defensiva. dejando ver los valores de ambos.
+La unidad defensora sobrevive, pero su daño_actual se reduce en el daño_base de la unidad atacante. Su velocidad no se ve afectada.
+En adelante su nuevo daños será el que se tome en cuenta para los próximos combates. 
+La carta atacante, se mantendrá arriba de la carta defensora. ya no será unidad. solo representará el daño causado acompañado a sus puntos de daño.
+La carta Defensora, se seguirá movimiento igual. ejemplo 8 es atacada por dos, ahora su daño será 6, pero se moverá como 8, es decir uno casilla, y llevara encima la carta atacante. Si este 8 es  atacada por otra unidad enemigo, es decir un 2, está, ahora será 6 y se verá 4 en su lomo. si es atacada la suma hasta ser menor o igual a 0,  la unidad es eliminada. junto con las que lleva encima.
+Consideraciones para el Código:
+Estructuras de Datos: Clases para Jugador, Carta, Unidad, Tablero. Enumeraciones para tipos de cartas, direcciones.
+Lógica del Turno: Manejo de estado del juego (qué jugador es el actual, acciones restantes).
+Validación de Movimientos: Asegurar que los movimientos son válidos según la velocidad y las restricciones del tablero.
+Resolución de Combate: Implementar la lógica de los dos casos de combate.
+Actualización de Estado: Correcta gestión de puntos
+
+
+Al seleccionar una carta de la mano, debemos poder ver un cuadro de diálogo con las instrucciones de la carta.

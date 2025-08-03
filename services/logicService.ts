@@ -83,15 +83,7 @@ export const beginNewTurn = (state: GameState): GameState => {
         if (!unit) return null;
         // Reset hasMoved for the new current player's units
         if (unit.color === nextPlayer.color) {
-            let updatedUnit = { ...unit, hasMoved: false };
-            if (unit.boosterCard) {
-                const playerToUpdate = state.players.find(p => p.color === unit.color);
-                if (playerToUpdate) {
-                    playerToUpdate.discard.push(unit.boosterCard);
-                }
-                updatedUnit.boosterCard = null;
-            }
-            return updatedUnit;
+            return {...unit, hasMoved: false };
         }
         return unit;
     }));
@@ -346,8 +338,8 @@ export const playSpecialCard = (state: GameState, payload: { card: Card }): Game
     
     if (rank === 'Joker' || rank === 'Q' || rank === 'J') {
         logger.info({ timestamp: new Date().toISOString(), event: 'playSpecialCard:set_targeting', card: rank });
-        // For Jack, we need to ensure it's a friendly unit, handled in useAbilityOnTarget
-        return addLog({ ...state, isTargeting: rank.toLowerCase() as 'joker' | 'queen' | 'jack', selectedCardIdInHand: card.id }, `Select a target for ${card.rank}.`);
+        const targetingRank = rank === 'J' ? 'jack' : rank.toLowerCase();
+        return addLog({ ...state, isTargeting: targetingRank as 'joker' | 'queen' | 'jack', selectedCardIdInHand: card.id }, `Select a target for ${card.rank}.`);
     }
 
     if (rank === 'K') {
@@ -406,7 +398,7 @@ export const useAbilityOnTarget = (state: GameState, payload: { unitId: string }
             logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:joker', target: { id: unitOnBoard.id, rank: unitOnBoard.rank, color: unitOnBoard.color } });
             if (unitOnBoard.color === currentPlayer.color) {
                 logger.warn({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:joker:abort', reason: 'Cannot target friendly unit' });
-                return state; // Must target enemy
+                return addLog(state, "Joker can only target enemy units.");
             }
             opponentPlayerDiscard.push(unitToCard(unitOnBoard));
             currentPlayerDiscard.push(...unitOnBoard.stackedAttackers);
@@ -414,15 +406,24 @@ export const useAbilityOnTarget = (state: GameState, payload: { unitId: string }
             logMsg = `JOKER eliminated ${unitOnBoard.rank}.`;
             break;
         case 'queen':
-            if (unitOnBoard.color !== currentPlayer.color) return state; // Must be friendly
-            if (unitOnBoard.currentDamage >= unitOnBoard.baseDamage) return state; // Must be damaged
+            if (unitOnBoard.color !== currentPlayer.color) {
+                return addLog(state, "Queen can only target friendly units.");
+            }
+            if (unitOnBoard.currentDamage >= unitOnBoard.baseDamage) {
+                return addLog(state, "Queen can only target damaged units.");
+            }
             const healedUnit = { ...unitOnBoard, currentDamage: unitOnBoard.baseDamage, stackedAttackers: [] };
             newBoard[unitOnBoard.position.row][unitOnBoard.position.col] = healedUnit;
             opponentPlayerDiscard.push(...unitOnBoard.stackedAttackers);
             logMsg = `QUEEN healed ${unitOnBoard.rank}.`;
             break;
         case 'jack':
-            if (unitOnBoard.color !== currentPlayer.color || unitOnBoard.boosterCard) return state; // Must be friendly, not boosted
+            if (unitOnBoard.color !== currentPlayer.color) {
+                return addLog(state, "Jack can only target friendly units.");
+            }
+            if (unitOnBoard.boosterCard) {
+                return addLog(state, "Unit already has a booster card.");
+            }
             const boostedUnit = { ...unitOnBoard, boosterCard: cardInHand };
             newBoard[unitOnBoard.position.row][unitOnBoard.position.col] = boostedUnit;
             logMsg = `JACK boosted ${unitOnBoard.rank}.`;

@@ -26,14 +26,13 @@ const CARD_DESCRIPTIONS: Record<Rank, string> = {
 };
 // #endregion
 
-const PlayerArea: React.FC<{ player?: Player; isOpponent?: boolean; }> = ({ player, isOpponent = false }) => {
+const PlayerArea: React.FC<{ player?: Player; isOpponent?: boolean; canAct: boolean; }> = ({ player, isOpponent = false, canAct }) => {
     const { state, dispatch } = useContext(GameContext);
     if(!player) return <div className="h-24 flex-shrink-0"></div>;
     
     const isCurrentPlayer = state.currentPlayerId === player.id;
     const specialCards = player.hand.filter(c => ['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank));
     const unitCards = player.hand.filter(c => !['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)).sort((a,b) => parseInt(a.rank) - parseInt(b.rank));
-    const canAct = state.actionsRemaining > 0 && !state.isTargeting && !state.kingMoveState?.isMoving && isCurrentPlayer;
 
     const onInfoClick = (card: Card) => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } });
 
@@ -45,7 +44,6 @@ const PlayerArea: React.FC<{ player?: Player; isOpponent?: boolean; }> = ({ play
     
     const handleDragStart = (cardId: string) => {
         if (canAct) {
-            // Ensure the card is selected before dragging
             if (state.selectedCardIdInHand !== cardId) {
                 dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId } });
             }
@@ -85,7 +83,7 @@ const PlayerArea: React.FC<{ player?: Player; isOpponent?: boolean; }> = ({ play
                         style={{aspectRatio: '5/7'}}
                         draggable={canAct}
                         onDragStart={() => handleDragStart(card.id)}
-                        onDragEnd={() => handleSelectCard(null)} // Deselect after drag
+                        onDragEnd={() => handleSelectCard(null)}
                       >
                         <GameCard 
                             card={card}
@@ -108,22 +106,12 @@ const PlayerArea: React.FC<{ player?: Player; isOpponent?: boolean; }> = ({ play
               )}
             </div>
             
-            {!isOpponent && (
-              <div className="flex flex-col sm:flex-row justify-between items-center mt-1 gap-2">
-                {isCurrentPlayer && state.log.length > 0 ? (
-                  <div className="text-xs sm:text-sm text-gray-400 h-5 overflow-hidden flex-grow order-2 sm:order-1 w-full sm:w-auto bg-black/20 px-2 rounded">
-                    <p className="whitespace-nowrap">
-                        <span className="font-bold text-yellow-400">&gt; </span>
-                        {state.log[0]}
-                    </p>
-                  </div>
-                ) : <div className="order-2 sm:order-1 flex-grow h-5"></div>}
-                
-                <div className="flex items-center space-x-2 md:space-x-3 order-1 sm:order-2">
-                    <div className="text-sm md:text-base font-orbitron">Actions: <span className="text-yellow-400 font-bold">{state.actionsRemaining}</span></div>
-                    <button onClick={() => dispatch({ type: 'DRAW_CARD'})} disabled={!canAct} className="px-2 py-1 text-xs md:text-sm bg-blue-600 rounded disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-500">Draw (1)</button>
-                    <button onClick={() => dispatch({ type: 'END_TURN'})} disabled={state.kingMoveState?.isMoving} className="px-2 py-1 text-xs md:text-sm bg-green-600 rounded hover:bg-green-500 disabled:bg-gray-600">End Turn</button>
-                </div>
+            {!isOpponent && isCurrentPlayer && state.log.length > 0 && (
+              <div className="text-xs sm:text-sm text-gray-400 h-5 overflow-hidden flex-grow w-full bg-black/20 px-2 rounded mt-1">
+                <p className="whitespace-nowrap">
+                    <span className="font-bold text-yellow-400">&gt; </span>
+                    {state.log[0]}
+                </p>
               </div>
             )}
         </div>
@@ -152,9 +140,7 @@ const CardInfoModal: React.FC = () => {
 
 const GameUI: React.FC = () => {
     const { state, dispatch } = useContext(GameContext);
-    const { players, currentPlayerId, board, selectedUnitIdOnBoard, gameMode, winner, selectedCardIdInHand, kingMoveState } = state;
-    console.log("selectedUnitIdOnBoard:", selectedUnitIdOnBoard);
-    console.log("selectedUnitIdOnBoard:", selectedUnitIdOnBoard);
+    const { players, currentPlayerId, board, selectedUnitIdOnBoard, gameMode, winner, selectedCardIdInHand, kingMoveState, actionsRemaining } = state;
     
     const [isOpponentHandVisible, setIsOpponentHandVisible] = useState(true);
     const [isPlayerHandVisible, setIsPlayerHandVisible] = useState(true);
@@ -164,9 +150,11 @@ const GameUI: React.FC = () => {
     const opponentPlayer = useMemo(() => players?.[1 - currentPlayerId], [players, currentPlayerId]);
     
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
+    const isCurrentPlayerTurn = useMemo(() => currentPlayerId === state.currentPlayerId, [currentPlayerId, state.currentPlayerId]);
+    const canAct = useMemo(() => actionsRemaining > 0 && !state.isTargeting && !kingMoveState?.isMoving && isCurrentPlayerTurn, [actionsRemaining, state.isTargeting, kingMoveState, isCurrentPlayerTurn]);
 
     useEffect(() => {
-        if (gameMode === 'playing' && state.gameType === 'ai' && currentPlayerId === 1 && !winner && state.actionsRemaining > 0 && !kingMoveState?.isMoving) {
+        if (gameMode === 'playing' && state.gameType === 'ai' && currentPlayerId === 1 && !winner && actionsRemaining > 0 && !kingMoveState?.isMoving) {
             const timer = setTimeout(() => {
                 const bestAction = getAiBestAction(state);
                 if (bestAction) {
@@ -176,11 +164,11 @@ const GameUI: React.FC = () => {
                 }
             }, 1000);
             return () => clearTimeout(timer);
-        } else if (gameMode === 'playing' && state.gameType === 'ai' && currentPlayerId === 1 && !winner && state.actionsRemaining <= 0 && !kingMoveState?.isMoving) {
+        } else if (gameMode === 'playing' && state.gameType === 'ai' && currentPlayerId === 1 && !winner && actionsRemaining <= 0 && !kingMoveState?.isMoving) {
              const timer = setTimeout(() => dispatch({ type: 'END_TURN' }), 1000);
              return () => clearTimeout(timer);
         }
-    }, [state, gameMode, currentPlayerId, winner, state.actionsRemaining, kingMoveState, dispatch]);
+    }, [state, gameMode, currentPlayerId, winner, actionsRemaining, kingMoveState, dispatch]);
 
     const selectedUnit = useMemo(() => board.flat().find(u => u?.id === selectedUnitIdOnBoard), [board, selectedUnitIdOnBoard]);
     
@@ -200,7 +188,7 @@ const GameUI: React.FC = () => {
         <div className="flex flex-col h-screen max-h-screen bg-gray-900 text-gray-200 p-1 sm:p-2">
             {/* Opponent Panel */}
             <div className={`flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${!isOpponentHandVisible || isPlacingCard ? 'max-h-0 opacity-0' : 'max-h-[300px] opacity-100'}`}>
-                <PlayerArea player={opponentPlayer} isOpponent={true} />
+                <PlayerArea player={opponentPlayer} isOpponent={true} canAct={false} />
             </div>
 
             {/* Toggle Button for Opponent Panel */}
@@ -231,6 +219,15 @@ const GameUI: React.FC = () => {
                   validMoves={validMoves}
                 />
             </div>
+
+            {/* Action Bar */}
+            {isCurrentPlayerTurn && gameMode === 'playing' && (
+                <div className="flex-shrink-0 py-2 px-2 sm:px-4 bg-black/30 rounded-lg my-1 flex items-center justify-center gap-4">
+                    <div className="text-base md:text-lg font-orbitron">Actions: <span className="text-yellow-400 font-bold">{actionsRemaining}</span></div>
+                    <button onClick={() => dispatch({ type: 'DRAW_CARD'})} disabled={!canAct} className="px-3 py-2 text-sm md:text-base bg-blue-600 rounded disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-500 font-semibold">Draw (1)</button>
+                    <button onClick={() => dispatch({ type: 'END_TURN'})} disabled={kingMoveState?.isMoving} className="px-3 py-2 text-sm md:text-base bg-green-600 rounded hover:bg-green-500 disabled:bg-gray-600 font-semibold">End Turn</button>
+                </div>
+            )}
             
             {/* Toggle Button for Player Panel */}
             {!isPlacingCard && (
@@ -253,7 +250,7 @@ const GameUI: React.FC = () => {
 
             {/* Current Player Panel */}
             <div className={`flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden ${!isPlayerHandVisible || isPlacingCard ? 'max-h-0 opacity-0' : 'max-h-[300px] opacity-100'}`}>
-              <PlayerArea player={currentPlayer} />
+              <PlayerArea player={currentPlayer} canAct={canAct} />
             </div>
 
             <CardInfoModal />

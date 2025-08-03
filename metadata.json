@@ -1,0 +1,6 @@
+{
+  "name": "Edgeplay21: Strategic Card Duel",
+  "description": "A two-player strategic card game where units are played on a board to battle and score points. The first player whose opponent reaches 21 damage points wins. Use number cards as units and face cards for special abilities.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

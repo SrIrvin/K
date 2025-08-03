@@ -197,20 +197,20 @@ const handleCombat = (state: GameState, attacker: Unit, defender: Unit): GameSta
         logMsg += ` Both units destroyed!`;
         attackerDiscard.push(unitToCard(attacker));
         defenderDiscard.push(unitToCard(defender));
-        attackerDiscard.push(...defender.stackedAttackers);
+        defenderDiscard.push(...defender.stackedAttackers); // Stacked attackers go to defender's discard
         newBoard[defender.position.row][defender.position.col] = null;
     } else {
         const newDefender = {
           ...defender,
           currentDamage: defender.currentDamage - attacker.baseDamage,
-          stackedAttackers: [...defender.stackedAttackers, unitToCard(attacker)],
+          stackedAttackers: [...defender.stackedAttackers, unitToCard(attacker)], // Attacker becomes a stacked card
         };
         logMsg += ` ${defender.rank} takes ${attacker.baseDamage} damage.`;
 
         if (newDefender.currentDamage <= 0) {
             logMsg += ` Defender destroyed!`;
             defenderDiscard.push(unitToCard(newDefender));
-            attackerDiscard.push(...newDefender.stackedAttackers);
+            defenderDiscard.push(...newDefender.stackedAttackers); // Stacked attackers go to defender's discard
             newBoard[defender.position.row][defender.position.col] = null;
         } else {
             newBoard[defender.position.row][defender.position.col] = newDefender;
@@ -434,15 +434,15 @@ export const moveUnitDuringKingEffect = (state: GameState, payload: { to: { row:
     }
 
     const defender = state.board[toRow][toCol];
-    const newBoard = state.board.map(r => r.map(c => c));
+    let newBoard = state.board.map(r => r.map(c => c));
     newBoard[attacker.position.row][attacker.position.col] = null;
 
-    let postState = { ...state };
+    let postState: GameState;
     if (defender) { // Combat
-        postState = handleCombat(state, attacker, defender);
+        postState = handleCombat({ ...state, board: newBoard }, attacker, defender);
     } else { // Simple move
         newBoard[toRow][toCol] = { ...attacker, position: { row: toRow, col: toCol } };
-        postState.board = newBoard;
+        postState = { ...state, board: newBoard };
     }
 
     const newKingState = {

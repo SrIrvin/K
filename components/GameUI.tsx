@@ -156,6 +156,7 @@ const GameUI: React.FC = () => {
     
     const [isOpponentHandVisible, setIsOpponentHandVisible] = useState(true);
     const [isPlayerHandVisible, setIsPlayerHandVisible] = useState(true);
+    const [showKingInfo, setShowKingInfo] = useState(false);
 
     const currentPlayer = useMemo(() => players?.[currentPlayerId], [players, currentPlayerId]);
     const opponentPlayer = useMemo(() => players?.[1 - currentPlayerId], [players, currentPlayerId]);
@@ -256,14 +257,29 @@ const GameUI: React.FC = () => {
             <CardInfoModal />
             
             {kingMoveState?.isMoving && (
-              <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-50 p-4 text-center">
-                <div className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-2xl border border-yellow-500">
-                  <h2 className="text-2xl md:text-4xl font-orbitron text-yellow-400 mb-4 animate-pulse">King's Command!</h2>
-                  <p className="text-lg md:text-xl mb-2">Move each of your units one space.</p>
-                  <p className="text-base md:text-lg mb-6 text-red-400">Unmoved units will be discarded!</p>
-                  <button 
-                    onClick={() => dispatch({type: 'FINISH_KING_MOVE'})} 
-                    className="px-4 py-2 md:px-6 md:py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-500 transition-colors">
+              <div className="absolute top-0 left-0 right-0 bg-black/60 z-40 p-2 text-center pointer-events-none">
+                <div className="bg-gray-800 p-2 rounded-lg shadow-2xl border border-yellow-500 pointer-events-auto flex flex-col items-center">
+                  <div className="flex items-center justify-between w-full">
+                    <h2 className="text-lg font-orbitron text-yellow-400 animate-pulse">King's Command!</h2>
+                    <button
+                      onClick={() => setShowKingInfo(!showKingInfo)}
+                      className="ml-2 p-1 rounded-full bg-gray-700 hover:bg-gray-600 text-white text-xs"
+                      aria-label={showKingInfo ? "Hide King's Command info" : "Show King's Command info"}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                  </div>
+                  {showKingInfo && (
+                    <>
+                      <p className="text-sm mt-1">Move each of your units one space.</p>
+                      <p className="text-xs text-red-400">Unmoved units will be discarded!</p>
+                    </>
+                  )}
+                  <button
+                    onClick={() => dispatch({type: 'FINISH_KING_MOVE'})}
+                    className="mt-2 px-3 py-1 text-xs bg-red-600 text-white font-bold rounded-lg hover:bg-red-500 transition-colors">
                       Finish King's Move ({kingMoveState.unitsToMove.length} remaining)
                   </button>
                 </div>

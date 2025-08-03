@@ -55,28 +55,29 @@ export const createUnitFromCard = (card: Card, position: { row: number; col: num
 };
 
 export const getValidMoves = (unit: Unit, board: (Unit | null)[][], playerId: number): { row: number; col: number }[] => {
-  // A unit on the goal line can only score, not move anywhere else on the board.
-  // Scoring is handled as a separate action in the UI, not as a move.
   const goalRow = playerId === 0 ? 0 : BOARD_ROWS - 1;
+
   if (unit.position.row === goalRow) {
-    return [];
+    return []; // Unit is already on the last row, can only score via button, not move.
   }
-  
+
   const validMoves: { row: number; col: number }[] = [];
   const { row, col } = unit.position;
   const speed = unit.speed + (unit.boosterCard ? 1 : 0);
 
   const queue: { pos: { row: number; col: number }; dist: number }[] = [{ pos: { row, col }, dist: 0 }];
   const visited = new Set<string>([`${row},${col}`]);
+  let canScoreDirectly = false;
 
   while (queue.length > 0) {
     const { pos, dist } = queue.shift()!;
 
-    if (dist >= speed) continue;
-
     const directions = [{ dr: -1, dc: 0 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: 0, dc: 1 }];
 
     for (const { dr, dc } of directions) {
+      const nextDist = dist + 1;
+      if (nextDist > speed) continue;
+
       const newRow = pos.row + dr;
       const newCol = pos.col + dc;
       const newPosKey = `${newRow},${newCol}`;
@@ -84,20 +85,28 @@ export const getValidMoves = (unit: Unit, board: (Unit | null)[][], playerId: nu
       if (newRow >= 0 && newRow < BOARD_ROWS && newCol >= 0 && newCol < BOARD_COLS && !visited.has(newPosKey)) {
         visited.add(newPosKey);
         const targetCell = board[newRow][newCol];
-        
-        // Cannot move into a friendly unit's space
         const friendlyColor = playerId === 0 ? CardColor.Black : CardColor.Red;
+
         if (targetCell && targetCell.color === friendlyColor) {
-          continue;
+          continue; // Cannot move into a friendly unit's space
         }
 
+        // Add the move regardless of whether it's empty or an enemy
         validMoves.push({ row: newRow, col: newCol });
-        // Continue searching from empty cells
+
+        // If the path is clear, continue the search from this new spot
         if (!targetCell) {
-          queue.push({ pos: { row: newRow, col: newCol }, dist: dist + 1 });
+          if (newRow === goalRow) {
+            canScoreDirectly = true;
+          }
+          queue.push({ pos: { row: newRow, col: newCol }, dist: nextDist });
         }
       }
     }
+  }
+
+  if (canScoreDirectly) {
+    validMoves.push({ row: -1, col: -1 });
   }
 
   return validMoves;

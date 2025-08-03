@@ -251,6 +251,29 @@ export const moveUnit = (state: GameState, payload: { to: { row: number; col: nu
     if (!attacker || !currentPlayer) return state;
 
     const { row: toRow, col: toCol } = payload.to;
+
+    // Handle direct scoring move
+    if (toRow === -1 && toCol === -1) {
+        const validMoves = getValidMoves(attacker, state.board, currentPlayer.id);
+        if (validMoves.some(m => m.row === -1 && m.col === -1)) {
+            // This is a valid scoring move, so we will treat it as such.
+            const newBoard = state.board.map(r => r.map(c => c?.id === attacker.id ? null : c));
+            const opponentPlayer = state.players[1 - state.currentPlayerId];
+            if (!opponentPlayer) return state;
+
+            const newOpponentDamage = opponentPlayer.damage + attacker.currentDamage;
+            const newScored = [...currentPlayer.scored, unitToCard(attacker)];
+
+            let players = updatePlayer(state.players, opponentPlayer.id, { damage: newOpponentDamage });
+            players = updatePlayer(players, currentPlayer.id, { scored: newScored });
+            
+            let postState = { ...state, board: newBoard, players };
+            postState = checkForWinner(postState);
+            const withActionSpent = spendAction(postState);
+            return addLog(withActionSpent, `TOUCHDOWN! ${attacker.rank} scores ${attacker.currentDamage} damage directly!`);
+        }
+    }
+
     const defender = state.board[toRow]?.[toCol];
 
     const validMoves = getValidMoves(attacker, state.board, currentPlayer.id);

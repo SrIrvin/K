@@ -12,11 +12,27 @@ interface GameBoardProps {
   validMoves: { row: number, col: number }[];
 }
 
-const GoalZone: React.FC<{ player: Player, isOpponent?: boolean }> = ({ player, isOpponent = false }) => {
+const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectly?: boolean }> = ({ player, isOpponent = false, canScoreDirectly = false }) => {
+    const { dispatch } = useContext(GameContext);
+
+    const handleDirectScore = () => {
+        if (canScoreDirectly) {
+            dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
+        }
+    };
+
     return (
-        <div className={`w-full h-24 md:h-28 bg-black/20 my-1 p-2 rounded-lg border-2 border-dashed ${isOpponent ? 'border-red-500/50' : 'border-green-500/50'} flex-shrink-0`}>
+        <div 
+            className={`w-full h-24 md:h-28 bg-black/20 my-1 p-2 rounded-lg border-2 border-dashed ${isOpponent ? 'border-red-500/50' : 'border-green-500/50'} flex-shrink-0 relative`}
+            onClick={handleDirectScore}
+        >
+            {canScoreDirectly && isOpponent && (
+                <div className="absolute inset-0 bg-yellow-500/30 border-4 border-yellow-400 rounded-lg animate-pulse flex items-center justify-center cursor-pointer">
+                    <p className="text-white font-orbitron text-lg font-bold">SCORE DIRECTLY (1)</p>
+                </div>
+            )}
             <div className="flex items-center space-x-2 h-full overflow-x-auto">
-                {player.scored.length === 0 && (
+                {player.scored.length === 0 && !canScoreDirectly && (
                     <div className="flex items-center justify-center w-full h-full">
                         <p className="text-gray-500 font-orbitron text-sm">GOAL ZONE</p>
                     </div>
@@ -106,9 +122,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         e.preventDefault(); // Necessary to allow dropping
     };
 
+    const canScoreDirectly = validMoves.some(m => m.row === -1 && m.col === -1);
+
     return (
         <div className="w-full h-full flex flex-col justify-center items-center overflow-hidden p-1 sm:p-2">
-            <GoalZone player={opponentPlayer} isOpponent={true} />
+            <GoalZone player={opponentPlayer} isOpponent={true} canScoreDirectly={canScoreDirectly} />
             
             <div className="w-full max-w-lg mx-auto flex-grow" style={{aspectRatio: '4 / 5'}}>
               <div className="grid grid-cols-4 grid-rows-5 gap-1 sm:gap-2 w-full h-full">

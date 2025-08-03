@@ -162,24 +162,43 @@ export const placeUnit = (state: GameState, payload: { row: number, col: number 
     if (state.actionsRemaining <= 0 || !state.selectedCardIdInHand || state.kingMoveState?.isMoving) return state;
 
     const currentPlayer = state.players[state.currentPlayerId];
-    if(!currentPlayer) return state;
+    if (!currentPlayer) return state;
 
     const startRow = state.currentPlayerId === 0 ? BOARD_ROWS - 1 : 0;
-    const cardInHand = currentPlayer.hand.find(c => c.id === state.selectedCardIdInHand);
-
-    if (!cardInHand || state.board[row][col] || row !== startRow) {
-        return { ...state, selectedCardIdInHand: null }; // Invalid placement, deselect card
+    if (row !== startRow) {
+        return addLog({ ...state, selectedCardIdInHand: null }, "Can only place units in your start zone.");
     }
 
+    const cardInHand = currentPlayer.hand.find(c => c.id === state.selectedCardIdInHand);
+    if (!cardInHand) return state;
+
     const newUnit = createUnitFromCard(cardInHand, { row, col });
-    if (!newUnit) return state;
+    if (!newUnit) return state; // Should only fail for special cards, which is handled elsewhere
 
-    const newBoard = state.board.map((r, rIndex) => r.map((c, cIndex) => (rIndex === row && cIndex === col) ? newUnit : c));
     const newHand = currentPlayer.hand.filter(c => c.id !== cardInHand.id);
-    const newPlayers = updatePlayer(state.players, state.currentPlayerId, { hand: newHand });
+    const playersWithCardRemoved = updatePlayer(state.players, state.currentPlayerId, { hand: newHand });
 
-    const withActionSpent = spendAction({ ...state, board: newBoard, players: newPlayers });
-    return addLog(withActionSpent, `Placed ${cardInHand.rank} of ${cardInHand.suit}.`);
+    const targetCell = state.board[row][col];
+
+    // Case 1: Cell is empty
+    if (!targetCell) {
+        const newBoard = state.board.map((r, rIndex) => r.map((c, cIndex) => (rIndex === row && cIndex === col) ? newUnit : c));
+        const withActionSpent = spendAction({ ...state, board: newBoard, players: playersWithCardRemoved });
+        return addLog(withActionSpent, `Placed ${cardInHand.rank} of ${cardInHand.suit}.`);
+    }
+
+    // Case 2: Cell is occupied by an enemy
+    if (targetCell.color !== currentPlayer.color) {
+        const intermediateState = { ...state, players: playersWithCardRemoved };
+        // Temporarily place the attacker for combat calculation, handleCombat will manage board state
+        const postCombatState = handleCombat(intermediateState, newUnit, targetCell);
+        // After combat, the attacker (newUnit) is either discarded or stacked, so we don't place it on the board again.
+        // We just need to remove it from hand.
+        return spendAction(postCombatState);
+    }
+    
+    // Case 3: Cell is occupied by a friendly unit
+    return addLog({ ...state, selectedCardIdInHand: null }, "Cannot place a unit on a friendly unit.");
 };
 
 const handleCombat = (state: GameState, attacker: Unit, defender: Unit): GameState => {

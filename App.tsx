@@ -2,8 +2,9 @@ import React, { useContext } from 'react';
 import { GameContext } from './context/GameContext';
 import MainMenu from './components/MainMenu';
 import GameUI from './components/GameUI';
+import ErrorBoundary from './components/ErrorBoundary';
 
-export default function App() {
+function AppContent() {
   const { state } = useContext(GameContext);
 
   switch (state.gameMode) {
@@ -16,4 +17,12 @@ export default function App() {
     default:
       return <MainMenu />;
   }
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
 }

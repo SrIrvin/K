@@ -211,26 +211,30 @@ const handleCombat = (state: GameState, attacker: Unit, defender: Unit): GameSta
 
     let attackerDiscard = [...attackerOwner.discard];
     let defenderDiscard = [...defenderOwner.discard];
-    let logMsg = `ATTACK! ${attacker.rank} vs ${defender.rank}.`;
+    let logMsg = `ATTACK! ${attacker.rank} (${attacker.currentDamage} dmg) vs ${defender.rank} (${defender.currentDamage} dmg).`;
 
-    if (attacker.baseDamage > defender.baseDamage) {
-        logMsg += ` Both units destroyed!`;
+    // Case A: Attacker's CURRENT damage is greater than Defender's CURRENT damage.
+    if (attacker.currentDamage > defender.currentDamage) {
+        logMsg += ` Attacker is stronger. Both units destroyed!`;
         attackerDiscard.push(unitToCard(attacker));
         defenderDiscard.push(unitToCard(defender));
-        defenderDiscard.push(...defender.stackedAttackers); // Stacked attackers go to defender's discard
+        defenderDiscard.push(...defender.stackedAttackers);
         newBoard[defender.position.row][defender.position.col] = null;
-    } else {
+    } 
+    // Case B: Attacker's CURRENT damage is less than or equal to Defender's CURRENT damage.
+    else {
+        const damageToDeal = attacker.currentDamage;
         const newDefender = {
           ...defender,
-          currentDamage: defender.currentDamage - attacker.baseDamage,
-          stackedAttackers: [...defender.stackedAttackers, unitToCard(attacker)], // Attacker becomes a stacked card
+          currentDamage: defender.currentDamage - damageToDeal,
+          stackedAttackers: [...defender.stackedAttackers, unitToCard(attacker)],
         };
-        logMsg += ` ${defender.rank} takes ${attacker.baseDamage} damage.`;
+        logMsg += ` ${defender.rank} takes ${damageToDeal} damage.`;
 
         if (newDefender.currentDamage <= 0) {
             logMsg += ` Defender destroyed!`;
             defenderDiscard.push(unitToCard(newDefender));
-            defenderDiscard.push(...newDefender.stackedAttackers); // Stacked attackers go to defender's discard
+            defenderDiscard.push(...newDefender.stackedAttackers);
             newBoard[defender.position.row][defender.position.col] = null;
         } else {
             newBoard[defender.position.row][defender.position.col] = newDefender;

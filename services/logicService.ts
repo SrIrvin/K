@@ -1,6 +1,7 @@
 import { GameState, Action, Player, Card, CardColor, Unit, Rank } from '../types';
 import { BOARD_ROWS, BOARD_COLS, INITIAL_ACTIONS, INITIAL_DRAW, WIN_DAMAGE } from '../constants';
 import { createDeck, createUnitFromCard, getValidMoves, getKingValidMoves } from './gameService';
+import logger from './logger';
 
 // #region Core Helpers
 const addLog = (state: GameState, message: string): GameState => {
@@ -82,7 +83,15 @@ export const beginNewTurn = (state: GameState): GameState => {
         if (!unit) return null;
         // Reset hasMoved for the new current player's units
         if (unit.color === nextPlayer.color) {
-            return {...unit, hasMoved: false};
+            let updatedUnit = { ...unit, hasMoved: false };
+            if (unit.boosterCard) {
+                const playerToUpdate = state.players.find(p => p.color === unit.color);
+                if (playerToUpdate) {
+                    playerToUpdate.discard.push(unit.boosterCard);
+                }
+                updatedUnit.boosterCard = null;
+            }
+            return updatedUnit;
         }
         return unit;
     }));
@@ -314,6 +323,7 @@ export const drawCard = (state: GameState): GameState => {
 };
 
 export const playSpecialCard = (state: GameState, payload: { card: Card }): GameState => {
+    logger.info({ timestamp: new Date().toISOString(), event: 'playSpecialCard', card: payload.card.rank });
     if (state.actionsRemaining <= 0 || state.kingMoveState?.isMoving) return state;
     const { card } = payload;
     const rank = card.rank;
@@ -335,7 +345,9 @@ export const playSpecialCard = (state: GameState, payload: { card: Card }): Game
     }
     
     if (rank === 'Joker' || rank === 'Q' || rank === 'J') {
-         return addLog({ ...state, isTargeting: rank.toLowerCase() as 'joker' | 'queen' | 'jack', selectedCardIdInHand: card.id }, `Select a target for ${card.rank}.`);
+        logger.info({ timestamp: new Date().toISOString(), event: 'playSpecialCard:set_targeting', card: rank });
+        // For Jack, we need to ensure it's a friendly unit, handled in useAbilityOnTarget
+        return addLog({ ...state, isTargeting: rank.toLowerCase() as 'joker' | 'queen' | 'jack', selectedCardIdInHand: card.id }, `Select a target for ${card.rank}.`);
     }
 
     if (rank === 'K') {
@@ -362,7 +374,8 @@ export const playSpecialCard = (state: GameState, payload: { card: Card }): Game
     return state;
 };
 
-export const useAbilityOnTarget = (state: GameState, payload: { targetUnit: Unit }): GameState => {
+export const useAbilityOnTarget = (state: GameState, payload: { unitId: string }): GameState => {
+    logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget', targeting: state.isTargeting, unitId: payload.unitId });
     if (!state.isTargeting || !state.selectedCardIdInHand) return state;
 
     const currentPlayer = state.players[state.currentPlayerId];
@@ -370,12 +383,18 @@ export const useAbilityOnTarget = (state: GameState, payload: { targetUnit: Unit
     if (!currentPlayer || !opponentPlayer) return state;
 
     const cardInHand = currentPlayer.hand.find(c => c.id === state.selectedCardIdInHand);
-    if (!cardInHand) return state;
+    if (!cardInHand) {
+        logger.error({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:error', reason: 'Card not in hand' });
+        return state;
+    }
 
-    const { targetUnit } = payload;
+    const { unitId } = payload;
     const newBoard = state.board.map(r => r.map(c => c));
-    const unitOnBoard = newBoard[targetUnit.position.row]?.[targetUnit.position.col];
-    if (!unitOnBoard) return state;
+    const unitOnBoard = newBoard.flat().find(u => u?.id === unitId);
+    if (!unitOnBoard) {
+        logger.error({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:error', reason: 'Target unit not on board' });
+        return state;
+    }
 
     let logMsg = '';
     let players = [...state.players];
@@ -384,39 +403,48 @@ export const useAbilityOnTarget = (state: GameState, payload: { targetUnit: Unit
 
     switch(state.isTargeting) {
         case 'joker':
-            if (unitOnBoard.color === currentPlayer.color) return state; // Must target enemy
+            logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:joker', target: { id: unitOnBoard.id, rank: unitOnBoard.rank, color: unitOnBoard.color } });
+            if (unitOnBoard.color === currentPlayer.color) {
+                logger.warn({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:joker:abort', reason: 'Cannot target friendly unit' });
+                return state; // Must target enemy
+            }
             opponentPlayerDiscard.push(unitToCard(unitOnBoard));
             currentPlayerDiscard.push(...unitOnBoard.stackedAttackers);
-            newBoard[targetUnit.position.row][targetUnit.position.col] = null;
-            logMsg = `JOKER eliminated ${targetUnit.rank}.`;
+            newBoard[unitOnBoard.position.row][unitOnBoard.position.col] = null;
+            logMsg = `JOKER eliminated ${unitOnBoard.rank}.`;
             break;
         case 'queen':
             if (unitOnBoard.color !== currentPlayer.color) return state; // Must be friendly
             if (unitOnBoard.currentDamage >= unitOnBoard.baseDamage) return state; // Must be damaged
             const healedUnit = { ...unitOnBoard, currentDamage: unitOnBoard.baseDamage, stackedAttackers: [] };
-            newBoard[targetUnit.position.row][targetUnit.position.col] = healedUnit;
+            newBoard[unitOnBoard.position.row][unitOnBoard.position.col] = healedUnit;
             opponentPlayerDiscard.push(...unitOnBoard.stackedAttackers);
-            logMsg = `QUEEN healed ${targetUnit.rank}.`;
+            logMsg = `QUEEN healed ${unitOnBoard.rank}.`;
             break;
         case 'jack':
             if (unitOnBoard.color !== currentPlayer.color || unitOnBoard.boosterCard) return state; // Must be friendly, not boosted
             const boostedUnit = { ...unitOnBoard, boosterCard: cardInHand };
-            newBoard[targetUnit.position.row][targetUnit.position.col] = boostedUnit;
-            logMsg = `JACK boosted ${targetUnit.rank}.`;
+            newBoard[unitOnBoard.position.row][unitOnBoard.position.col] = boostedUnit;
+            logMsg = `JACK boosted ${unitOnBoard.rank}.`;
             break;
     }
 
     if(logMsg){
+        logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:success', message: logMsg });
         const newHand = currentPlayer.hand.filter(c => c.id !== cardInHand.id);
+        // For Jack, the card is consumed and attached to the unit, not discarded yet.
+        // For other abilities, the card is moved to the discard pile.
         if(state.isTargeting !== 'jack') {
             currentPlayerDiscard.push(cardInHand);
         }
+        
         players = updatePlayer(players, currentPlayer.id, { hand: newHand, discard: currentPlayerDiscard });
         players = updatePlayer(players, opponentPlayer.id, { discard: opponentPlayerDiscard });
         const withActionSpent = spendAction({ ...state, board: newBoard, players });
         return addLog(withActionSpent, logMsg);
     }
     
+    logger.warn({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:fail', targeting: state.isTargeting });
     return { ...state, isTargeting: null, selectedCardIdInHand: null }; 
 };
 

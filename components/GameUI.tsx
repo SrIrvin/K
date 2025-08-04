@@ -153,6 +153,8 @@ const CardInfoModal: React.FC = () => {
 const GameUI: React.FC = () => {
     const { state, dispatch } = useContext(GameContext);
     const { players, currentPlayerId, board, selectedUnitIdOnBoard, gameMode, winner, selectedCardIdInHand, kingMoveState } = state;
+    console.log("selectedUnitIdOnBoard:", selectedUnitIdOnBoard);
+    console.log("selectedUnitIdOnBoard:", selectedUnitIdOnBoard);
     
     const [isOpponentHandVisible, setIsOpponentHandVisible] = useState(true);
     const [isPlayerHandVisible, setIsPlayerHandVisible] = useState(true);

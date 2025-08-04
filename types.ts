@@ -72,7 +72,7 @@ export type Action =
   | { type: 'SELECT_UNIT_ON_BOARD'; payload: { unitId: string | null } }
   | { type: 'PLACE_UNIT'; payload: { row: number; col: number } }
   | { type: 'MOVE_UNIT'; payload: { to: { row: number; col: number } } }
-  | { type: 'USE_ABILITY_ON_TARGET'; payload: { targetUnit: Unit } }
+  | { type: 'USE_ABILITY_ON_TARGET'; payload: { unitId: string } }
   | { type: 'SCORE_UNIT' }
   | { type: 'PLAY_SPECIAL_CARD'; payload: { card: Card } }
   | { type: 'DRAW_CARD' }

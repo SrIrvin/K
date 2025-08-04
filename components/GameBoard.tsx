@@ -63,7 +63,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         // Action 1: Use a special ability on a target
         if (isTargeting) {
             if (unitInCell) {
-                dispatch({ type: 'USE_ABILITY_ON_TARGET', payload: { targetUnit: unitInCell } });
+                dispatch({ type: 'USE_ABILITY_ON_TARGET', payload: { unitId: unitInCell.id } });
             }
             return;
         }

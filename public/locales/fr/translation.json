@@ -1,0 +1,22 @@
+{
+  "title": "K",
+  "subtitle": "Duel de Cartes Stratégique",
+  "play_p2": "2 Joueurs Hot-Seat",
+  "play_ai": "vs IA",
+  "card_descriptions": {
+    "2": "Une unité légère. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 3.",
+    "3": "Une unité légère. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 3.",
+    "4": "Une unité légère. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 3.",
+    "5": "Une unité moyenne. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 2.",
+    "6": "Une unité moyenne. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 2.",
+    "7": "Une unité moyenne. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 2.",
+    "8": "Une unité lourde. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 1.",
+    "9": "Une unité lourde. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 1.",
+    "10": "Une unité lourde. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 1.",
+    "J": "Le Turbo. Ciblez une unité alliée pour lui donner +1 de Vitesse pour son prochain mouvement. Le Valet est défaussé après le mouvement.",
+    "Q": "La Guérisseuse. Ciblez une unité alliée endommagée pour la restaurer à ses Dégâts de Base. Cela retire également toutes les cartes d'attaquant empilées sur elle.",
+    "K": "Le Dictateur Fou. Activez pour déplacer chacune de vos unités d'une case orthogonale. Vous devez déplacer chaque unité. Toute unité non déplacée à la fin de l'action est défaussée.",
+    "A": "Le Missile Kamikaze. Infligez 1 de dégât direct à votre adversaire. Cette carte est ensuite déplacée dans votre pile de score.",
+    "Joker": "L'Assassin de l'Ombre. Éliminez instantanément n'importe quelle unité ennemie du plateau. L'unité est envoyée dans la pile de défausse."
+  }
+}

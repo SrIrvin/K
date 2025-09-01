@@ -1,0 +1,22 @@
+{
+  "title": "K",
+  "subtitle": "Duelo de Cartas Estratégico",
+  "play_p2": "2 Jogadores Hot-Seat",
+  "play_ai": "vs IA",
+  "card_descriptions": {
+    "2": "Uma unidade leve. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 3.",
+    "3": "Uma unidade leve. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 3.",
+    "4": "Uma unidade leve. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 3.",
+    "5": "Uma unidade média. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 2.",
+    "6": "Uma unidade média. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 2.",
+    "7": "Uma unidade média. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 2.",
+    "8": "Uma unidade pesada. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 1.",
+    "9": "Uma unidade pesada. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 1.",
+    "10": "Uma unidade pesada. Pode ser colocada na sua linha de partida. O seu número é o seu Dano Base. Velocidade: 1.",
+    "J": "O Turbo. Alveje uma unidade aliada para lhe dar +1 de Velocidade para o seu próximo movimento. O Valete é descartado após o movimento.",
+    "Q": "A Curandeira. Alveje uma unidade aliada danificada para restaurá-la ao seu Dano Base. Isso também remove todas as cartas de atacante empilhadas nela.",
+    "K": "O Ditador Louco. Ative para mover cada uma das suas unidades um espaço ortogonal. Você deve mover cada unidade. Quaisquer unidades não movidas até o final da ação são descartadas.",
+    "A": "O Míssil Kamikaze. Cause 1 de dano direto ao seu oponente. Esta carta é então movida para a sua pilha de pontuação.",
+    "Joker": "O Assassino das Sombras. Elimine instantaneamente qualquer unidade inimiga do tabuleiro. A unidade é enviada para a pilha de descarte."
+  }
+}

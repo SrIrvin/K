@@ -1,0 +1,22 @@
+{
+  "title": "K",
+  "subtitle": "Duello di Carte Strategico",
+  "play_p2": "2 Giocatori Hot-Seat",
+  "play_ai": "vs IA",
+  "card_descriptions": {
+    "2": "Un'unità leggera. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 3.",
+    "3": "Un'unità leggera. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 3.",
+    "4": "Un'unità leggera. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 3.",
+    "5": "Un'unità media. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 2.",
+    "6": "Un'unità media. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 2.",
+    "7": "Un'unità media. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 2.",
+    "8": "Un'unità pesante. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 1.",
+    "9": "Un'unità pesante. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 1.",
+    "10": "Un'unità pesante. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 1.",
+    "J": "Il Turbo. Bersaglia un'unità amica per darle +1 Velocità per la sua prossima mossa. Il Jack viene scartato dopo la mossa.",
+    "Q": "La Guaritrice. Bersaglia un'unità amica danneggiata per ripristinarla al suo Danno Base. Questo rimuove anche tutte le carte attaccante impilate su di essa.",
+    "K": "Il Dittatore Pazzo. Attiva per muovere ciascuna delle tue unità di uno spazio ortogonale. Devi muovere ogni unità. Qualsiasi unità non mossa entro la fine dell'azione viene scartata.",
+    "A": "Il Missile Kamikaze. Infliggi 1 danno diretto al tuo avversario. Questa carta viene quindi spostata nella tua pila dei punti.",
+    "Joker": "L'Assassino Ombra. Elimina istantaneamente qualsiasi unità nemica dal tabellone. L'unità viene inviata alla pila degli scarti."
+  }
+}

@@ -1,49 +1,10 @@
-import { GameState, Action, Player, Card, CardColor, Unit, Rank } from '../types';
-import { BOARD_ROWS, BOARD_COLS, INITIAL_ACTIONS, INITIAL_DRAW, WIN_DAMAGE } from '../constants';
+import { GameState, Action, Player, Card, CardColor, Unit, Rank } from '@/models/types';
+import { BOARD_ROWS, BOARD_COLS, INITIAL_ACTIONS, INITIAL_DRAW } from '@/utils/constants';
 import { createDeck, createUnitFromCard, getValidMoves, getKingValidMoves } from './gameService';
-import logger from './logger';
-
-// #region Core Helpers
-const addLog = (state: GameState, message: string): GameState => {
-    const playerName = state.players[state.currentPlayerId]?.name || 'Game';
-    return { ...state, log: [`[${playerName}] ${message}`, ...state.log.slice(0, 9)] };
-};
-
-const spendAction = (state: GameState, cost: number = 1): GameState => {
-    return { 
-        ...state, 
-        actionsRemaining: state.actionsRemaining - cost,
-        selectedCardIdInHand: null,
-        selectedUnitIdOnBoard: null,
-        isTargeting: null
-    };
-};
-
-const checkForWinner = (state: GameState): GameState => {
-    const opponent = state.players[1 - state.currentPlayerId];
-    if (opponent && opponent.damage >= WIN_DAMAGE) {
-        return { ...state, winner: state.players[state.currentPlayerId], gameMode: 'game_over' };
-    }
-    const currentPlayer = state.players[state.currentPlayerId];
-     if (currentPlayer && currentPlayer.damage >= WIN_DAMAGE) {
-        return { ...state, winner: state.players[1-state.currentPlayerId], gameMode: 'game_over' };
-    }
-    return state;
-};
-
-const updatePlayer = (players: Player[], playerId: number, updates: Partial<Player>): Player[] => {
-    return players.map(p => p.id === playerId ? { ...p, ...updates } : p);
-};
-
-const unitToCard = (unit: Unit): Card => {
-    const { 
-        baseDamage, currentDamage, speed, position, 
-        hasMoved, boosterCard, stackedAttackers, ...card 
-    } = unit;
-    return card;
-};
-
-// #endregion
+import logger from '@/utils/logger';
+import { applyQueenAbility, applyJokerAbility, applyJackAbility } from '../effects/cardEffects';
+import { addLog, spendAction, checkForWinner, updatePlayer, unitToCard } from './coreLogic';
+import { handleCombat } from './combatService';
 
 // #region Action Logic
 export const startGame = (initialState: GameState, payload: { gameType: 'ai' | 'p2' }): GameState => {
@@ -199,52 +160,6 @@ export const placeUnit = (state: GameState, payload: { row: number, col: number 
     
     // Case 3: Cell is occupied by a friendly unit
     return addLog({ ...state, selectedCardIdInHand: null }, "Cannot place a unit on a friendly unit.");
-};
-
-const handleCombat = (state: GameState, attacker: Unit, defender: Unit): GameState => {
-    const newBoard = state.board.map(r => r.map(c => c));
-    let players = [...state.players];
-    
-    const attackerOwner = players.find(p => p.color === attacker.color);
-    const defenderOwner = players.find(p => p.color === defender.color);
-    if (!attackerOwner || !defenderOwner) return state; // Guard
-
-    let attackerDiscard = [...attackerOwner.discard];
-    let defenderDiscard = [...defenderOwner.discard];
-    let logMsg = `ATTACK! ${attacker.rank} (${attacker.currentDamage} dmg) vs ${defender.rank} (${defender.currentDamage} dmg).`;
-
-    // Case A: Attacker's CURRENT damage is greater than Defender's CURRENT damage.
-    if (attacker.currentDamage > defender.currentDamage) {
-        logMsg += ` Attacker is stronger. Both units destroyed!`;
-        attackerDiscard.push(unitToCard(attacker));
-        defenderDiscard.push(unitToCard(defender));
-        defenderDiscard.push(...defender.stackedAttackers);
-        newBoard[defender.position.row][defender.position.col] = null;
-    } 
-    // Case B: Attacker's CURRENT damage is less than or equal to Defender's CURRENT damage.
-    else {
-        const damageToDeal = attacker.currentDamage;
-        const newDefender = {
-          ...defender,
-          currentDamage: defender.currentDamage - damageToDeal,
-          stackedAttackers: [...defender.stackedAttackers, unitToCard(attacker)],
-        };
-        logMsg += ` ${defender.rank} takes ${damageToDeal} damage.`;
-
-        if (newDefender.currentDamage <= 0) {
-            logMsg += ` Defender destroyed!`;
-            defenderDiscard.push(unitToCard(newDefender));
-            defenderDiscard.push(...newDefender.stackedAttackers);
-            newBoard[defender.position.row][defender.position.col] = null;
-        } else {
-            newBoard[defender.position.row][defender.position.col] = newDefender;
-        }
-    }
-    
-    players = updatePlayer(players, attackerOwner.id, { discard: attackerDiscard });
-    players = updatePlayer(players, defenderOwner.id, { discard: defenderDiscard });
-
-    return addLog({ ...state, board: newBoard, players: players }, logMsg);
 };
 
 export const moveUnit = (state: GameState, payload: { to: { row: number; col: number } }): GameState => {
@@ -433,91 +348,15 @@ export const useAbilityOnTarget = (state: GameState, payload: { unitId: string }
         return state;
     }
 
+    const deps = { addLog, spendAction, updatePlayer, unitToCard };
+
     switch (state.isTargeting) {
-        case 'queen': {
-            if (unitOnBoard.color !== currentPlayer.color) {
-                return addLog(state, "Queen can only target friendly units.");
-            }
-            if (unitOnBoard.currentDamage >= unitOnBoard.baseDamage) {
-                return addLog(state, "Queen can only target damaged units.");
-            }
-
-            const stackedCardsToDiscard = unitOnBoard.stackedAttackers;
-
-            const healedUnit = { 
-                ...unitOnBoard, 
-                currentDamage: unitOnBoard.baseDamage, 
-                stackedAttackers: [] 
-            };
-
-            const newBoard = state.board.map(row => row.map(cell => cell?.id === unitId ? healedUnit : cell));
-            
-            const newHand = currentPlayer.hand.filter(c => c.id !== cardInHand.id);
-            const newCurrentPlayerDiscard = [...currentPlayer.discard, cardInHand];
-            const newOpponentDiscard = [...opponentPlayer.discard, ...stackedCardsToDiscard];
-
-            const newPlayers = state.players.map(p => {
-                if (p.id === currentPlayer.id) {
-                    return { ...p, hand: newHand, discard: newCurrentPlayerDiscard };
-                }
-                if (p.id === opponentPlayer.id) {
-                    return { ...p, discard: newOpponentDiscard };
-                }
-                return p;
-            });
-
-            const logMsg = `QUEEN healed ${unitOnBoard.rank} to full health.`;
-            const stateWithUpdates = { ...state, board: newBoard, players: newPlayers };
-            const withActionSpent = spendAction(stateWithUpdates);
-            return addLog(withActionSpent, logMsg);
-        }
-
-        case 'joker': {
-            if (unitOnBoard.color === currentPlayer.color) {
-                return addLog(state, "Joker can only target enemy units.");
-            }
-
-            const newBoard = state.board.map(row => row.map(cell => cell?.id === unitId ? null : cell));
-            
-            const newHand = currentPlayer.hand.filter(c => c.id !== cardInHand.id);
-            const newCurrentPlayerDiscard = [...currentPlayer.discard, cardInHand, ...unitOnBoard.stackedAttackers];
-            const newOpponentDiscard = [...opponentPlayer.discard, unitToCard(unitOnBoard)];
-
-            const newPlayers = state.players.map(p => {
-                if (p.id === currentPlayer.id) {
-                    return { ...p, hand: newHand, discard: newCurrentPlayerDiscard };
-                }
-                if (p.id === opponentPlayer.id) {
-                    return { ...p, discard: newOpponentDiscard };
-                }
-                return p;
-            });
-
-            const logMsg = `JOKER eliminated ${unitOnBoard.rank}.`;
-            const stateWithUpdates = { ...state, board: newBoard, players: newPlayers };
-            const withActionSpent = spendAction(stateWithUpdates);
-            return addLog(withActionSpent, logMsg);
-        }
-
-        case 'jack': {
-            if (unitOnBoard.color !== currentPlayer.color) {
-                return addLog(state, "Jack can only target friendly units.");
-            }
-            if (unitOnBoard.boosterCard) {
-                return addLog(state, "Unit already has a booster card.");
-            }
-
-            const boostedUnit = { ...unitOnBoard, boosterCard: cardInHand };
-            const newBoard = state.board.map(row => row.map(cell => cell?.id === unitId ? boostedUnit : cell));
-            const newHand = currentPlayer.hand.filter(c => c.id !== cardInHand.id);
-            const newPlayers = updatePlayer(state.players, currentPlayer.id, { hand: newHand });
-
-            const logMsg = `JACK boosted ${unitOnBoard.rank}.`;
-            const stateWithUpdates = { ...state, board: newBoard, players: newPlayers };
-            const withActionSpent = spendAction(stateWithUpdates);
-            return addLog(withActionSpent, logMsg);
-        }
-
+        case 'queen':
+            return applyQueenAbility(state, cardInHand, unitOnBoard, currentPlayer, opponentPlayer, deps);
+        case 'joker':
+            return applyJokerAbility(state, cardInHand, unitOnBoard, currentPlayer, opponentPlayer, deps);
+        case 'jack':
+            return applyJackAbility(state, cardInHand, unitOnBoard, currentPlayer, deps);
         default:
             return { ...state, isTargeting: null, selectedCardIdInHand: null };
     }
@@ -536,7 +375,7 @@ export const moveUnitDuringKingEffect = (state: GameState, payload: { to: { row:
         return state; // Invalid move
     }
 
-    const defender = state.board[toRow][toCol];
+    const defender = state.board[toRow]?.[toCol];
     let newBoard = state.board.map(r => r.map(c => c));
     newBoard[attacker.position.row][attacker.position.col] = null;
 

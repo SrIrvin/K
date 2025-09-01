@@ -1,0 +1,22 @@
+{
+  "title": "K",
+  "subtitle": "Duelo de Cartas Estratégico",
+  "play_p2": "2 Jugadores Hot-Seat",
+  "play_ai": "vs Oponente IA",
+  "card_descriptions": {
+    "2": "Una unidad ligera. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 3.",
+    "3": "Una unidad ligera. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 3.",
+    "4": "Una unidad ligera. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 3.",
+    "5": "Una unidad mediana. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 2.",
+    "6": "Una unidad mediana. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 2.",
+    "7": "Una unidad mediana. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 2.",
+    "8": "Una unidad pesada. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 1.",
+    "9": "Una unidad pesada. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 1.",
+    "10": "Una unidad pesada. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 1.",
+    "J": "El Turbo. Apunta a una unidad amiga para darle +1 de Velocidad para su próximo movimiento. El Jack se descarta después del movimiento.",
+    "Q": "La Sanadora. Apunta a una unidad amiga dañada para restaurarla a su Daño Base. Esto también elimina todas las cartas de atacante apiladas en ella.",
+    "K": "El Dictador Loco. Actívalo para mover cada una de tus unidades un espacio ortogonal. Debes mover cada unidad. Cualquier unidad que no se mueva para cuando termines la acción será descartada.",
+    "A": "El Misil Kamikaze. Inflige 1 de daño directo a tu oponente. Esta carta se mueve a tu pila de puntuación.",
+    "Joker": "El Asesino de las Sombras. Elimina instantáneamente a cualquier unidad enemiga del tablero. La unidad se envía a la pila de descarte."
+  }
+}

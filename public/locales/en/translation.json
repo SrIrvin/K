@@ -1,0 +1,22 @@
+{
+  "title": "K",
+  "subtitle": "Strategic Card Duel",
+  "play_p2": "2-Player Hot-Seat",
+  "play_ai": "vs AI Opponent",
+  "card_descriptions": {
+    "2": "A Light Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 3.",
+    "3": "A Light Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 3.",
+    "4": "A Light Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 3.",
+    "5": "A Medium Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 2.",
+    "6": "A Medium Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 2.",
+    "7": "A Medium Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 2.",
+    "8": "A Heavy Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 1.",
+    "9": "A Heavy Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 1.",
+    "10": "A Heavy Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 1.",
+    "J": "The Turbo. Target a friendly unit to give it +1 Speed for its next move. The Jack is discarded after the move.",
+    "Q": "The Healer. Target a damaged friendly unit to restore it to its Base Damage. This also removes all stacked attacker cards from it.",
+    "K": "The Mad Dictator. Activate to move each of your units one orthogonal space. You must move each unit. Any units not moved by the time you end the action are discarded.",
+    "A": "The Kamikaze Missile. Deal 1 direct damage to your opponent. This card is then moved to your scored pile.",
+    "Joker": "The Shadow Assassin. Instantly eliminate any enemy unit from the board. The unit is sent to the discard pile."
+  }
+}

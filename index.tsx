@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { GameProvider } from './context/GameContext';
-import logger from './services/logger';
+import logger from './utils/logger';
+import './i18n';
 
 // Global error handlers
 window.addEventListener('error', (event) => {
@@ -22,8 +23,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <GameProvider>
-      <App />
-    </GameProvider>
+    <Suspense fallback="Loading...">
+      <GameProvider>
+        <App />
+      </GameProvider>
+    </Suspense>
   </React.StrictMode>
 );

@@ -1,5 +1,5 @@
 
-Título del Juego: EdgePlay21 (Duelo de Cartas Estratégico)
+Título del Juego: 克 (Duelo de Cartas Estratégico)
 
 
 Objetivo: Desarrollar un juego de cartas digital para 2 jugadores basado en las siguientes reglas. El juego debe simular un tablero, manejo de cartas, acciones por turno, movimiento de unidades y combate
@@ -45,8 +45,8 @@ Jota (J - El Turbo):
 Efecto: Selecciona una unidad propia en el tablero. Esa unidad gana +1 a su velocidad en su siguiente movimiento. Se coloca el J apilado encima de la carta seleccionada.
 Uso: Se juega desde la mano, consume 1 acción y se va a pila de descarte después de que se aplique el turbo.
 Ejmplo, al aplicar su acción. podremos elegir una unidad en el tablero. la j se pondrá en el lomo de esa carta. Luego decidimos mover esa carta. en una acción, está extenderá su velocidad a +1, una vez usada ese +1. se quita ese J y regresará a velocidad normal.
-Reina (Q - La Curandera):
-Efecto: Se aplica encima de  una unidad propia en el tablero que haya recibido daño (su daño actual es menor que daño base). Restaura su daño actual a su daño_base.y eliminará unidades apiladas sobre esta unidad mandandolas al descarte.
+Reina (Q - La curandera):
+Efecto: Se aplica encima de  una unidad propia en el tablero que haya recibido daño (su daño actual es menor que daño base). Restaura su daño actual a su daño_base.y eliminará unidades apiladas sobre esta unidad mandandolas al descarte. Si la unidad no esta dañanda esntoe, aumenta su valor de atke a +1. La otra opción es porder resucirar la ultima carta de tipo unidad que se ue al descarte. con su ultimas caracteristicas de valores.
 Uso: Se juega desde la mano, consume 1 acción  y se va a pila de descarte.
 Ejemplo. Su una unidad recibió daño, es una 10 por ejemplo, que fue atacada por un 5 y un 8, pues su daños se redujo a 2, pero al seleccionar la habilidad de la Q, elegimos esta carta en su casilla y la restauramos a su valor original de daños 10.
 Rey (K - El Dictador Loco):

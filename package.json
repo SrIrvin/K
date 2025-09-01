@@ -1,5 +1,5 @@
 {
-  "name": "edgeplay21:-strategic-card-duel",
+  "name": "ke-strategic-card-duel",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,9 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "i18next": "^25.4.2",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-http-backend": "^3.0.2",
     "pino": "^9.7.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-i18next": "^15.7.3"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

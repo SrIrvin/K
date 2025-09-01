@@ -1,14 +1,7 @@
-import { Card, Suit, Rank, CardColor, Unit } from '../types';
-import { RANKS, SUITS, BOARD_ROWS, BOARD_COLS } from '../constants';
-
-export const shuffle = <T,>(array: T[]): T[] => {
-  const newArray = [...array];
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-  }
-  return newArray;
-};
+import { Card, Suit, CardColor, Unit } from '../models/types';
+import { RANKS, SUITS, BOARD_ROWS, BOARD_COLS } from '../utils/constants';
+import { shuffle } from '../utils/arrayUtils';
+import { getUnitSpeed } from '../utils/gameUtils';
 
 export const createDeck = (color: CardColor): Card[] => {
   const baseDeck: Card[] = [];
@@ -28,14 +21,6 @@ export const createDeck = (color: CardColor): Card[] => {
   }
 
   return shuffle(baseDeck);
-};
-
-export const getUnitSpeed = (rank: Rank): number => {
-  const value = parseInt(rank, 10);
-  if (value >= 2 && value <= 4) return 3;
-  if (value >= 5 && value <= 7) return 2;
-  if (value >= 8 && value <= 10) return 1;
-  return 0;
 };
 
 export const createUnitFromCard = (card: Card, position: { row: number; col: number }): Unit | null => {

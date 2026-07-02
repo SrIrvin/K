@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { GameContext } from '../context/GameContext';
-import { Player, Card } from '@/models/types';
+import { Player, Card } from '@/types';
 import { WIN_DAMAGE } from '@/utils/constants';
 import { CardBack } from './CardBack';
 import { GameCard } from './GameCard';

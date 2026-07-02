@@ -9,21 +9,24 @@ interface State {
   hasError: boolean;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
+export class ErrorBoundary extends Component<Props, State> {
+  public override state: State = {
     hasError: false,
   };
 
+  public constructor(props: Props) {
+    super(props);
+  }
+
   public static getDerivedStateFromError(_: Error): State {
-    // Update state so the next render will show the fallback UI.
     return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     logger.error({ err: error, errorInfo }, 'Uncaught error in React component');
   }
 
-  public render() {
+  public override render() {
     if (this.state.hasError) {
       return <h1>Something went wrong. Check the console for details.</h1>;
     }

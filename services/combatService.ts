@@ -1,14 +1,12 @@
-import { GameState, Unit, Player } from '@/models/types';
-import { addLog, updatePlayer, unitToCard } from './coreLogic';
+import { GameState, Unit } from '@/types';
+import * as mutators from './stateMutators';
 
 export const handleCombat = (state: GameState, attacker: Unit, defender: Unit): GameState => {
-    const newBoard = state.board.map(r => r.map(c => c));
-    let players = [...state.players];
-    
-    const attackerOwner = players.find(p => p.color === attacker.color);
-    const defenderOwner = players.find(p => p.color === defender.color);
+    const attackerOwner = state.players.find(p => p.color === attacker.color);
+    const defenderOwner = state.players.find(p => p.color === defender.color);
     if (!attackerOwner || !defenderOwner) return state; // Guard
 
+    let updatedState = state;
     let attackerDiscard = [...attackerOwner.discard];
     let defenderDiscard = [...defenderOwner.discard];
     let logMsg = `ATTACK! ${attacker.rank} (${attacker.currentDamage} dmg) vs ${defender.rank} (${defender.currentDamage} dmg).`;
@@ -16,10 +14,12 @@ export const handleCombat = (state: GameState, attacker: Unit, defender: Unit): 
     // Case A: Attacker's CURRENT damage is greater than Defender's CURRENT damage.
     if (attacker.currentDamage > defender.currentDamage) {
         logMsg += ` Attacker is stronger. Both units destroyed!`;
-        attackerDiscard.push(unitToCard(attacker));
-        defenderDiscard.push(unitToCard(defender));
+        attackerDiscard.push(mutators.unitToCard(attacker));
+        defenderDiscard.push(mutators.unitToCard(defender));
         defenderDiscard.push(...defender.stackedAttackers);
-        newBoard[defender.position.row][defender.position.col] = null;
+        
+        // Remove defender from board
+        updatedState = mutators.placeUnitOnBoard(updatedState, defender.position.row, defender.position.col, null);
     } 
     // Case B: Attacker's CURRENT damage is less than or equal to Defender's CURRENT damage.
     else {
@@ -27,22 +27,22 @@ export const handleCombat = (state: GameState, attacker: Unit, defender: Unit): 
         const newDefender = {
           ...defender,
           currentDamage: defender.currentDamage - damageToDeal,
-          stackedAttackers: [...defender.stackedAttackers, unitToCard(attacker)],
+          stackedAttackers: [...defender.stackedAttackers, mutators.unitToCard(attacker)],
         };
         logMsg += ` ${defender.rank} takes ${damageToDeal} damage.`;
 
         if (newDefender.currentDamage <= 0) {
             logMsg += ` Defender destroyed!`;
-            defenderDiscard.push(unitToCard(newDefender));
+            defenderDiscard.push(mutators.unitToCard(newDefender));
             defenderDiscard.push(...newDefender.stackedAttackers);
-            newBoard[defender.position.row][defender.position.col] = null;
+            updatedState = mutators.placeUnitOnBoard(updatedState, defender.position.row, defender.position.col, null);
         } else {
-            newBoard[defender.position.row][defender.position.col] = newDefender;
+            updatedState = mutators.placeUnitOnBoard(updatedState, defender.position.row, defender.position.col, newDefender);
         }
     }
     
-    players = updatePlayer(players, attackerOwner.id, { discard: attackerDiscard });
-    players = updatePlayer(players, defenderOwner.id, { discard: defenderDiscard });
+    updatedState = mutators.updatePlayer(updatedState, attackerOwner.id, { discard: attackerDiscard });
+    updatedState = mutators.updatePlayer(updatedState, defenderOwner.id, { discard: defenderDiscard });
 
-    return addLog({ ...state, board: newBoard, players: players }, logMsg);
+    return mutators.addLog(updatedState, logMsg);
 };

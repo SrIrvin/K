@@ -1,4 +1,4 @@
-import { Card, Suit, CardColor, Unit } from '../models/types';
+import { Card, Suit, CardColor, Unit } from '../types';
 import { RANKS, SUITS, BOARD_ROWS, BOARD_COLS } from '../utils/constants';
 import { shuffle } from '../utils/arrayUtils';
 import { getUnitSpeed } from '../utils/gameUtils';

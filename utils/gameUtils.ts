@@ -1,5 +1,5 @@
 // getUnitSpeed: devuelve la velocidad según el rango
-import { Rank } from '../models/types';
+import { Rank } from '../types';
 export const getUnitSpeed = (rank: Rank): number => {
   const value = parseInt(rank, 10);
   if (value >= 2 && value <= 4) return 3;

@@ -18,6 +18,8 @@ export interface Card {
   rank: Rank;
   suit: Suit;
   color: CardColor;
+  baseDamage?: number;
+  currentDamage?: number;
 }
 
 export interface Unit extends Card {
@@ -41,6 +43,8 @@ export interface Player {
   scored: Card[];
 }
 
+export type TargetingMode = 'queen' | 'joker' | 'jack' | null;
+
 export interface GameState {
   board: (Unit | null)[][];
   players: Player[];
@@ -49,7 +53,7 @@ export interface GameState {
   log: string[];
   selectedCardIdInHand: string | null;
   selectedUnitIdOnBoard: string | null;
-  isTargeting: 'joker' | 'queen' | 'jack' | null;
+  isTargeting: TargetingMode;
   winner: Player | null;
   gameMode: 'menu' | 'playing' | 'switch_turn' | 'game_over';
   gameType: 'ai' | 'p2' | null;

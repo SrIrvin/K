@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { GameContext } from '../context/GameContext';
-import { Unit, Player } from '@/models/types';
+import { Unit, Player } from '@/types';
 import { GameCard } from './GameCard';
 
 interface GoalZoneProps {

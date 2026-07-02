@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { GameContext } from '../../context/GameContext';
-import { Player } from '@/models/types';
+import { Player } from '@/types';
 
 interface SwitchTurnModalProps {
     opponentPlayer: Player | undefined;

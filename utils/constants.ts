@@ -1,4 +1,4 @@
-import { CardColor, Rank, Suit } from '@/models/types';
+import { CardColor, Rank, Suit } from '@/types';
 
 export const BOARD_ROWS = 5;
 export const BOARD_COLS = 4;

@@ -23,18 +23,27 @@ const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectl
 
     return (
         <div 
-            className={`w-full h-24 md:h-28 bg-black/20 my-1 p-2 rounded-lg border-2 border-dashed ${isOpponent ? 'border-red-500/50' : 'border-green-500/50'} flex-shrink-0 relative`}
+            className={`w-full h-20 sm:h-24 md:h-28 bg-[#2A2A2A]/70 my-1.5 p-2 rounded-lg border-2 border-[#574d3c] flex-shrink-0 relative shadow-[inset_0_4px_10px_rgba(0,0,0,0.9)]`}
             onClick={handleDirectScore}
+            style={{
+              borderRadius: '12px 10px 14px 8px / 8px 12px 9px 11px',
+              borderStyle: 'double',
+              borderWidth: '3px'
+            }}
         >
             {canScoreDirectly && isOpponent && (
-                <div className="absolute inset-0 bg-yellow-500/30 border-4 border-yellow-400 rounded-lg animate-pulse flex items-center justify-center cursor-pointer">
-                    <p className="text-white font-orbitron text-lg font-bold">SCORE DIRECTLY (1)</p>
+                <div className="absolute inset-0 bg-[#8A6938]/40 border-4 border-[#D8C49A] rounded-lg animate-pulse flex items-center justify-center cursor-pointer shadow-[0_0_25px_rgba(216,196,154,0.5)] z-20">
+                    <p className="text-[#D8C49A] font-orbitron text-base sm:text-lg font-black tracking-widest text-shadow-lg">
+                      𐎫 REGISTRAR PUNTOS (1) 𐎫
+                    </p>
                 </div>
             )}
             <div className="flex items-center space-x-2 h-full overflow-x-auto">
                 {player.scored.length === 0 && !canScoreDirectly && (
-                    <div className="flex items-center justify-center w-full h-full">
-                        <p className="text-gray-500 font-orbitron text-sm">GOAL ZONE</p>
+                    <div className="flex items-center justify-center w-full h-full select-none">
+                        <p className="text-[#9A8B72]/45 font-orbitron text-xs sm:text-sm tracking-widest uppercase">
+                          Altar de Sacrificio (Anotación)
+                        </p>
                     </div>
                 )}
                 {player.scored.map(card => (
@@ -58,17 +67,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         
         // During King's Move, logic is different
         if (kingMoveState?.isMoving) {
-            // If a unit is selected, try to move it
             if (kingMoveState.selectedUnitId) {
                  const isKingMoveValid = validMoves.some(m => m.row === row && m.col === col);
                  if (isKingMoveValid) {
                      dispatch({ type: 'MOVE_UNIT_DURING_KING_EFFECT', payload: { to: { row, col } } });
                  } else {
-                     // Clicked an invalid spot, deselect
                      dispatch({ type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: null } });
                  }
             } else if (unitInCell) {
-                // If no unit is selected, try to select one that needs to be moved
                 dispatch({ type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: unitInCell.id }});
             }
             return;
@@ -94,7 +100,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         if (selectedUnitIdOnBoard) {
             const isMoveValid = validMoves.some(m => m.row === row && m.col === col);
             if (!isMoveValid) {
-                // If clicking an invalid square, deselect unit
                 dispatch({ type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: null } });
                 return;
             }
@@ -119,17 +124,23 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
     };
 
     const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault(); // Necessary to allow dropping
+        e.preventDefault();
     };
 
     const canScoreDirectly = validMoves.some(m => m.row === -1 && m.col === -1);
 
     return (
-        <div className="w-full h-full flex flex-col justify-center items-center overflow-hidden p-1 sm:p-2">
+        <div className="w-full h-full flex flex-col justify-center items-center overflow-hidden p-1 sm:p-2 select-none">
+            {/* Opponent's Goal Zone (Top) */}
             <GoalZone player={opponentPlayer} isOpponent={true} canScoreDirectly={canScoreDirectly} />
             
-            <div className="w-full max-w-lg mx-auto flex-grow" style={{aspectRatio: '4 / 5'}}>
-              <div className="grid grid-cols-4 grid-rows-5 gap-1 sm:gap-2 w-full h-full">
+            {/* The altar containing the board */}
+            <div className="w-full max-w-lg mx-auto flex-grow my-1 p-3 bg-[#40382d]/50 border-4 border-[#8A6938] rounded-xl shadow-[0_15px_30px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.1)] relative" style={{ aspectRatio: '4 / 5' }}>
+              
+              {/* Inner sand background layer */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_10%,_rgba(0,0,0,0.65)_90%)] z-0 pointer-events-none rounded-lg" />
+              
+              <div className="grid grid-cols-4 grid-rows-5 gap-1.5 sm:gap-2.5 w-full h-full relative z-10">
                 {board.map((row, rowIndex) => (
                   row.map((unit, colIndex) => {
                     const isMovable = validMoves.some(m => m.row === rowIndex && m.col === colIndex);
@@ -145,41 +156,55 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
                     const isUnitToBeMovedByKing = isKingMoveActive && unit && kingMoveState.unitsToMove.includes(unit.id);
 
+                    let cellStateClass = '';
+                    if (isMovable) {
+                      cellStateClass = 'stone-cell-valid';
+                    } else if (isTargeting && unit) {
+                      cellStateClass = 'stone-cell-target';
+                    } else if (isPlaceable) {
+                      // Light yellow/bronze pulse for placing spots
+                      cellStateClass = 'border-[#8A6938] bg-[#D8C49A]/15 cursor-pointer shadow-[0_0_12px_rgba(216,196,154,0.3)] animate-pulse';
+                    } else {
+                      cellStateClass = 'stone-cell-cracked';
+                    }
+
                     let selectionClass = '';
                     if (isKingMoveActive) {
                         if (selectedUnitIdOnBoard === unit?.id) {
-                            selectionClass = 'scale-110 ring-4 ring-yellow-400 z-10';
+                            selectionClass = 'scale-105 ring-4 ring-[#4facfe] z-10';
                         } else if (isUnitToBeMovedByKing) {
-                            selectionClass = 'animate-pulse ring-2 ring-red-500';
+                            selectionClass = 'animate-pulse ring-2 ring-[#82443A]';
                         }
                     } else if (selectedUnitIdOnBoard === unit?.id) {
-                        selectionClass = 'scale-110';
+                        selectionClass = 'scale-105';
                     }
 
                     return (
                       <div 
                         key={`${rowIndex}-${colIndex}`}
-                        className="w-full h-full relative transition-transform duration-200 hover:scale-105"
+                        className={`w-full h-full relative stone-cell transition-all duration-300 hover:brightness-110 ${cellStateClass}`}
                         onClick={() => handleCellInteraction(rowIndex, colIndex)}
                         onDrop={(e) => handleDrop(e, rowIndex, colIndex)}
                         onDragOver={handleDragOver}
                       >
-                        <div className={`absolute inset-0 rounded-lg transition-colors border-2 border-dashed ${isMovable ? 'bg-green-500/40 border-green-400' : isPlaceable ? 'bg-blue-500/30 border-blue-400 cursor-pointer' : 'bg-black/20 border-gray-700'}`}></div>
                         
                         {unit && (
                           <div 
-                            className={`absolute inset-0 flex items-center justify-center transition-all duration-200 ${selectionClass}`}
+                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCellInteraction(rowIndex, colIndex);
                             }}
                           >
-                            <GameCard unit={unit} isUnitOnBoard={true} card={unit} isSelected={selectedUnitIdOnBoard === unit.id && !isKingMoveActive} />
+                            <div className={`w-full h-full stone-piece ${selectedUnitIdOnBoard === unit.id && !isKingMoveActive ? 'stone-piece-selected' : ''}`}>
+                              <GameCard unit={unit} isUnitOnBoard={true} card={unit} isSelected={selectedUnitIdOnBoard === unit.id && !isKingMoveActive} />
+                            </div>
+
                             {unit.id === selectedUnitIdOnBoard && canUnitScore && actionsRemaining > 0 && (
                                <button 
                                  onClick={(e) => { e.stopPropagation(); dispatch({ type: 'SCORE_UNIT' })}}
-                                 className="absolute -bottom-2.5 z-20 px-2 py-0.5 text-xs font-bold text-black bg-yellow-400 rounded-lg shadow-lg hover:bg-yellow-300 animate-pulse">
-                                 SCORE (1)
+                                 className="absolute -bottom-2.5 z-20 px-3 py-1 text-[9px] sm:text-[10px] font-ancient-header font-bold text-white bg-[#8A6938] rounded-lg border border-[#D8C49A] shadow-[0_4px_8px_rgba(0,0,0,0.8)] hover:bg-[#a57f49] active:translate-y-0.5 transition-all">
+                                 ANOTAR (1)
                                </button>
                             )}
                           </div>
@@ -191,6 +216,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
               </div>
             </div>
 
+            {/* Current Player's Goal Zone (Bottom) */}
             <GoalZone player={currentPlayer} />
         </div>
     );

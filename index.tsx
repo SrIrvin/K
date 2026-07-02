@@ -4,6 +4,7 @@ import App from './App';
 import { GameProvider } from './context/GameContext';
 import logger from './utils/logger';
 import './i18n';
+import './index.css';
 
 // Global error handlers
 window.addEventListener('error', (event) => {

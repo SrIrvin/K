@@ -1,0 +1,374 @@
+/* Import Google Fonts for Ancient Temple Aesthetics */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Forum&family=Marcellus&display=swap');
+
+:root {
+  --color-sand: #D8C49A;
+  --color-stone: #9A8B72;
+  --color-bronze: #8A6938;
+  --color-blue: #385B74;
+  --color-red: #82443A;
+  --color-black: #2A2A2A;
+  
+  /* Derived Palette */
+  --bg-color-slate: #8b7d66;
+  --bg-color-altar: #bca886;
+  
+  --font-ancient: 'Cinzel', 'Marcellus', Georgia, serif;
+  --font-runic: 'Forum', serif;
+  
+  /* Rune Glow Color */
+  --glow-cyan: #4facfe;
+  --glow-blue: #385B74;
+}
+
+/* Custom Scrollbar in Stone Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-black);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-stone);
+  border: 2px solid var(--color-black);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sand);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-runic);
+  background-color: var(--color-black);
+  color: var(--color-sand);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* 🏔️ Ancient Archeological Altar Background */
+.ancient-bg {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: 
+    radial-gradient(circle at 10% 10%, rgba(216, 196, 154, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(138, 105, 56, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(154, 139, 114, 0.4) 0%, rgba(42, 42, 42, 0.95) 80%),
+    /* Eroded Sandstone texture simulation using CSS gradients */
+    repeating-linear-gradient(45deg, rgba(154, 139, 114, 0.05) 0px, rgba(154, 139, 114, 0.05) 2px, transparent 2px, transparent 10px),
+    repeating-linear-gradient(-45deg, rgba(138, 105, 56, 0.04) 0px, rgba(138, 105, 56, 0.04) 2px, transparent 2px, transparent 10px),
+    linear-gradient(to bottom, #7a6c55, #443c2f);
+  background-size: cover;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9);
+}
+
+/* 🕯️ Warm archaeological light & vignette */
+.archaeological-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle at 80% 20%, transparent 20%, rgba(0, 0, 0, 0.75) 80%);
+  z-index: 10;
+}
+
+/* Cuneiform / Runic Overlay */
+.rune-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ctext x='10' y='30' font-family='Georgia' font-size='20' fill='%23D8C49A'%3E𐎠 𐎡 𐎢 𐎤%3C/text%3E%3Ctext x='50' y='60' font-family='Georgia' font-size='20' fill='%23D8C49A'%3E𐎧 𐎨 𐎩 𐎪%3C/text%3E%3Ctext x='20' y='90' font-family='Georgia' font-size='20' fill='%23D8C49A'%3E𐎫 𐎬 𐎭 𐎮%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 🪨 Carved Stone Block Buttons */
+.stone-button {
+  background: linear-gradient(135deg, #a49479, #766953);
+  color: #1e1a14;
+  font-family: var(--font-ancient);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-top: 3px solid rgba(255, 255, 255, 0.35);
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 5px solid rgba(0, 0, 0, 0.6);
+  border-right: 5px solid rgba(0, 0, 0, 0.5);
+  border-radius: 8px 5px 9px 6px / 6px 9px 5px 8px; /* Irregular hand-carved corners */
+  padding: 10px 20px;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2), 0 -1px 1px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.stone-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
+  transform: rotate(30deg);
+  transition: transform 0.5s;
+  pointer-events: none;
+}
+
+.stone-button:hover::before {
+  transform: translate(50%, 50%) rotate(30deg);
+}
+
+.stone-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b8a68b, #86785e);
+  color: #0c0a08;
+  border-bottom-width: 5px;
+  transform: translateY(-1px);
+}
+
+.stone-button:active:not(:disabled) {
+  transform: translateY(4px);
+  border-top: 5px solid rgba(0, 0, 0, 0.4);
+  border-left: 3px solid rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-right: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    inset 0 3px 5px rgba(0, 0, 0, 0.4);
+}
+
+.stone-button:disabled {
+  background: linear-gradient(135deg, #574e40, #3d362c);
+  color: #726756;
+  border-color: #3d362c;
+  box-shadow: none;
+  text-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 🟥 Clay Red / Volcanic Special Buttons */
+.stone-button-red {
+  background: linear-gradient(135deg, #8a483e, #623027);
+  color: var(--color-sand);
+}
+.stone-button-red:hover:not(:disabled) {
+  background: linear-gradient(135deg, #9b5348, #6d372e);
+  color: #fff;
+}
+
+/* 🟦 Runic Blue / Ancient Blue Special Buttons */
+.stone-button-blue {
+  background: linear-gradient(135deg, #446881, #2b4559);
+  color: var(--color-sand);
+}
+.stone-button-blue:hover:not(:disabled) {
+  background: linear-gradient(135deg, #537a96, #335168);
+  color: #fff;
+}
+
+/* 🪨 Carved Stone Tab Board Cell */
+.stone-cell {
+  background: radial-gradient(circle at 30% 30%, #a49479 0%, #766953 80%);
+  border: 4px solid #574d3c;
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.15),
+    inset -2px -2px 5px rgba(0, 0, 0, 0.4),
+    0 4px 5px rgba(0,0,0,0.5);
+  border-radius: 8px 6px 9px 5px / 6px 9px 5px 8px; /* Irregular look */
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+}
+
+.stone-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%);
+  background-size: 4px 4px;
+  pointer-events: none;
+}
+
+/* Crack simulation on cells */
+.stone-cell-cracked::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 20%;
+  width: 60%;
+  height: 80%;
+  border-left: 1.5px solid rgba(0,0,0,0.25);
+  border-bottom: 1.5px solid rgba(0,0,0,0.25);
+  transform: rotate(25deg) skewX(20deg);
+  pointer-events: none;
+}
+
+/* Runic Blue highlight for valid moves */
+.stone-cell-valid {
+  box-shadow: 
+    0 0 15px rgba(79, 172, 254, 0.6),
+    inset 0 0 15px rgba(79, 172, 254, 0.6);
+  border-color: rgba(79, 172, 254, 0.8);
+  animation: rune-pulse 3s infinite ease-in-out;
+  cursor: pointer;
+}
+
+.stone-cell-valid:hover {
+  background: radial-gradient(circle at 30% 30%, #8ca9c2 0%, #3e5b74 80%);
+  box-shadow: 
+    0 0 25px rgba(79, 172, 254, 0.9),
+    inset 0 0 20px rgba(79, 172, 254, 0.8);
+}
+
+/* Red glow for target selection */
+.stone-cell-target {
+  box-shadow: 
+    0 0 20px rgba(255, 65, 54, 0.7),
+    inset 0 0 15px rgba(255, 65, 54, 0.7);
+  border-color: rgba(255, 65, 54, 0.9);
+  animation: target-pulse 2s infinite ease-in-out;
+  cursor: pointer;
+}
+
+/* Placed pieces look like stone-carved artifacts */
+.stone-piece {
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.stone-piece img {
+  filter: sepia(0.4) contrast(1.15) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+  border-radius: 4px;
+  border: 1px solid rgba(216, 196, 154, 0.3);
+}
+
+.stone-piece-selected img {
+  filter: sepia(0.2) contrast(1.2) drop-shadow(0 0 12px rgba(79, 172, 254, 0.9));
+  transform: scale(1.03);
+  animation: float-slow 2.5s infinite ease-in-out;
+}
+
+/* 💨 Runic glow keyframes */
+@keyframes rune-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(79, 172, 254, 0.4), inset 0 0 10px rgba(79, 172, 254, 0.4); border-color: rgba(79, 172, 254, 0.6); }
+  50% { box-shadow: 0 0 22px rgba(79, 172, 254, 0.7), inset 0 0 18px rgba(79, 172, 254, 0.7); border-color: rgba(79, 172, 254, 0.9); }
+}
+
+@keyframes target-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(255, 65, 54, 0.4), inset 0 0 10px rgba(255, 65, 54, 0.4); border-color: rgba(255, 65, 54, 0.6); }
+  50% { box-shadow: 0 0 22px rgba(255, 65, 54, 0.8), inset 0 0 18px rgba(255, 65, 54, 0.8); border-color: rgba(255, 65, 54, 1); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) scale(1.03); }
+  50% { transform: translateY(-4px) scale(1.05); }
+}
+
+/* ⛰️ Ancient Altar Columns & Borders */
+.ancient-column-left {
+  border-right: 4px solid var(--color-bronze);
+  box-shadow: 10px 0 20px rgba(0,0,0,0.5);
+  background: linear-gradient(to right, #40382d, #625542);
+}
+
+.ancient-column-right {
+  border-left: 4px solid var(--color-bronze);
+  box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+  background: linear-gradient(to left, #40382d, #625542);
+}
+
+/* Typography styles */
+.font-ancient-header {
+  font-family: var(--font-ancient);
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 15px rgba(216, 196, 154, 0.3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.font-runic-text {
+  font-family: var(--font-runic);
+  letter-spacing: 0.05em;
+}
+
+/* Modal and Overlays in ancient stone style */
+.stone-modal {
+  background: linear-gradient(135deg, #7a6d57 0%, #4c4234 100%);
+  border: 4px solid var(--color-bronze);
+  border-radius: 12px;
+  box-shadow: 
+    0 10px 30px rgba(0,0,0,0.8),
+    inset 0 1px 3px rgba(255, 255, 255, 0.2);
+  color: var(--color-sand);
+}
+
+/* Slow Sand / Dust Animation effects */
+.dust-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.dust-particle {
+  position: absolute;
+  background-color: var(--color-sand);
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: float-dust 25s infinite linear;
+}
+
+@keyframes float-dust {
+  0% { transform: translateY(105vh) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.15; }
+  90% { opacity: 0.15; }
+  100% { transform: translateY(-5vh) translateX(50px) rotate(360deg); opacity: 0; }
+}
+
+/* Card representation styling inside hands */
+.stone-card-container {
+  border-radius: 8px;
+  background: #3d362b;
+  border: 2px solid var(--color-stone);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  padding: 2px;
+}
+
+.stone-card-container:hover {
+  transform: translateY(-8px) scale(1.03);
+  border-color: var(--color-sand);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.7);
+}
+
+.stone-card-selected {
+  border-color: var(--glow-cyan);
+  box-shadow: 0 0 15px var(--glow-cyan);
+  transform: translateY(-12px) scale(1.05);
+}

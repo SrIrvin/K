@@ -59,8 +59,10 @@ export const getAiBestAction = (state: GameState): Action | null => {
     // ==========================================
     if (state.kingMoveState?.isMoving) {
         const { unitsToMove, selectedUnitId } = state.kingMoveState;
+        console.log("[AI King Move] unitsToMove:", unitsToMove, "selectedUnitId:", selectedUnitId, "selectedUnitIdOnBoard:", state.selectedUnitIdOnBoard);
         
         if (unitsToMove.length === 0) {
+            console.log("[AI King Move] No units remaining to move. Dispatching FINISH_KING_MOVE.");
             return { type: 'FINISH_KING_MOVE' };
         }
 
@@ -70,26 +72,34 @@ export const getAiBestAction = (state: GameState): Action | null => {
                 const unit = aiUnits.find(u => u.id === unitId);
                 if (unit) {
                     const moves = getKingValidMoves(unit, state.board);
+                    console.log(`[AI King Move] Checked unit ${unit.rank} (${unitId}). Moves available:`, moves.length);
                     if (moves.length > 0) {
+                        console.log(`[AI King Move] Selecting unit ${unit.rank} (${unitId}) to move.`);
                         return { type: 'SELECT_UNIT_ON_BOARD', payload: { unitId } };
                     }
+                } else {
+                    console.log(`[AI King Move] Unit ${unitId} is in unitsToMove queue but not found on board.`);
                 }
             }
             // If none of the remaining units have valid moves, finish the command
+            console.log("[AI King Move] None of the remaining units have valid moves. Dispatching FINISH_KING_MOVE.");
             return { type: 'FINISH_KING_MOVE' };
         }
 
         const activeUnit = aiUnits.find(u => u.id === selectedUnitId);
         if (activeUnit) {
             const moves = getKingValidMoves(activeUnit, state.board);
+            console.log(`[AI King Move] Active unit ${activeUnit.rank} (${selectedUnitId}) moves:`, moves);
             if (moves.length > 0) {
                 // Move DOWN (towards row 4). Sort moves by row index descending
                 const sortedMoves = [...moves].sort((a, b) => b.row - a.row);
+                console.log(`[AI King Move] Moving active unit ${activeUnit.rank} to:`, sortedMoves[0]);
                 return { type: 'MOVE_UNIT_DURING_KING_EFFECT', payload: { to: sortedMoves[0] } };
             }
         }
 
         // If the selected unit cannot move, select another one or finish
+        console.log(`[AI King Move] Selected unit ${selectedUnitId} has no moves. Deselecting.`);
         return { type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: null } };
     }
 

@@ -23,19 +23,19 @@ export const getCardImagePath = (card: Card): string => {
 
   if (['2', '3', '4'].includes(card.rank)) {
     folder = '2 3 4';
-    fileName = `${card.rank}.png`;
+    fileName = `${card.rank}.webp`;
   } else if (['5', '6', '7'].includes(card.rank)) {
     folder = '5 6 7';
-    fileName = `${card.rank}.png`;
+    fileName = `${card.rank}.webp`;
   } else if (['8', '9', '10'].includes(card.rank)) {
     folder = '8 9 10';
-    fileName = `${card.rank}.png`;
+    fileName = `${card.rank}.webp`;
   } else if (card.rank === 'Joker') {
     folder = 'Joker';
-    fileName = `Joker ${suitNumber}.png`;
+    fileName = `Joker ${suitNumber}.webp`;
   } else { // J, Q, K, A
     folder = card.rank;
-    fileName = `${card.rank} ${suitNumber}.png`;
+    fileName = `${card.rank} ${suitNumber}.webp`;
   }
 
   return `/images/${folder}/${fileName}`;

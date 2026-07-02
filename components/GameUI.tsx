@@ -156,23 +156,48 @@ const GameUI: React.FC = () => {
         gameMode
     ]);
 
+    // 🕯️ Store state in a ref to avoid stale closures in setTimeout
+    const stateRef = React.useRef(state);
+    useEffect(() => {
+        stateRef.current = state;
+    }, [state]);
+
     // AI thinking effect trigger
     useEffect(() => {
-        if (gameMode === 'playing' && state.gameType === 'ai' && currentPlayerId === 1 && !winner && actionsRemaining > 0 && !kingMoveState?.isMoving) {
-            const timer = setTimeout(() => {
-                const bestAction = getAiBestAction(state);
+        // Only run when game is playing, type is AI, and it is the AI's turn (Player 1)
+        if (gameMode !== 'playing' || state.gameType !== 'ai' || currentPlayerId !== 1 || winner) {
+            return;
+        }
+
+        console.log("[AI Turn Start] Actions remaining:", actionsRemaining);
+
+        const timer = setTimeout(() => {
+            try {
+                const currentState = stateRef.current;
+                
+                // If AI has no actions left, force end turn
+                if (actionsRemaining <= 0 && !kingMoveState?.isMoving) {
+                    console.log("[AI] No actions remaining. Ending turn.");
+                    dispatch({ type: 'END_TURN' });
+                    return;
+                }
+
+                const bestAction = getAiBestAction(currentState);
+                console.log("[AI Decision] Selected Action:", bestAction);
+                
                 if (bestAction) {
                     dispatch(bestAction);
                 } else {
                     dispatch({ type: 'END_TURN' });
                 }
-            }, 1200); // Slower, more deliberate AI actions
-            return () => clearTimeout(timer);
-        } else if (gameMode === 'playing' && state.gameType === 'ai' && currentPlayerId === 1 && !winner && actionsRemaining <= 0 && !kingMoveState?.isMoving) {
-             const timer = setTimeout(() => dispatch({ type: 'END_TURN' }), 1200);
-             return () => clearTimeout(timer);
-        }
-    }, [state, gameMode, currentPlayerId, winner, actionsRemaining, kingMoveState, dispatch]);
+            } catch (error) {
+                console.error("[AI Error] Failed to calculate action, ending turn:", error);
+                dispatch({ type: 'END_TURN' }); // Safely pass turn on crash
+            }
+        }, 1000); // 1 second delay between steps
+
+        return () => clearTimeout(timer);
+    }, [currentPlayerId, gameMode, winner, actionsRemaining, kingMoveState?.isMoving, dispatch]);
 
     const selectedUnit = useMemo(() => board.flat().find(u => u?.id === selectedUnitIdOnBoard), [board, selectedUnitIdOnBoard]);
     

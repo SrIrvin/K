@@ -179,6 +179,7 @@ export const getAiBestAction = (state: GameState): Action | null => {
         if (unit.hasMoved) continue;
         const validMoves = getValidMoves(unit, state.board, 1);
         for (const move of validMoves) {
+            if (move.row === -1) continue; // Skip scoring move for attack evaluation
             const target = state.board[move.row][move.col];
             if (target && target.color !== aiPlayer.color) {
                 let score = 50;
@@ -203,7 +204,8 @@ export const getAiBestAction = (state: GameState): Action | null => {
         if (unit.hasMoved) continue;
         const validMoves = getValidMoves(unit, state.board, 1);
         // AI starts at row 0, goal is row 4, so sorting descending by row index is moving forward
-        const forwardMoves = validMoves.filter(m => !state.board[m.row][m.col]).sort((a, b) => b.row - a.row);
+        // Filter out touchdown move coordinates (-1, -1) to prevent out of bounds crashes
+        const forwardMoves = validMoves.filter(m => m.row !== -1 && !state.board[m.row][m.col]).sort((a, b) => b.row - a.row);
         if (forwardMoves.length > 0) {
             const bestMove = forwardMoves[0];
             possibleActions.push({

@@ -9,7 +9,8 @@ type AiScoredAction = Action & {
 
 export const getAiBestAction = (state: GameState): Action | null => {
     const aiPlayer = state.players[1];
-    if (!aiPlayer || state.actionsRemaining <= 0) return null;
+    if (!aiPlayer) return null;
+    if (state.actionsRemaining <= 0 && !state.kingMoveState?.isMoving) return null;
 
     const opponentPlayer = state.players[0];
     const aiUnits = state.board.flat().filter((u): u is Unit => u?.color === aiPlayer.color);

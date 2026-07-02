@@ -18,10 +18,6 @@ export const initialState: GameState = {
 };
 
 export const gameReducer = (state: GameState, action: Action): GameState => {
-  // Prevent actions while AI is "thinking" or during certain game modes
-  if ((state.gameType === 'ai' && state.currentPlayerId === 1 && state.gameMode === 'playing') && action.type !== 'BEGIN_NEW_TURN' && action.type !== 'END_TURN') {
-    if(!['START_GAME', 'RESET_TO_MENU'].includes(action.type)) return state;
-  }
   if(state.gameMode === 'game_over' && action.type !== 'RESET_TO_MENU') return state;
 
 

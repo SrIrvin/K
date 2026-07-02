@@ -364,20 +364,21 @@ const GameUI: React.FC = () => {
             {/* Modals & Overlays */}
             <CardInfoModal />
             
-            {/* King Command Alert Overlay */}
+            {/* King Command Floating HUD Alert (Non-blocking) */}
             {kingMoveState?.isMoving && (
-              <div className="absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-                <div className="stone-modal p-6 text-center max-w-sm w-full relative border-2 border-[#8A6938] shadow-2xl flex flex-col items-center">
-                  <h2 className="text-2xl font-ancient-header text-[#D8C49A] mb-2 animate-pulse tracking-widest">
-                    ¡MANDO DEL REY!
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-[90%] pointer-events-none">
+                <div className="stone-modal p-4 flex flex-col items-center border-2 border-[#8A6938] shadow-2xl pointer-events-auto bg-[#1e1a14]/95 text-center">
+                  <h2 className="text-base font-ancient-header text-[#D8C49A] animate-pulse tracking-widest flex items-center gap-1.5 mb-1">
+                    👑 MANDO DEL REY 👑
                   </h2>
-                  <div className="h-0.5 w-16 bg-[#8A6938] mb-3" />
-                  <p className="text-sm text-[#D8C49A] font-runic-text mb-1">Ordena avanzar 1 casilla a todas tus unidades en el tablero.</p>
-                  <p className="text-xs text-[#82443A] font-semibold tracking-wider uppercase mb-5">¡Las unidades omitidas se descartarán!</p>
+                  <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
+                  <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
+                    Avanza tus unidades (ortogonal). Las unidades no movidas serán destruidas al finalizar la orden.
+                  </p>
                   
                   <button
                     onClick={() => dispatch({type: 'FINISH_KING_MOVE'})}
-                    className="stone-button stone-button-red text-xs py-2 px-6 shadow-lg"
+                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
                   >
                     Terminar Orden ({kingMoveState.unitsToMove.length} pendientes)
                   </button>

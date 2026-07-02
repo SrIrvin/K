@@ -197,7 +197,17 @@ const GameUI: React.FC = () => {
         }, 1000); // 1 second delay between steps
 
         return () => clearTimeout(timer);
-    }, [currentPlayerId, gameMode, winner, actionsRemaining, kingMoveState?.isMoving, dispatch]);
+    }, [
+        currentPlayerId, 
+        gameMode, 
+        winner, 
+        actionsRemaining, 
+        selectedCardIdInHand, 
+        selectedUnitIdOnBoard, 
+        state.isTargeting, 
+        kingMoveState?.isMoving, 
+        dispatch
+    ]);
 
     const selectedUnit = useMemo(() => board.flat().find(u => u?.id === selectedUnitIdOnBoard), [board, selectedUnitIdOnBoard]);
     

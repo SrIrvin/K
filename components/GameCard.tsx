@@ -21,10 +21,17 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
   }
 
   const isRed = card.color === CardColor.Red;
-  const colorClass = isRed ? 'text-[#82443A]' : 'text-[#9A8B72]';
-  const glowBorderClass = isSelected 
-    ? 'border-[#4facfe] ring-4 ring-[#4facfe]/40 shadow-[0_0_20px_rgba(79,172,254,0.6)] scale-105' 
-    : 'border-[#574d3c] hover:border-[#9A8B72]';
+  
+  // Custom borders, backgrounds, gradients and text colors to clearly differentiate Red (Hearts/Diamonds) and Black (Clubs/Spades)
+  const borderClass = isSelected
+    ? 'border-[#4facfe] ring-4 ring-[#4facfe]/40 shadow-[0_0_20px_rgba(79,172,254,0.6)] scale-105 z-10'
+    : isRed
+      ? 'border-[#82443A]/85 hover:border-[#c25a4d]'
+      : 'border-[#574d3c] hover:border-[#9A8B72]';
+
+  const cardBgClass = isRed ? 'bg-[#361e1a]' : 'bg-[#1c1a17]';
+  const textClass = isRed ? 'text-[#c25a4d]' : 'text-[#D8C49A]';
+  const suitTextClass = isRed ? 'text-[#e07567] bg-[#361e1a]/95' : 'text-[#9A8B72] bg-[#1c1a17]/95';
 
   const suitIcon = card.suit === Suit.Joker ? '𐎫' : card.suit; // Runic representation for Joker
 
@@ -35,7 +42,7 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
 
   return (
     <div
-      className={`relative w-full h-full rounded-lg border-2 p-1.5 flex flex-col justify-between shadow-xl transition-all duration-300 ${onClick ? 'cursor-pointer' : ''} ${glowBorderClass} ${isRed ? 'bg-[#402a26]' : 'bg-[#2A2A2A]'} overflow-hidden flex-shrink-0`}
+      className={`relative w-full h-full rounded-lg border-2 p-1.5 flex flex-col justify-between shadow-xl transition-all duration-300 ${onClick ? 'cursor-pointer' : ''} ${borderClass} ${cardBgClass} overflow-hidden flex-shrink-0`}
       onClick={onClick}
       style={{
         boxShadow: isSelected ? '0 0 20px rgba(79,172,254,0.5)' : 'inset 0 0 10px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
@@ -47,10 +54,10 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
         <img 
           src={getCardImagePath(card)} 
           alt="" 
-          className="w-full h-full object-cover opacity-60 sepia-[0.3] contrast-[1.1] brightness-[0.75]" 
+          className={`w-full h-full object-cover opacity-55 contrast-[1.1] brightness-[0.7] ${isRed ? 'sepia-[0.4] saturate-[1.4] hue-rotate-[-10deg]' : 'sepia-[0.2]'}`} 
         />
-        {/* Subtle stone texture overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2A2A2A] via-transparent to-transparent opacity-80" />
+        {/* Subtle stone texture overlay with red/dark color tinting */}
+        <div className={`absolute inset-0 bg-gradient-to-t ${isRed ? 'from-[#361e1a] via-[#82443A]/25 to-transparent' : 'from-[#1c1a17] via-transparent to-transparent'} opacity-90`} />
       </div>
 
       {/* Info Button Overlay */}
@@ -66,10 +73,10 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
 
       {/* Top Header Row (z-10 to render over image) */}
       <div className="flex justify-between items-start z-10 select-none">
-        <span className="font-orbitron text-sm sm:text-base md:text-lg font-black tracking-tighter text-[#D8C49A]">
+        <span className={`font-orbitron text-sm sm:text-base md:text-lg font-black tracking-tighter ${textClass}`}>
           {card.rank === 'Joker' ? '🤡' : card.rank}
         </span>
-        <span className="text-xs sm:text-sm md:text-base font-bold bg-[#2A2A2A]/80 px-1.5 py-0.5 rounded border border-[#574d3c]/50">
+        <span className={`text-xs sm:text-sm md:text-base font-bold px-1.5 py-0.5 rounded border ${isRed ? 'border-[#82443A]/50' : 'border-[#574d3c]/50'} ${suitTextClass}`}>
           {suitIcon}
         </span>
       </div>
@@ -121,10 +128,10 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
 
       {/* Bottom Row (Upside down, traditional card style) */}
       <div className="flex justify-between items-end z-10 select-none transform rotate-180">
-        <span className="font-orbitron text-sm sm:text-base md:text-lg font-black tracking-tighter text-[#D8C49A]">
+        <span className={`font-orbitron text-sm sm:text-base md:text-lg font-black tracking-tighter ${textClass}`}>
           {card.rank === 'Joker' ? '🤡' : card.rank}
         </span>
-        <span className="text-xs sm:text-sm md:text-base font-bold bg-[#2A2A2A]/85 px-1.5 py-0.5 rounded border border-[#574d3c]/50">
+        <span className={`text-xs sm:text-sm md:text-base font-bold px-1.5 py-0.5 rounded border ${isRed ? 'border-[#82443A]/50' : 'border-[#574d3c]/50'} ${suitTextClass}`}>
           {suitIcon}
         </span>
       </div>

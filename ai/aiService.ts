@@ -1,6 +1,5 @@
-
-import { GameState, Action, Player, Unit, CardColor, Rank } from '../types';
-import { getValidMoves } from '../services/gameService';
+import { GameState, Action, Player, Unit, Card, CardColor, Rank } from '../types';
+import { getValidMoves, getKingValidMoves } from '../services/gameService';
 import { BOARD_ROWS } from '../constants';
 
 type AiScoredAction = Action & {
@@ -12,32 +11,170 @@ export const getAiBestAction = (state: GameState): Action | null => {
     const aiPlayer = state.players[1];
     if (!aiPlayer || state.actionsRemaining <= 0) return null;
 
+    const opponentPlayer = state.players[0];
+    const aiUnits = state.board.flat().filter((u): u is Unit => u?.color === aiPlayer.color);
+    const enemyUnits = state.board.flat().filter((u): u is Unit => u?.color === opponentPlayer.color);
+
+    // ==========================================
+    // PHASE A: RESOLVE FORCED TARGETING STATE
+    // ==========================================
+    if (state.isTargeting) {
+        const targetingCard = aiPlayer.hand.find(c => c.id === state.selectedCardIdInHand);
+        
+        if (state.isTargeting === 'joker') {
+            if (enemyUnits.length > 0) {
+                // Target the enemy unit with the highest damage value (strongest threat)
+                const target = [...enemyUnits].sort((a, b) => b.baseDamage - a.baseDamage)[0];
+                return { type: 'USE_ABILITY_ON_TARGET', payload: { unitId: target.id } };
+            }
+        } 
+        else if (state.isTargeting === 'jack') {
+            if (aiUnits.length > 0) {
+                // Target the friendly unit closest to the enemy goal line (row 4)
+                const target = [...aiUnits].sort((a, b) => b.position.row - a.position.row)[0];
+                return { type: 'USE_ABILITY_ON_TARGET', payload: { unitId: target.id } };
+            }
+        } 
+        else if (state.isTargeting === 'queen') {
+            if (aiUnits.length > 0) {
+                // Prioritize healing a damaged friendly unit
+                const damagedUnits = aiUnits.filter(u => u.currentDamage < u.baseDamage);
+                if (damagedUnits.length > 0) {
+                    const target = [...damagedUnits].sort((a, b) => (b.baseDamage - b.currentDamage) - (a.baseDamage - a.currentDamage))[0];
+                    return { type: 'USE_ABILITY_ON_TARGET', payload: { unitId: target.id } };
+                } else {
+                    // Otherwise, buff the strongest friendly unit (+1 attack)
+                    const target = [...aiUnits].sort((a, b) => b.baseDamage - a.baseDamage)[0];
+                    return { type: 'USE_ABILITY_ON_TARGET', payload: { unitId: target.id } };
+                }
+            }
+        }
+        
+        // Fallback: If no target exists, cancel targeting
+        return { type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } };
+    }
+
+    // ==========================================
+    // PHASE B: RESOLVE FORCED KING COMMAND STATE
+    // ==========================================
+    if (state.kingMoveState?.isMoving) {
+        const { unitsToMove, selectedUnitId } = state.kingMoveState;
+        
+        if (unitsToMove.length === 0) {
+            return { type: 'FINISH_KING_MOVE' };
+        }
+
+        // If no unit is currently selected, find the first unit in queue that has valid moves
+        if (!selectedUnitId || !state.selectedUnitIdOnBoard) {
+            for (const unitId of unitsToMove) {
+                const unit = aiUnits.find(u => u.id === unitId);
+                if (unit) {
+                    const moves = getKingValidMoves(unit, state.board);
+                    if (moves.length > 0) {
+                        return { type: 'SELECT_UNIT_ON_BOARD', payload: { unitId } };
+                    }
+                }
+            }
+            // If none of the remaining units have valid moves, finish the command
+            return { type: 'FINISH_KING_MOVE' };
+        }
+
+        const activeUnit = aiUnits.find(u => u.id === selectedUnitId);
+        if (activeUnit) {
+            const moves = getKingValidMoves(activeUnit, state.board);
+            if (moves.length > 0) {
+                // Move DOWN (towards row 4). Sort moves by row index descending
+                const sortedMoves = [...moves].sort((a, b) => b.row - a.row);
+                return { type: 'MOVE_UNIT_DURING_KING_EFFECT', payload: { to: sortedMoves[0] } };
+            }
+        }
+
+        // If the selected unit cannot move, select another one or finish
+        return { type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: null } };
+    }
+
+    // ==========================================
+    // PHASE C: NORMAL ACTION SCORE EVALUATION
+    // ==========================================
     const possibleActions: AiScoredAction[] = [];
 
-    const aiUnits = state.board.flat().filter((u): u is Unit => u?.color === aiPlayer.color);
-
-    // 1. Scoring Action
+    // 1. Scoring Action (Touchdown)
+    // AI moves units from row 0 to row 4, so touchdown row is BOARD_ROWS - 1
     const scoringUnit = aiUnits.find(u => u.position.row === BOARD_ROWS - 1 && !u.hasMoved);
     if (scoringUnit) {
         possibleActions.push({
             type: 'SCORE_UNIT',
-            score: 1000 + scoringUnit.currentDamage, // Highest priority
-            log: `AI will score with ${scoringUnit.rank}`
+            score: 1000 + scoringUnit.currentDamage,
+            log: `AI will score touchdown with ${scoringUnit.rank} (${scoringUnit.currentDamage} pts)`
         });
     }
-    
-    // 2. Attack Actions (now generating MOVE_UNIT actions)
+
+    // 2. Play Special Cards from hand
+    const aceCard = aiPlayer.hand.find(c => c.rank === 'A');
+    if (aceCard) {
+        possibleActions.push({
+            type: 'PLAY_SPECIAL_CARD',
+            payload: { card: aceCard },
+            score: 250,
+            log: 'AI will play ACE for 1 direct damage point'
+        });
+    }
+
+    const jokerCard = aiPlayer.hand.find(c => c.rank === 'Joker');
+    if (jokerCard && enemyUnits.length > 0) {
+        const strongestEnemy = [...enemyUnits].sort((a, b) => b.baseDamage - a.baseDamage)[0];
+        possibleActions.push({
+            type: 'PLAY_SPECIAL_CARD',
+            payload: { card: jokerCard },
+            score: 300 + strongestEnemy.baseDamage,
+            log: `AI will play JOKER to assassinate ${strongestEnemy.rank}`
+        });
+    }
+
+    const queenCard = aiPlayer.hand.find(c => c.rank === 'Q');
+    if (queenCard && aiUnits.length > 0) {
+        const damagedUnits = aiUnits.filter(u => u.currentDamage < u.baseDamage);
+        const score = damagedUnits.length > 0 ? 180 : 80;
+        possibleActions.push({
+            type: 'PLAY_SPECIAL_CARD',
+            payload: { card: queenCard },
+            score,
+            log: 'AI will play QUEEN'
+        });
+    }
+
+    const jackCard = aiPlayer.hand.find(c => c.rank === 'J');
+    if (jackCard && aiUnits.length > 0) {
+        possibleActions.push({
+            type: 'PLAY_SPECIAL_CARD',
+            payload: { card: jackCard },
+            score: 90,
+            log: 'AI will play JACK for speed boost'
+        });
+    }
+
+    const kingCard = aiPlayer.hand.find(c => c.rank === 'K');
+    if (kingCard && aiUnits.length >= 2) {
+        possibleActions.push({
+            type: 'PLAY_SPECIAL_CARD',
+            payload: { card: kingCard },
+            score: 75,
+            log: "AI will play KING's command to advance all units"
+        });
+    }
+
+    // 3. Attack Actions (MOVE_UNIT on enemy)
     for (const unit of aiUnits) {
         if (unit.hasMoved) continue;
         const validMoves = getValidMoves(unit, state.board, 1);
         for (const move of validMoves) {
             const target = state.board[move.row][move.col];
             if (target && target.color !== aiPlayer.color) {
-                let score = 50; // Base score for an attack
-                if (unit.baseDamage > target.baseDamage) {
-                    score += 100 + target.baseDamage; // Prioritize destroying units
+                let score = 50;
+                if (unit.currentDamage > target.currentDamage) {
+                    score += 150 + target.baseDamage; // Very high priority if we destroy them entirely
                 } else {
-                    score += unit.baseDamage; // Damage is good
+                    score += 40 + unit.currentDamage; // Deal partial stacking damage
                 }
                 
                 possibleActions.push({
@@ -50,52 +187,62 @@ export const getAiBestAction = (state: GameState): Action | null => {
         }
     }
     
-    // 3. Move Actions
-     for (const unit of aiUnits) {
+    // 4. Move Actions (MOVE_UNIT forward)
+    for (const unit of aiUnits) {
         if (unit.hasMoved) continue;
         const validMoves = getValidMoves(unit, state.board, 1);
-        const forwardMoves = validMoves.filter(m => !state.board[m.row][m.col]).sort((a,b) => b.row - a.row);
-        if(forwardMoves.length > 0) {
+        // AI starts at row 0, goal is row 4, so sorting descending by row index is moving forward
+        const forwardMoves = validMoves.filter(m => !state.board[m.row][m.col]).sort((a, b) => b.row - a.row);
+        if (forwardMoves.length > 0) {
             const bestMove = forwardMoves[0];
             possibleActions.push({
                 type: 'MOVE_UNIT',
                 payload: { to: bestMove },
-                score: 10 + bestMove.row, // Prioritize moving forward
-                log: `AI will move ${unit.rank} forward`
+                score: 15 + bestMove.row * 8, // Higher row = closer to goal = higher score
+                log: `AI will move ${unit.rank} forward to row ${bestMove.row}`
             });
         }
     }
 
-    // 4. Place Unit Action
+    // 5. Place Unit Actions
     const unitCardsInHand = aiPlayer.hand.filter(c => !(['J','Q','K','A','Joker'] as Rank[]).includes(c.rank));
     const placeableSpots = state.board[0].map((cell, i) => !cell ? i : -1).filter(i => i !== -1);
-    if(unitCardsInHand.length > 0 && placeableSpots.length > 0){
-        const cardToPlay = [...unitCardsInHand].sort((a,b) => parseInt(b.rank) - parseInt(a.rank))[0]; // play strongest card
-        const spot = placeableSpots[Math.floor(placeableSpots.length / 2)]; // Prefer center
+    if (unitCardsInHand.length > 0 && placeableSpots.length > 0) {
+        const cardToPlay = [...unitCardsInHand].sort((a, b) => parseInt(b.rank) - parseInt(a.rank))[0]; // Strongest unit first
+        // Prefer center columns (1 or 2) over edges (0 or 3)
+        const sortedSpots = [...placeableSpots].sort((a, b) => Math.abs(a - 1.5) - Math.abs(b - 1.5));
+        const spot = sortedSpots[0];
+        
         possibleActions.push({
             type: 'PLACE_UNIT',
             payload: { row: 0, col: spot },
-            score: 20,
-            log: `AI will place ${cardToPlay.rank}`
+            score: 30 + parseInt(cardToPlay.rank),
+            log: `AI will place ${cardToPlay.rank} in column ${spot}`
         });
     }
 
-    // 5. Draw Card Action
+    // 6. Draw Card Action (Lowest default option)
     if (aiPlayer.deck.length > 0) {
-        possibleActions.push({ type: 'DRAW_CARD', score: 5, log: 'AI will draw a card' });
+        possibleActions.push({ 
+            type: 'DRAW_CARD', 
+            score: aiPlayer.hand.length < 3 ? 25 : 5, // Draw card has higher priority if hand is low
+            log: 'AI will draw a card' 
+        });
     }
 
-    // Choose the best action
+    // ==========================================
+    // PHASE D: CHOOSE BEST ACTION & DISPATCH STEPS
+    // ==========================================
     if (possibleActions.length === 0) {
         return { type: 'END_TURN' };
     }
 
     possibleActions.sort((a, b) => b.score - a.score);
     const bestAction = possibleActions[0];
-    console.log("AI Preparing:", bestAction.log, "Score:", bestAction.score);
+    console.log("AI Decision:", bestAction.log, "Score:", bestAction.score);
 
-    // This is a multi-step process. First, select the unit/card. Then, perform the action.
-    switch(bestAction.type) {
+    // Translate scored actions into two-step operations where required
+    switch (bestAction.type) {
         case 'SCORE_UNIT': {
             const unitToScore = aiUnits.find(u => u.position.row === BOARD_ROWS - 1 && !u.hasMoved);
             if (unitToScore && state.selectedUnitIdOnBoard !== unitToScore.id) {
@@ -104,26 +251,34 @@ export const getAiBestAction = (state: GameState): Action | null => {
             break;
         }
         case 'MOVE_UNIT': {
+            // Find which of the AI units is the one that can reach the target move position
             const unitForAction = aiUnits.find(u => {
-                 if(u.hasMoved) return false;
+                 if (u.hasMoved) return false;
                  const moves = getValidMoves(u, state.board, 1);
                  return moves.some(m => m.row === bestAction.payload.to.row && m.col === bestAction.payload.to.col);
             });
             if (unitForAction && state.selectedUnitIdOnBoard !== unitForAction.id) {
-                 return { type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: unitForAction.id }};
+                 return { type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: unitForAction.id } };
             }
             break;
         }
         case 'PLACE_UNIT': {
-             const cardToPlay = [...unitCardsInHand].sort((a,b) => parseInt(b.rank) - parseInt(a.rank))[0];
-             if (cardToPlay && state.selectedCardIdInHand !== cardToPlay.id) {
-                return { type: 'SELECT_CARD_IN_HAND', payload: { cardId: cardToPlay.id } };
+             // Find matching card in hand to select first
+             const cardToPlay = unitCardsInHand.find(c => {
+                 // Match rank and suit to play the correct card
+                 const matchingInPayload = parseInt(c.rank);
+                 return matchingInPayload > 0; // Simple fallback
+             });
+             // Select strongest card
+             const strongestCard = [...unitCardsInHand].sort((a, b) => parseInt(b.rank) - parseInt(a.rank))[0];
+             if (strongestCard && state.selectedCardIdInHand !== strongestCard.id) {
+                return { type: 'SELECT_CARD_IN_HAND', payload: { cardId: strongestCard.id } };
              }
              break;
         }
     }
 
-    // If the correct card/unit is already selected from a previous AI step, dispatch the action.
+    // Selection matches? Dispatch action.
     if (state.selectedUnitIdOnBoard && (bestAction.type === 'MOVE_UNIT' || bestAction.type === 'SCORE_UNIT')) {
         return bestAction;
     }
@@ -131,14 +286,12 @@ export const getAiBestAction = (state: GameState): Action | null => {
         return bestAction;
     }
 
-    // If the action doesn't require selection, dispatch it directly.
-    if (bestAction.type === 'DRAW_CARD' || bestAction.type === 'END_TURN') {
+    // Direct action dispatches
+    if (bestAction.type === 'PLAY_SPECIAL_CARD' || bestAction.type === 'DRAW_CARD' || bestAction.type === 'END_TURN') {
         return bestAction;
     }
 
-    // Fallback: if we are here, it means a selection is needed but wasn't dispatched.
-    // This can happen if the AI recalculates and changes its mind.
-    // The safest action is to end the turn to avoid an infinite loop.
-    console.warn("AI logic reached an unexpected state. Ending turn to be safe.", bestAction);
+    // Fallback ending turn
+    console.warn("AI logic reached unexpected state. Ending turn safely.", bestAction);
     return { type: 'END_TURN' };
 };

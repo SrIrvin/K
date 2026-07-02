@@ -34,8 +34,9 @@ export const getCardImagePath = (card: Card): string => {
     folder = 'Joker';
     fileName = `Joker ${suitNumber}.webp`;
   } else { // J, Q, K, A
-    folder = card.rank;
-    fileName = `${card.rank} ${suitNumber}.webp`;
+    const isAce = card.rank === 'A';
+    folder = isAce ? 'As' : card.rank;
+    fileName = isAce ? `As ${suitNumber}.webp` : `${card.rank} ${suitNumber}.webp`;
   }
 
   return `/images/${folder}/${fileName}`;

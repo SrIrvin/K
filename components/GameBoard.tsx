@@ -10,6 +10,7 @@ interface GameBoardProps {
   currentPlayer: Player;
   opponentPlayer: Player;
   validMoves: { row: number, col: number }[];
+  showHints: boolean;
 }
 
 const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectly?: boolean }> = ({ player, isOpponent = false, canScoreDirectly = false }) => {
@@ -57,7 +58,7 @@ const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectl
 };
 
 
-const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPlayer, validMoves }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPlayer, validMoves, showHints }) => {
     const { state, dispatch } = useContext(GameContext);
     const { selectedCardIdInHand, selectedUnitIdOnBoard, currentPlayerId, isTargeting, actionsRemaining, kingMoveState } = state;
     const playerStartRow = currentPlayerId === 0 ? BOARD_ROWS - 1 : 0;
@@ -188,27 +189,37 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                         onDragOver={handleDragOver}
                       >
                         
-                        {unit && (
-                          <div 
-                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCellInteraction(rowIndex, colIndex);
-                            }}
-                          >
-                            <div className={`w-full h-full stone-piece ${selectedUnitIdOnBoard === unit.id && !isKingMoveActive ? 'stone-piece-selected' : ''}`}>
-                              <GameCard unit={unit} isUnitOnBoard={true} card={unit} isSelected={selectedUnitIdOnBoard === unit.id && !isKingMoveActive} />
-                            </div>
+                        {unit && (() => {
+                          const isUnitHinted = showHints && 
+                                               actionsRemaining > 0 &&
+                                               !selectedUnitIdOnBoard && 
+                                               !selectedCardIdInHand && 
+                                               !isKingMoveActive &&
+                                               unit.color === currentPlayer.color && 
+                                               !unit.hasMoved;
 
-                            {unit.id === selectedUnitIdOnBoard && canUnitScore && actionsRemaining > 0 && (
-                               <button 
-                                 onClick={(e) => { e.stopPropagation(); dispatch({ type: 'SCORE_UNIT' })}}
-                                 className="absolute -bottom-2.5 z-20 px-3 py-1 text-[9px] sm:text-[10px] font-ancient-header font-bold text-white bg-[#8A6938] rounded-lg border border-[#D8C49A] shadow-[0_4px_8px_rgba(0,0,0,0.8)] hover:bg-[#a57f49] active:translate-y-0.5 transition-all">
-                                 ANOTAR (1)
-                               </button>
-                            )}
-                          </div>
-                        )}
+                          return (
+                            <div 
+                              className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCellInteraction(rowIndex, colIndex);
+                              }}
+                            >
+                              <div className={`w-full h-full stone-piece ${selectedUnitIdOnBoard === unit.id && !isKingMoveActive ? 'stone-piece-selected' : ''} ${isUnitHinted ? 'idle-unit-glow' : ''}`}>
+                                <GameCard unit={unit} isUnitOnBoard={true} card={unit} isSelected={selectedUnitIdOnBoard === unit.id && !isKingMoveActive} />
+                              </div>
+
+                              {unit.id === selectedUnitIdOnBoard && canUnitScore && actionsRemaining > 0 && (
+                                 <button 
+                                   onClick={(e) => { e.stopPropagation(); dispatch({ type: 'SCORE_UNIT' })}}
+                                   className={`absolute -bottom-2.5 z-20 px-3 py-1 text-[9px] sm:text-[10px] font-ancient-header font-bold text-white bg-[#8A6938] rounded-lg border border-[#D8C49A] shadow-[0_4px_8px_rgba(0,0,0,0.8)] hover:bg-[#a57f49] active:translate-y-0.5 transition-all ${showHints ? 'shadow-[0_0_15px_rgba(216,196,154,0.8)] animate-pulse' : ''}`}>
+                                   ANOTAR (1)
+                                 </button>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )
                   })

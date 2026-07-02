@@ -123,6 +123,7 @@ const GameUI: React.FC = () => {
     const { players, currentPlayerId, board, selectedUnitIdOnBoard, gameMode, winner, selectedCardIdInHand, kingMoveState, actionsRemaining } = state;
     
     const [showKingInfo, setShowKingInfo] = useState(false);
+    const [showHints, setShowHints] = useState(false);
 
     const currentPlayer = useMemo(() => players?.[currentPlayerId], [players, currentPlayerId]);
     const opponentPlayer = useMemo(() => players?.[1 - currentPlayerId], [players, currentPlayerId]);
@@ -130,6 +131,30 @@ const GameUI: React.FC = () => {
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
     const isCurrentPlayerTurn = useMemo(() => currentPlayerId === state.currentPlayerId, [currentPlayerId, state.currentPlayerId]);
     const canAct = useMemo(() => actionsRemaining > 0 && !state.isTargeting && !kingMoveState?.isMoving && isCurrentPlayerTurn, [actionsRemaining, state.isTargeting, kingMoveState, isCurrentPlayerTurn]);
+
+    // 🕯️ Idle timer UX - Highlights options if player is inactive for 20 seconds
+    useEffect(() => {
+        setShowHints(false);
+
+        // Do not highlight hints if game is over or if it's the AI's turn
+        if (gameMode !== 'playing' || (state.gameType === 'ai' && currentPlayerId === 1)) {
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            setShowHints(true);
+        }, 20000); // 20 seconds
+
+        return () => clearTimeout(timer);
+    }, [
+        board, 
+        currentPlayerId, 
+        actionsRemaining, 
+        selectedCardIdInHand, 
+        selectedUnitIdOnBoard, 
+        state.isTargeting, 
+        gameMode
+    ]);
 
     // AI thinking effect trigger
     useEffect(() => {
@@ -196,8 +221,17 @@ const GameUI: React.FC = () => {
         }
     };
 
+    const resetIdleTimer = () => {
+        if (showHints) {
+            setShowHints(false);
+        }
+    };
+
     return (
-        <div className="ancient-bg flex h-screen w-screen overflow-hidden text-white relative">
+        <div 
+          className="ancient-bg flex h-screen w-screen overflow-hidden text-white relative" 
+          onClick={resetIdleTimer}
+        >
             {/* Visual Overlays */}
             <div className="archaeological-vignette" />
             <div className="rune-overlay" />
@@ -232,6 +266,7 @@ const GameUI: React.FC = () => {
                           currentPlayer={currentPlayer}
                           opponentPlayer={opponentPlayer}
                           validMoves={validMoves}
+                          showHints={showHints}
                         />
                     </div>
 
@@ -245,60 +280,65 @@ const GameUI: React.FC = () => {
                             </div>
 
                             {/* Hand Cards */}
-                            <div className="flex justify-between items-center gap-4 h-[86px] sm:h-[96px] md:h-[120px]">
-                                {/* Unit Cards Area (Left) */}
-                                <div className="flex-grow flex gap-2 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40">
-                                    {unitCards.length === 0 ? (
-                                        <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
-                                          Sin cartas de unidad
-                                        </div>
-                                    ) : (
-                                        unitCards.map(card => (
-                                            <div 
-                                              key={card.id} 
-                                              className="h-full flex-shrink-0"
-                                              style={{ aspectRatio: '5/7' }}
-                                              onClick={() => handleSelectCard(selectedCardIdInHand === card.id ? null : card.id)}
-                                            >
-                                                <div className={`w-full h-full ${selectedCardIdInHand === card.id ? 'stone-card-selected' : 'stone-card-container'}`}>
-                                                    <GameCard 
-                                                        card={card}
-                                                        isSelected={selectedCardIdInHand === card.id}
-                                                    />
-                                                </div>
+                            {(() => {
+                              const isCardHinted = showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard;
+                              return (
+                                <div className="flex justify-between items-center gap-4 h-[86px] sm:h-[96px] md:h-[120px]">
+                                    {/* Unit Cards Area (Left) */}
+                                    <div className="flex-grow flex gap-2 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40">
+                                        {unitCards.length === 0 ? (
+                                            <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
+                                              Sin cartas de unidad
                                             </div>
-                                        ))
-                                    )}
-                                </div>
-
-                                {/* Special Cards Area (Right) */}
-                                <div className="flex gap-2 overflow-x-auto h-full pl-1 max-w-[45%]">
-                                    {specialCards.length === 0 ? (
-                                        <div className="flex items-center justify-center w-40 h-full text-xs text-[#9A8B72]/40 italic">
-                                          Sin habilidades
-                                        </div>
-                                    ) : (
-                                        specialCards.map(card => (
-                                            <div 
-                                              key={card.id} 
-                                              className="h-full flex flex-col items-center justify-between"
-                                              style={{ aspectRatio: '5/7' }}
-                                            >
-                                                <div className="flex-grow w-full max-h-[80%] stone-card-container">
-                                                    <GameCard card={card} onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })} />
-                                                </div>
-                                                <button 
-                                                  onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} 
-                                                  disabled={!canAct} 
-                                                  className="stone-button stone-button-blue text-[8px] sm:text-[9px] py-0.5 px-2 mt-1 w-full"
+                                        ) : (
+                                            unitCards.map(card => (
+                                                <div 
+                                                  key={card.id} 
+                                                  className="h-full flex-shrink-0"
+                                                  style={{ aspectRatio: '5/7' }}
+                                                  onClick={() => handleSelectCard(selectedCardIdInHand === card.id ? null : card.id)}
                                                 >
-                                                  Activar (1)
-                                                </button>
+                                                    <div className={`w-full h-full ${selectedCardIdInHand === card.id ? 'stone-card-selected' : 'stone-card-container'} ${isCardHinted ? 'idle-hint-glow' : ''}`}>
+                                                        <GameCard 
+                                                            card={card}
+                                                            isSelected={selectedCardIdInHand === card.id}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+
+                                    {/* Special Cards Area (Right) */}
+                                    <div className="flex gap-2 overflow-x-auto h-full pl-1 max-w-[45%]">
+                                        {specialCards.length === 0 ? (
+                                            <div className="flex items-center justify-center w-40 h-full text-xs text-[#9A8B72]/40 italic">
+                                              Sin habilidades
                                             </div>
-                                        ))
-                                    )}
+                                        ) : (
+                                            specialCards.map(card => (
+                                                <div 
+                                                  key={card.id} 
+                                                  className="h-full flex flex-col items-center justify-between"
+                                                  style={{ aspectRatio: '5/7' }}
+                                                >
+                                                    <div className={`flex-grow w-full max-h-[80%] stone-card-container ${isCardHinted ? 'idle-hint-glow' : ''}`}>
+                                                        <GameCard card={card} onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })} />
+                                                    </div>
+                                                    <button 
+                                                      onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} 
+                                                      disabled={!canAct} 
+                                                      className={`stone-button stone-button-blue text-[8px] sm:text-[9px] py-0.5 px-2 mt-1 w-full ${isCardHinted ? 'idle-hint-glow' : ''}`}
+                                                    >
+                                                      Activar (1)
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                              );
+                            })()}
                         </div>
                     )}
                 </div>
@@ -327,7 +367,7 @@ const GameUI: React.FC = () => {
                             <button 
                               onClick={() => dispatch({ type: 'DRAW_CARD'})} 
                               disabled={!canAct} 
-                              className="stone-button w-full py-2.5 text-xs text-[#1e1a14]"
+                              className={`stone-button w-full py-2.5 text-xs text-[#1e1a14] ${showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''}`}
                             >
                               Robar (1 Act)
                             </button>
@@ -335,7 +375,7 @@ const GameUI: React.FC = () => {
                             <button 
                               onClick={() => dispatch({ type: 'END_TURN'})} 
                               disabled={kingMoveState?.isMoving} 
-                              className="stone-button stone-button-red w-full py-2.5 text-xs"
+                              className={`stone-button stone-button-red w-full py-2.5 text-xs ${showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''}`}
                             >
                               Terminar Turno
                             </button>

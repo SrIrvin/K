@@ -18,5 +18,21 @@
     "K": "El Dictador Loco. Actívalo para mover cada una de tus unidades un espacio ortogonal. Debes mover cada unidad. Cualquier unidad que no se mueva para cuando termines la acción será descartada.",
     "A": "El Misil Kamikaze. Inflige 1 de daño directo a tu oponente. Esta carta se mueve a tu pila de puntuación.",
     "Joker": "El Asesino de las Sombras. Elimina instantáneamente a cualquier unidad enemiga del tablero. La unidad se envía a la pila de descarte."
+  },
+  "card_tips": {
+    "2": "Consejo: Úsalas para avanzar rápidamente hacia la zona enemiga o como escudos sacrificables para tus unidades más pesadas.",
+    "3": "Consejo: Su velocidad de 3 casillas las hace ideales para presionar líneas enemigas desatendidas y buscar un touchdown rápido.",
+    "4": "Consejo: Es la unidad ligera más fuerte. Puede sorprender al rival cruzando el tablero rápidamente o defendiendo contra otras ligeras.",
+    "5": "Consejo: Buen balance entre velocidad y daño. Úsalo como atacante de apoyo detrás de tus unidades pesadas.",
+    "6": "Consejo: Excelente unidad intermedia. Es capaz de aguantar ataques de ligeras y presionar con una velocidad decente de 2.",
+    "7": "Consejo: El escalón más alto de las medianas. Úsalo para desgastar defensas enemigas antes de enviar tus pesos pesados.",
+    "8": "Consejo: Aunque lento (velocidad 1), su alto daño base lo hace un muro difícil de superar en defensa o un ariete letal.",
+    "9": "Consejo: Ideal para liderar el frente de ataque. Su alto daño base permite destruir o someter casi cualquier unidad enemiga.",
+    "10": "Consejo: La unidad más destructiva. Es lenta, así que considera apoyarla con un Jack (Turbo) para duplicar su movilidad y sorprender al oponente.",
+    "J": "Consejo: Combínala con una unidad pesada para darle un avance sorpresa de velocidad 2, o con una ligera para recorrer el tablero de un solo golpe.",
+    "Q": "Consejo: Úsala en tus unidades más fuertes (como un 10) que tengan muchos atacantes acumulados encima para restaurar su poder y limpiar el tablero.",
+    "K": "Consejo: ¡Planifica bien! Es devastadora para avanzar en masa o presionar un touchdown, pero debes mover cada unidad o serán eliminadas.",
+    "A": "Consejo: Excelente para dar el golpe de gracia cuando al oponente le queden pocos puntos de vida y tus unidades no puedan cruzar el tablero.",
+    "Joker": "Consejo: El recurso definitivo de control. Consérvala para neutralizar instantáneamente la unidad pesada enemiga más peligrosa que esté a punto de anotar."
   }
 }

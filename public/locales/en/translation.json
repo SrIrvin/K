@@ -18,5 +18,21 @@
     "K": "The Mad Dictator. Activate to move each of your units one orthogonal space. You must move each unit. Any units not moved by the time you end the action are discarded.",
     "A": "The Kamikaze Missile. Deal 1 direct damage to your opponent. This card is then moved to your scored pile.",
     "Joker": "The Shadow Assassin. Instantly eliminate any enemy unit from the board. The unit is sent to the discard pile."
+  },
+  "card_tips": {
+    "2": "Tip: Use them to advance quickly to the enemy zone or as disposable shields for your heavier units.",
+    "3": "Tip: Their high speed of 3 spaces makes them perfect for exploiting unguarded enemy lanes for a quick touchdown.",
+    "4": "Tip: This is the strongest light unit. Use its high mobility to surprise opponents or defend against weaker light units.",
+    "5": "Tip: A solid balance of speed and power. Place them right behind heavy units as supportive attackers.",
+    "6": "Tip: A highly versatile mid-range unit. Capable of soaking up hits from light units and countering with a decent Speed of 2.",
+    "7": "Tip: The strongest mid-range unit. Use it to wear down enemy defenses before deploying your heavyweight units.",
+    "8": "Tip: Though slow (Speed 1), its high base damage makes it an excellent defensive wall or a heavy battering ram.",
+    "9": "Tip: Perfect for leading the front-line charge. Its high base damage allows it to overwhelm or heavily weaken almost any unit.",
+    "10": "Tip: The most destructive unit in the game. It is slow, so support it with a Jack (Turbo) to double its mobility and catch opponents off guard.",
+    "J": "Tip: Combine with a heavy unit to give them a surprise Speed 2 push, or with a light unit to fly across the board in a single move.",
+    "Q": "Tip: Target your strongest unit (like a 10) with stacked attackers to restore its original power and clear the board.",
+    "K": "Tip: Plan ahead! Extremely powerful for coordinated group advances, but failing to move any unit will result in their immediate sacrifice.",
+    "A": "Tip: Ideal for dealing the final blow when your opponent is low on health and your units are too far from the goal line.",
+    "Joker": "Tip: Your ultimate control tool. Keep it in reserve to instantly delete your opponent's most dangerous heavy unit right before they score."
   }
 }

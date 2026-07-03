@@ -9,9 +9,10 @@ interface GameCardProps {
   onInfoClick?: () => void;
   isUnitOnBoard?: boolean;
   unit?: Unit;
+  isPreview?: boolean;
 }
 
-export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, onInfoClick, isUnitOnBoard = false, unit }) => {
+export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, onInfoClick, isUnitOnBoard = false, unit, isPreview = false }) => {
   if (!card) {
     return (
       <div className="w-full h-full border-4 border-dashed border-[#574d3c] rounded-lg bg-[#2A2A2A]/40 flex-shrink-0 flex items-center justify-center">
@@ -54,17 +55,21 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
         <img 
           src={getCardImagePath(card)} 
           alt="" 
-          className={`w-full h-full object-cover opacity-55 contrast-[1.1] brightness-[0.7] ${isRed ? 'sepia-[0.4] saturate-[1.4] hue-rotate-[-10deg]' : 'sepia-[0.2]'}`} 
+          className={`w-full h-full object-cover contrast-[1.1] ${
+            isPreview 
+              ? 'opacity-95 brightness-[1.05]' 
+              : `opacity-55 brightness-[0.7] ${isRed ? 'sepia-[0.4] saturate-[1.4] hue-rotate-[-10deg]' : 'sepia-[0.2]'}`
+          }`} 
         />
         {/* Subtle stone texture overlay with red/dark color tinting */}
-        <div className={`absolute inset-0 bg-gradient-to-t ${isRed ? 'from-[#361e1a] via-[#82443A]/25 to-transparent' : 'from-[#1c1a17] via-transparent to-transparent'} opacity-90`} />
+        <div className={`absolute inset-0 bg-gradient-to-t ${isRed ? 'from-[#361e1a] via-[#82443A]/25 to-transparent' : 'from-[#1c1a17] via-transparent to-transparent'} ${isPreview ? 'opacity-30' : 'opacity-90'}`} />
       </div>
 
       {/* Info Button Overlay */}
-      {!isUnitOnBoard && onInfoClick && (
+      {onInfoClick && (
          <button 
            onClick={handleInfoClick} 
-           className="absolute top-1.5 right-1.5 z-10 w-4 h-4 bg-[#8A6938]/90 text-white rounded-full flex items-center justify-center font-bold text-[9px] hover:bg-[#D8C49A] hover:text-[#2A2A2A] shadow-md border border-[#D8C49A]/30 transition-colors"
+           className="absolute top-[32px] right-1.5 z-20 w-4 h-4 bg-[#8A6938]/90 text-white rounded-full flex items-center justify-center font-bold text-[9px] hover:bg-[#D8C49A] hover:text-[#2A2A2A] shadow-md border border-[#D8C49A]/30 transition-colors"
            title="Info"
          >
            i

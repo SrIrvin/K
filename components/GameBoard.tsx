@@ -49,7 +49,12 @@ const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectl
                 )}
                 {player.scored.map(card => (
                     <div key={card.id} className="h-full flex-shrink-0" style={{ aspectRatio: '5/7' }}>
-                        <GameCard card={card} isUnitOnBoard={true} unit={card as Unit}/>
+                        <GameCard 
+                            card={card} 
+                            isUnitOnBoard={true} 
+                            unit={card as Unit}
+                            onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })}
+                        />
                     </div>
                 ))}
             </div>
@@ -207,7 +212,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                               }}
                             >
                               <div className={`w-full h-full stone-piece ${selectedUnitIdOnBoard === unit.id && !isKingMoveActive ? 'stone-piece-selected' : ''} ${isUnitHinted ? 'idle-unit-glow' : ''}`}>
-                                <GameCard unit={unit} isUnitOnBoard={true} card={unit} isSelected={selectedUnitIdOnBoard === unit.id && !isKingMoveActive} />
+                                <GameCard 
+                                  unit={unit} 
+                                  isUnitOnBoard={true} 
+                                  card={unit} 
+                                  isSelected={selectedUnitIdOnBoard === unit.id && !isKingMoveActive} 
+                                  onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card: unit } })}
+                                />
                               </div>
 
                               {unit.id === selectedUnitIdOnBoard && canUnitScore && actionsRemaining > 0 && (

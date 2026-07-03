@@ -81,41 +81,7 @@ const PlayerPillar: React.FC<{ player: Player; isOpponent?: boolean; title: stri
   );
 };
 
-const CardInfoModal: React.FC = () => {
-    const { state, dispatch } = useContext(GameContext);
-    const card = state.cardInfoModal;
-    if (!card) return null;
-
-    return (
-        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-[100] p-4" onClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card: null } })}>
-            <div className="stone-modal p-6 text-center max-w-sm w-full relative" onClick={e => e.stopPropagation()}>
-              
-              {/* Cuneiform designs in modal */}
-              <div className="absolute top-2 left-2 text-[#8A6938] text-xs opacity-40">𐎫 𐎬</div>
-              <div className="absolute top-2 right-2 text-[#8A6938] text-xs opacity-40">𐎭 𐎮</div>
-
-              <div className="flex justify-center mb-5 h-44">
-                  <GameCard card={card} />
-              </div>
-              
-              <h3 className="text-xl font-ancient-header text-[#D8C49A] mb-3 border-b border-[#8A6938] pb-1">
-                {card.rank === 'Joker' ? 'El Joker' : `${card.rank} de ${card.suit}`}
-              </h3>
-              
-              <p className="text-sm text-[#D8C49A]/80 font-runic-text leading-relaxed px-2 mb-6">
-                {CARD_DESCRIPTIONS[card.rank]}
-              </p>
-              
-              <button 
-                onClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card: null } })} 
-                className="stone-button w-full text-sm py-2.5"
-              >
-                Cerrar Tablilla
-              </button>
-            </div>
-        </div>
-    );
-};
+import { CardInfoModal } from './modals/CardInfoModal';
 
 
 const GameUI: React.FC = () => {

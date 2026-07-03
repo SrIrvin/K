@@ -438,6 +438,16 @@ const GameUI: React.FC = () => {
                                                                             transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
                                                                             zIndex: isHovered ? index + 10 : index,
                                                                         }}
+                                                                        draggable={canAct}
+                                                                        onDragStart={(e) => {
+                                                                            e.dataTransfer.setData('cardId', card.id);
+                                                                            dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: card.id } });
+                                                                        }}
+                                                                        onDragEnd={() => {
+                                                                            setTimeout(() => {
+                                                                                dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } });
+                                                                            }, 150);
+                                                                        }}
                                                                         onClick={(e) => {
                                                                             if (isHovered || cards.length === 1) {
                                                                                 e.stopPropagation();
@@ -549,6 +559,16 @@ const GameUI: React.FC = () => {
                                                                            aspectRatio: '5/7',
                                                                            transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
                                                                            zIndex: isHovered ? index + 10 : index,
+                                                                       }}
+                                                                       draggable={canAct}
+                                                                       onDragStart={(e) => {
+                                                                           e.dataTransfer.setData('cardId', card.id);
+                                                                           dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: card.id } });
+                                                                       }}
+                                                                       onDragEnd={() => {
+                                                                           setTimeout(() => {
+                                                                               dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } });
+                                                                           }, 150);
                                                                        }}
                                                                      >
                                                                          <div className={`flex-grow w-full max-h-[80%] stone-card-container ${isCardHinted ? 'idle-hint-glow' : ''}`}>

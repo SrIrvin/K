@@ -162,9 +162,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
         // Action 1: Use a special ability on a target
         if (isTargeting) {
-            if (isTargeting === 'queen' && !unitInCell && row === playerStartRow) {
-                dispatch({ type: 'USE_ABILITY_ON_TARGET', payload: { unitId: '', position: { row, col } } });
-            } else if (unitInCell) {
+            if (unitInCell) {
                 dispatch({ type: 'USE_ABILITY_ON_TARGET', payload: { unitId: unitInCell.id } });
             }
             return;
@@ -211,9 +209,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
             // Dragged a card from hand to a board cell
             if (isTargeting) {
                 const unitInCell = board[row][col];
-                if (isTargeting === 'queen' && !unitInCell && row === playerStartRow) {
-                    dispatch({ type: 'USE_ABILITY_ON_TARGET', payload: { unitId: '', position: { row, col } } });
-                } else if (unitInCell) {
+                if (unitInCell) {
                     dispatch({ type: 'USE_ABILITY_ON_TARGET', payload: { unitId: unitInCell.id } });
                 }
             } else {
@@ -301,22 +297,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                         let cellStateClass = '';
                         if (isMovable) {
                           cellStateClass = 'stone-cell-valid';
-                        } else if (isTargeting) {
-                          if (unit) {
-                            cellStateClass = 'stone-cell-target';
-                          } else if (isTargeting === 'queen' && rowIndex === playerStartRow) {
-                            const hasUnitInDiscard = currentPlayer.discard.some(card => {
-                              const val = parseInt(card.rank, 10);
-                              return !isNaN(val) && val >= 2 && val <= 10;
-                            });
-                            if (hasUnitInDiscard) {
-                              cellStateClass = 'stone-cell-target';
-                            } else {
-                              cellStateClass = 'stone-cell-cracked';
-                            }
-                          } else {
-                            cellStateClass = 'stone-cell-cracked';
-                          }
+                        } else if (isTargeting && unit) {
+                          cellStateClass = 'stone-cell-target';
                         } else if (isPlaceable) {
                           // Light yellow/bronze pulse for placing spots
                           cellStateClass = 'border-[#8A6938] bg-[#D8C49A]/15 cursor-pointer shadow-[0_0_12px_rgba(216,196,154,0.3)] animate-pulse';

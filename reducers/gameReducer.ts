@@ -49,6 +49,9 @@ export const gameReducer = (state: GameState, action: Action): GameState => {
     case 'USE_ABILITY_ON_TARGET':
       return logic.useAbilityOnTarget(state, action.payload);
 
+    case 'RESURRECT_UNIT_TO_HAND':
+      return logic.resurrectUnitToHand(state, action.payload);
+
     case 'SCORE_UNIT':
       return logic.scoreUnit(state);
 

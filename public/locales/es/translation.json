@@ -14,7 +14,7 @@
     "9": "Una unidad pesada. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 1.",
     "10": "Una unidad pesada. Se puede colocar en tu fila inicial. Su número es su Daño Base. Velocidad: 1.",
     "J": "El Turbo. Apunta a una unidad amiga para darle +1 de Velocidad para su próximo movimiento. El Jack se descarta después del movimiento.",
-    "Q": "La Sanadora / Resucitadora. Apunta a una unidad amiga dañada para restaurar su Daño Base (y eliminar sus atacantes apilados), o a una unidad ilesa para darle +1 de ataque. Alternativamente, apunta a una celda vacía de tu zona de salida para resucitar la última unidad de tu pila de descarte con sus últimos valores.",
+    "Q": "La Sanadora / Resucitadora. Apunta a una unidad amiga dañada para restaurar su Daño Base (y eliminar sus atacantes apilados), o a una unidad ilesa para darle +1 de ataque. Si tienes una Reina en tu mano y unidades en tu pila de descarte, aparecerá una carta fantasma en tu mano; haz clic en ella para resucitarla directamente a tu mano.",
     "K": "El Dictador Loco. Actívalo para mover cada una de tus unidades un espacio ortogonal. Debes mover cada unidad. Cualquier unidad que no se mueva para cuando termines la acción será descartada.",
     "A": "El Misil Kamikaze. Inflige 1 de daño directo a tu oponente. Esta carta se mueve a tu pila de puntuación.",
     "Joker": "El Asesino de las Sombras. Elimina instantáneamente a cualquier unidad enemiga del tablero. La unidad se envía a la pila de descarte."
@@ -30,7 +30,7 @@
     "9": "Consejo: Ideal para liderar el frente de ataque. Su alto daño base permite destruir o someter casi cualquier unidad enemiga.",
     "10": "Consejo: La unidad más destructiva. Es lenta, así que considera apoyarla con un Jack (Turbo) para duplicar su movilidad y sorprender al oponente.",
     "J": "Consejo: Combínala con una unidad pesada para darle un avance sorpresa de velocidad 2, o con una ligera para recorrer el tablero de un solo golpe.",
-    "Q": "Consejo: Úsala en tus unidades más fuertes (como un 10) con atacantes acumulados para restaurar su poder, o en una casilla vacía de tu fila de salida para resucitar una unidad potente de tu descarte con sus últimos valores.",
+    "Q": "Consejo: Úsala en tus unidades más fuertes (como un 10) con atacantes acumulados para restaurar su poder. Si necesitas recuperar una unidad destruida, haz clic en la carta fantasma de tu mano para traerla de vuelta del descarte.",
     "K": "Consejo: ¡Planifica bien! Es devastadora para avanzar en masa o presionar un touchdown, pero debes mover cada unidad o serán eliminadas.",
     "A": "Consejo: Excelente para dar el golpe de gracia cuando al oponente le queden pocos puntos de vida y tus unidades no puedan cruzar el tablero.",
     "Joker": "Consejo: El recurso definitivo de control. Consérvala para neutralizar instantáneamente la unidad pesada enemiga más peligrosa que esté a punto de anotar."

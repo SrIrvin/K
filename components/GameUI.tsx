@@ -338,31 +338,70 @@ const GameUI: React.FC = () => {
 
                             {/* Hand Cards */}
                             {(() => {
-                              const isCardHinted = showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard;
+                                                            const isCardHinted = showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard;
+                              const hasQueenInHand = specialCards.some(c => c.rank === 'Q');
+                              const lastUnitInDiscard = [...currentPlayer.discard].reverse().find(card => {
+                                const val = parseInt(card.rank, 10);
+                                return !isNaN(val) && val >= 2 && val <= 10;
+                              });
+
                               return (
                                 <div className="flex justify-between items-center gap-4 h-[86px] sm:h-[96px] md:h-[120px]">
                                     {/* Unit Cards Area (Left) */}
                                     <div className="flex-grow flex gap-2 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40">
-                                        {unitCards.length === 0 ? (
+                                        {unitCards.length === 0 && !lastUnitInDiscard ? (
                                             <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
                                               Sin cartas de unidad
                                             </div>
                                         ) : (
-                                            unitCards.map(card => (
+                                            <>
+                                              {unitCards.map(card => (
+                                                  <div 
+                                                    key={card.id} 
+                                                    className="h-full flex-shrink-0"
+                                                    style={{ aspectRatio: '5/7' }}
+                                                    onClick={() => handleSelectCard(selectedCardIdInHand === card.id ? null : card.id)}
+                                                  >
+                                                      <div className={`w-full h-full ${selectedCardIdInHand === card.id ? 'stone-card-selected' : 'stone-card-container'} ${isCardHinted ? 'idle-hint-glow' : ''}`}>
+                                                          <GameCard 
+                                                              card={card}
+                                                              isSelected={selectedCardIdInHand === card.id}
+                                                          />
+                                                      </div>
+                                                  </div>
+                                              ))}
+
+                                              {/* Ghost Card for Queen's Resurrection ability */}
+                                              {hasQueenInHand && lastUnitInDiscard && (
                                                 <div 
-                                                  key={card.id} 
-                                                  className="h-full flex-shrink-0"
+                                                  className="h-full flex-shrink-0 relative opacity-40 hover:opacity-85 border-2 border-dashed border-yellow-600/70 rounded-lg cursor-pointer transform hover:scale-[1.03] transition-all duration-300 group shadow-lg"
                                                   style={{ aspectRatio: '5/7' }}
-                                                  onClick={() => handleSelectCard(selectedCardIdInHand === card.id ? null : card.id)}
+                                                  onClick={() => {
+                                                    const queenCard = specialCards.find(c => c.rank === 'Q');
+                                                    if (queenCard && actionsRemaining > 0) {
+                                                      dispatch({ 
+                                                        type: 'RESURRECT_UNIT_TO_HAND', 
+                                                        payload: { queenCardId: queenCard.id, targetCardId: lastUnitInDiscard.id } 
+                                                      });
+                                                    }
+                                                  }}
+                                                  title="Haz clic para resucitar a tu mano usando tu Reina (Q)"
                                                 >
-                                                    <div className={`w-full h-full ${selectedCardIdInHand === card.id ? 'stone-card-selected' : 'stone-card-container'} ${isCardHinted ? 'idle-hint-glow' : ''}`}>
+                                                    <div className="w-full h-full pointer-events-none filter sepia contrast-125 brightness-75">
                                                         <GameCard 
-                                                            card={card}
-                                                            isSelected={selectedCardIdInHand === card.id}
+                                                            card={lastUnitInDiscard}
+                                                            isSelected={false}
                                                         />
                                                     </div>
+                                                    {/* Golden runic text overlay */}
+                                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-[#D8C49A] font-bold text-center text-[9px] sm:text-[10px] pointer-events-none p-1 font-orbitron select-none">
+                                                      <span>RESUCITAR</span>
+                                                      <span className="text-[8px] opacity-75 font-mono">({lastUnitInDiscard.rank} de {lastUnitInDiscard.suit})</span>
+                                                      <span className="text-[7px] text-yellow-500 mt-1 px-1 bg-yellow-950/70 border border-yellow-600/40 rounded uppercase tracking-wider">Cuesta Q (1)</span>
+                                                    </div>
                                                 </div>
-                                            ))
+                                              )}
+                                            </>
                                         )}
                                     </div>
 
@@ -487,7 +526,7 @@ const GameUI: React.FC = () => {
                   </h2>
                   <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
                   <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
-                    {state.isTargeting === 'queen' && "REINA: Haz clic en una unidad aliada para curarla/potenciarla, o en una casilla vacía de tu ZONA DE SALIDA (última fila más cercana a ti) para resucitar tu última unidad del descarte."}
+                    {state.isTargeting === 'queen' && "REINA: Haz clic en una unidad aliada en el tablero para curarla/potenciarla."}
                     {state.isTargeting === 'jack' && "JOTA: Haz clic en una unidad aliada para darle +1 de velocidad en su próximo movimiento."}
                     {state.isTargeting === 'joker' && "JOKER: Haz clic en una unidad enemiga en el tablero para eliminarla instantáneamente."}
                   </p>

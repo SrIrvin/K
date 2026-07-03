@@ -65,8 +65,8 @@ export const playSpecialCard = (state: GameState, payload: { card: Card }): Game
   return state;
 };
 
-export const useAbilityOnTarget = (state: GameState, payload: { unitId: string; position?: { row: number, col: number } }): GameState => {
-  logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget', targeting: state.isTargeting, unitId: payload.unitId, position: payload.position });
+export const useAbilityOnTarget = (state: GameState, payload: { unitId: string }): GameState => {
+  logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget', targeting: state.isTargeting, unitId: payload.unitId });
   if (!state.isTargeting || !state.selectedCardIdInHand) return state;
 
   const currentPlayer = state.players[state.currentPlayerId];
@@ -79,26 +79,59 @@ export const useAbilityOnTarget = (state: GameState, payload: { unitId: string; 
     return state;
   }
 
-  const { unitId, position } = payload;
+  const { unitId } = payload;
   const unitOnBoard = state.board.flat().find(u => u?.id === unitId);
-  if (!unitOnBoard && !(state.isTargeting === 'queen' && position)) {
+  if (!unitOnBoard) {
     logger.error({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:error', reason: 'Target unit not on board' });
     return state;
   }
 
   switch (state.isTargeting) {
     case 'queen':
-      return applyQueenAbility(state, cardInHand, unitOnBoard || null, currentPlayer, opponentPlayer, position);
+      return applyQueenAbility(state, cardInHand, unitOnBoard, currentPlayer, opponentPlayer);
     case 'joker':
-      if (!unitOnBoard) return state;
       return applyJokerAbility(state, cardInHand, unitOnBoard, currentPlayer, opponentPlayer);
     case 'jack':
-      if (!unitOnBoard) return state;
       return applyJackAbility(state, cardInHand, unitOnBoard, currentPlayer);
     default:
       let resetState = mutators.setTargeting(state, null);
       return mutators.selectCardInHand(resetState, null);
   }
+};
+
+export const resurrectUnitToHand = (
+  state: GameState, 
+  payload: { queenCardId: string; targetCardId: string }
+): GameState => {
+  if (state.actionsRemaining <= 0 || state.kingMoveState?.isMoving) return state;
+
+  const currentPlayer = state.players[state.currentPlayerId];
+  if (!currentPlayer) return state;
+
+  const queenCard = currentPlayer.hand.find(c => c.id === payload.queenCardId);
+  if (!queenCard) return state;
+
+  const targetCardIndex = currentPlayer.discard.findIndex(c => c.id === payload.targetCardId);
+  if (targetCardIndex === -1) return state;
+
+  const cardToResurrect = currentPlayer.discard[targetCardIndex];
+
+  const newHand = currentPlayer.hand.filter(c => c.id !== queenCard.id);
+  let newDiscard = currentPlayer.discard.filter((_, idx) => idx !== targetCardIndex);
+  newDiscard.push(queenCard);
+
+  newHand.push(cardToResurrect);
+
+  let updatedState = mutators.updatePlayer(state, currentPlayer.id, {
+    hand: newHand,
+    discard: newDiscard
+  });
+
+  updatedState = mutators.spendAction(updatedState);
+  return mutators.addLog(
+    updatedState, 
+    `QUEEN resurrected ${cardToResurrect.rank} of ${cardToResurrect.suit} back to hand.`
+  );
 };
 
 export const moveUnitDuringKingEffect = (state: GameState, payload: { to: { row: number, col: number } }): GameState => {

@@ -37,31 +37,9 @@ export const getAiBestAction = (state: GameState): Action | null => {
             }
         } 
         else if (state.isTargeting === 'queen') {
-            const aiDiscardUnits = aiPlayer.discard.filter(card => {
-                const val = parseInt(card.rank, 10);
-                return !isNaN(val) && val >= 2 && val <= 10;
-            });
-
-            // If we want to resurrect or have no units on board but have discard units
-            const startRow = 0; // AI (player 2/Red) start row is 0
-            const emptyStartCells: { row: number, col: number }[] = [];
-            for (let col = 0; col < 4; col++) {
-                if (state.board[startRow][col] === null) {
-                    emptyStartCells.push({ row: startRow, col });
-                }
-            }
-
-            const damagedUnits = aiUnits.filter(u => u.currentDamage < u.baseDamage);
-
-            // Resurrect if we have no units, or if we have empty spaces and no damaged units (resurrection is better than buffing)
-            if (aiDiscardUnits.length > 0 && emptyStartCells.length > 0 && (aiUnits.length === 0 || damagedUnits.length === 0)) {
-                // Target the first empty cell in start zone
-                const cell = emptyStartCells[0];
-                return { type: 'USE_ABILITY_ON_TARGET', payload: { unitId: '', position: cell } };
-            }
-
             if (aiUnits.length > 0) {
                 // Prioritize healing a damaged friendly unit
+                const damagedUnits = aiUnits.filter(u => u.currentDamage < u.baseDamage);
                 if (damagedUnits.length > 0) {
                     const target = [...damagedUnits].sort((a, b) => (b.baseDamage - b.currentDamage) - (a.baseDamage - a.currentDamage))[0];
                     return { type: 'USE_ABILITY_ON_TARGET', payload: { unitId: target.id } };
@@ -166,27 +144,30 @@ export const getAiBestAction = (state: GameState): Action | null => {
 
     const queenCard = aiPlayer.hand.find(c => c.rank === 'Q');
     if (queenCard) {
-        const aiDiscardUnits = aiPlayer.discard.filter(card => {
-            const val = parseInt(card.rank, 10);
-            return !isNaN(val) && val >= 2 && val <= 10;
-        });
-        const startRow = 0;
-        const emptyStartCells = Array.from({ length: 4 }).map((_, c) => c).filter(col => state.board[startRow][col] === null);
-        const canResurrect = aiDiscardUnits.length > 0 && emptyStartCells.length > 0;
-
-        if (aiUnits.length > 0 || canResurrect) {
+        // Option A: Heal/Buff (targets a friendly unit on board)
+        if (aiUnits.length > 0) {
             const damagedUnits = aiUnits.filter(u => u.currentDamage < u.baseDamage);
-            let score = 80;
-            if (damagedUnits.length > 0) {
-                score = 180;
-            } else if (canResurrect) {
-                score = 150; // Give high priority to bringing a unit back to life!
-            }
+            const score = damagedUnits.length > 0 ? 180 : 80;
             possibleActions.push({
                 type: 'PLAY_SPECIAL_CARD',
                 payload: { card: queenCard },
                 score,
-                log: canResurrect && aiUnits.length === 0 ? 'AI will play QUEEN to resurrect a unit' : 'AI will play QUEEN'
+                log: 'AI will play QUEEN to heal or buff'
+            });
+        }
+
+        // Option B: Resurrect unit from discard to hand
+        const aiDiscardUnits = aiPlayer.discard.filter(card => {
+            const val = parseInt(card.rank, 10);
+            return !isNaN(val) && val >= 2 && val <= 10;
+        });
+        if (aiDiscardUnits.length > 0) {
+            const lastUnit = aiDiscardUnits[aiDiscardUnits.length - 1];
+            possibleActions.push({
+                type: 'RESURRECT_UNIT_TO_HAND',
+                payload: { queenCardId: queenCard.id, targetCardId: lastUnit.id },
+                score: 155, // Higher than buffing, lower than healing a heavily damaged unit
+                log: `AI will play QUEEN to resurrect ${lastUnit.rank} of ${lastUnit.suit} to hand`
             });
         }
     }
@@ -337,7 +318,7 @@ export const getAiBestAction = (state: GameState): Action | null => {
     }
 
     // Direct action dispatches
-    if (bestAction.type === 'PLAY_SPECIAL_CARD' || bestAction.type === 'DRAW_CARD' || bestAction.type === 'END_TURN') {
+    if (bestAction.type === 'PLAY_SPECIAL_CARD' || bestAction.type === 'DRAW_CARD' || bestAction.type === 'END_TURN' || bestAction.type === 'RESURRECT_UNIT_TO_HAND') {
         return bestAction;
     }
 

@@ -124,13 +124,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               gameType: nextState.gameType || 'local'
             });
 
-            // Update stats for global ranking (ignore standard Hero default names to keep ranking clean)
-            if (!winnerPlayer.name.startsWith('Héroe_')) {
-              updatePlayerStats(winnerPlayer.name, true);
-            }
-            if (!loserPlayer.name.startsWith('Héroe_')) {
-              updatePlayerStats(loserPlayer.name, false);
-            }
+            // Update stats for global ranking for all nicknames
+            updatePlayerStats(winnerPlayer.name, true);
+            updatePlayerStats(loserPlayer.name, false);
           }
         } catch (err) {
           console.warn('[Firebase] Failed to save game record or stats:', err);

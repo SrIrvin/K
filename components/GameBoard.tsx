@@ -14,23 +14,24 @@ interface GameBoardProps {
 }
 
 const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectly?: boolean }> = ({ player, isOpponent = false, canScoreDirectly = false }) => {
-    const { dispatch } = useContext(GameContext);
+    const { state, dispatch } = useContext(GameContext);
+    const isLocalTurn = state.gameType !== 'online' || state.localPlayerId === state.currentPlayerId;
 
     const handleDirectScore = () => {
-        if (canScoreDirectly) {
+        if (canScoreDirectly && isLocalTurn) {
             dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
         }
     };
 
     const handleDragOver = (e: React.DragEvent) => {
-        if (canScoreDirectly && isOpponent) {
+        if (canScoreDirectly && isOpponent && isLocalTurn) {
             e.preventDefault();
         }
     };
 
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
-        if (canScoreDirectly && isOpponent) {
+        if (canScoreDirectly && isOpponent && isLocalTurn) {
             dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
         }
     };
@@ -140,7 +141,10 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         setPan({ x: 0, y: 0 });
     };
 
+    const isLocalTurn = state.gameType !== 'online' || state.localPlayerId === state.currentPlayerId;
+
     const handleCellInteraction = (row: number, col: number) => {
+        if (!isLocalTurn) return;
         const unitInCell = board[row][col];
         
         // During King's Move, logic is different
@@ -196,6 +200,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
     const handleDrop = (e: React.DragEvent, row: number, col: number) => {
         e.preventDefault();
+        if (!isLocalTurn) return;
         const draggedCardId = e.dataTransfer.getData('cardId');
         const draggedUnitId = e.dataTransfer.getData('unitId');
 

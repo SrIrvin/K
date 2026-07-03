@@ -1,7 +1,11 @@
 import React, { useContext } from 'react';
 import { GameContext } from '../context/GameContext';
 
-const MainMenu: React.FC = () => {
+interface MainMenuProps {
+  onOnlineMode: () => void;
+}
+
+const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const { dispatch } = useContext(GameContext);
 
   const startGame = (gameType: 'ai' | 'p2') => {
@@ -54,17 +58,24 @@ const MainMenu: React.FC = () => {
         </p>
 
         {/* Buttons carved in stone */}
-        <div className="flex flex-col gap-5 w-full max-w-xs">
+        <div className="flex flex-col gap-4 w-full max-w-xs">
           <button 
             onClick={() => startGame('p2')} 
-            className="stone-button stone-button-blue w-full py-4 text-base md:text-lg"
+            className="stone-button w-full py-3.5 text-base"
           >
-            Duelo Cara a Cara
+            Duelo Local (Cara a Cara)
+          </button>
+
+          <button 
+            onClick={onOnlineMode} 
+            className="stone-button stone-button-blue w-full py-3.5 text-base"
+          >
+            Duelo en Línea (Salas)
           </button>
           
           <button 
             onClick={() => startGame('ai')} 
-            className="stone-button w-full py-4 text-base md:text-lg"
+            className="stone-button w-full py-3.5 text-base"
           >
             Desafiar a la IA
           </button>

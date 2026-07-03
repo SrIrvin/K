@@ -61,6 +61,29 @@ export const gameReducer = (state: GameState, action: Action): GameState => {
     case 'RESET_TO_MENU': {
       return initialState;
     }
+
+    case 'SET_ONLINE_GAME': {
+      return {
+        ...state,
+        gameType: 'online',
+        localPlayerId: action.payload.localPlayerId,
+      };
+    }
+
+    case 'SET_FULL_STATE': {
+      return {
+        ...action.payload,
+        // Make sure we carry over the localPlayerId if it is set
+        localPlayerId: state.localPlayerId !== undefined ? state.localPlayerId : action.payload.localPlayerId,
+      };
+    }
+
+    case 'SET_GAME_MODE': {
+      return {
+        ...state,
+        gameMode: action.payload,
+      };
+    }
     
     case 'SET_CARD_INFO_MODAL': {
       return { ...state, cardInfoModal: action.payload.card };

@@ -106,7 +106,8 @@ const GameUI: React.FC = () => {
     
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
     const isCurrentPlayerTurn = useMemo(() => currentPlayerId === state.currentPlayerId, [currentPlayerId, state.currentPlayerId]);
-    const canAct = useMemo(() => actionsRemaining > 0 && !state.isTargeting && !kingMoveState?.isMoving && isCurrentPlayerTurn, [actionsRemaining, state.isTargeting, kingMoveState, isCurrentPlayerTurn]);
+    const isLocalTurn = useMemo(() => state.gameType !== 'online' || state.localPlayerId === state.currentPlayerId, [state.gameType, state.localPlayerId, state.currentPlayerId]);
+    const canAct = useMemo(() => actionsRemaining > 0 && !state.isTargeting && !kingMoveState?.isMoving && isCurrentPlayerTurn && isLocalTurn, [actionsRemaining, state.isTargeting, kingMoveState, isCurrentPlayerTurn, isLocalTurn]);
 
     // 🕯️ Idle timer UX - Highlights options if player is inactive for 20 seconds
     useEffect(() => {
@@ -459,7 +460,7 @@ const GameUI: React.FC = () => {
                                                   style={{ width: '72px', aspectRatio: '5/7' }}
                                                   onClick={() => {
                                                     const queenCard = specialCards.find(c => c.rank === 'Q');
-                                                    if (queenCard && actionsRemaining > 0) {
+                                                    if (queenCard && canAct) {
                                                       dispatch({ 
                                                         type: 'RESURRECT_UNIT_TO_HAND', 
                                                         payload: { queenCardId: queenCard.id, targetCardId: lastUnitInDiscard.id } 
@@ -598,7 +599,7 @@ const GameUI: React.FC = () => {
 
                         {/* Action Hub / Control Panel */}
                         <div className="flex-grow flex flex-col justify-end p-4 border-t border-[#574d3c]/30">
-                            {isCurrentPlayerTurn && gameMode === 'playing' ? (
+                            {isLocalTurn && gameMode === 'playing' ? (
                               <div className="flex flex-col gap-3 w-full bg-[#2A2A2A]/50 p-3 rounded-lg border border-[#574d3c] shadow-inner mb-3 text-center">
                                 <div className="text-[#D8C49A] font-runic-text font-bold text-xs uppercase tracking-widest">
                                   Acciones Libres
@@ -626,7 +627,7 @@ const GameUI: React.FC = () => {
                             ) : (
                               <div className="w-full bg-[#2A2A2A]/20 p-3 rounded-lg border border-[#574d3c]/40 text-center mb-3">
                                 <p className="text-xs text-[#9A8B72] italic uppercase tracking-wider animate-pulse">
-                                  Esperando al rival...
+                                  {state.gameType === 'online' ? 'Esperando al rival...' : 'Esperando al rival...'}
                                 </p>
                               </div>
                             )}

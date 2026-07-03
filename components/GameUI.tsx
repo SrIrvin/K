@@ -90,6 +90,15 @@ const GameUI: React.FC = () => {
     
     const [showKingInfo, setShowKingInfo] = useState(false);
     const [showHints, setShowHints] = useState(false);
+    const [isLeftCollapsed, setIsLeftCollapsed] = useState(true);
+    const [isRightCollapsed, setIsRightCollapsed] = useState(true);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+            setIsLeftCollapsed(false);
+            setIsRightCollapsed(false);
+        }
+    }, []);
 
     const currentPlayer = useMemo(() => players?.[currentPlayerId], [players, currentPlayerId]);
     const opponentPlayer = useMemo(() => players?.[1 - currentPlayerId], [players, currentPlayerId]);
@@ -241,23 +250,70 @@ const GameUI: React.FC = () => {
             {/* 🏛️ Layout: Widescreen Landscape Altar (3 columns: Left Pillar, Center Altar, Right Pillar) */}
             <div className="flex flex-col md:flex-row w-full h-full relative z-20 overflow-hidden">
                 
+                {/* Mobile Backdrops for collapsible sidebars */}
+                {!isLeftCollapsed && (
+                  <div 
+                    className="md:hidden fixed inset-0 bg-black/70 z-25 transition-opacity"
+                    onClick={() => setIsLeftCollapsed(true)}
+                  />
+                )}
+                {!isRightCollapsed && (
+                  <div 
+                    className="md:hidden fixed inset-0 bg-black/70 z-25 transition-opacity"
+                    onClick={() => setIsRightCollapsed(true)}
+                  />
+                )}
+
                 {/* 1. LEFT SIDEBAR PILLAR: Opponent Stats */}
-                <div className="hidden md:flex flex-col w-[18%] lg:w-[15%] h-full bg-[#1e1a14]/90 border-r-4 border-[#8A6938] shadow-[10px_0_30px_rgba(0,0,0,0.8)] z-10">
-                    <PlayerPillar 
-                      player={opponentPlayer} 
-                      isOpponent={true} 
-                      title={state.gameType === 'ai' ? "Fuerza AI" : "Rival"} 
-                    />
+                <div 
+                  className={`fixed md:relative top-0 left-0 h-full z-30 md:z-10 transition-all duration-300 ease-in-out flex flex-col ${
+                    isLeftCollapsed 
+                      ? 'fixed -translate-x-full md:relative md:w-0 border-r-0 bg-transparent shadow-none' 
+                      : 'fixed translate-x-0 w-[260px] md:relative md:w-[18%] lg:md:w-[15%] bg-[#1e1a14]/95 border-r-4 border-[#8A6938] shadow-[10px_0_30px_rgba(0,0,0,0.8)]'
+                  }`}
+                >
+                    <div className={`flex flex-col h-full w-full transition-opacity duration-300 ${isLeftCollapsed ? 'md:hidden opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        <PlayerPillar 
+                          player={opponentPlayer} 
+                          isOpponent={true} 
+                          title={state.gameType === 'ai' ? "Fuerza AI" : "Rival"} 
+                        />
+                    </div>
+
+                    {/* Left Sidebar Toggle Tab (Drawer handle) */}
+                    <button 
+                      onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+                      className="absolute top-1/2 -translate-y-1/2 left-full z-40 bg-[#1e1a14] border-y-2 border-r-2 border-[#8A6938] hover:bg-[#2e261f] text-[#D8C49A] p-2 rounded-r-md transition-all duration-300 shadow-md font-extrabold flex items-center justify-center text-xs cursor-pointer"
+                      style={{ height: '50px', width: '20px' }}
+                    >
+                      {isLeftCollapsed ? '▶' : '◀'}
+                    </button>
                 </div>
 
                 {/* 2. CENTER AREA: The Altar Floor (GameBoard & Active Hand) */}
                 <div className="flex-grow flex flex-col h-full min-w-0 p-2 justify-between items-center relative">
                     
                     {/* Tiny header for mobile/portrait backup */}
-                    <div className="md:hidden flex justify-between items-center w-full px-2 py-1 bg-[#1e1a14]/80 border-b border-[#8A6938] rounded-md text-[#D8C49A] text-xs">
-                        <span className="font-extrabold font-orbitron">{currentPlayer.name} (Dmg: {currentPlayer.damage})</span>
-                        <span className="text-yellow-500 font-bold font-orbitron">Acciones: {actionsRemaining}</span>
-                        <span className="font-extrabold font-orbitron">{opponentPlayer.name} (Dmg: {opponentPlayer.damage})</span>
+                    <div className="md:hidden flex justify-between items-center w-full px-3 py-1.5 bg-[#1e1a14]/90 border-b border-[#8A6938] rounded-md text-[#D8C49A] text-xs z-10 gap-2 shadow-lg">
+                        <button 
+                          onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+                          className="px-2 py-1 bg-[#2A2A2A] border border-[#8A6938] rounded font-bold font-runic-text hover:bg-[#8A6938] hover:text-[#1e1a14] transition-all text-[10px]"
+                        >
+                          𐎠 Rival 📊
+                        </button>
+                        
+                        <div className="flex items-center gap-1.5 font-orbitron text-[10px] sm:text-xs">
+                          <span className="font-extrabold">{currentPlayer.name.split(' ')[0]} ({currentPlayer.damage}D)</span>
+                          <span className="text-yellow-500 font-bold">Acc: {actionsRemaining}</span>
+                          <span className="font-extrabold">vs {opponentPlayer.name.split(' ')[0]} ({opponentPlayer.damage}D)</span>
+                        </div>
+
+                        <button 
+                          onClick={() => setIsRightCollapsed(!isRightCollapsed)}
+                          className="px-2 py-1 bg-[#2A2A2A] border border-[#8A6938] rounded font-bold font-runic-text hover:bg-[#8A6938] hover:text-[#1e1a14] transition-all text-[10px]"
+                        >
+                          Panel 𐎧
+                        </button>
                     </div>
 
                     {/* Game board takes about 70% of the screen height */}
@@ -345,60 +401,77 @@ const GameUI: React.FC = () => {
                 </div>
 
                 {/* 3. RIGHT SIDEBAR PILLAR: Current Player Details & Action Center */}
-                <div className="hidden md:flex flex-col w-[18%] lg:w-[15%] h-full bg-[#1e1a14]/90 border-l-4 border-[#8A6938] shadow-[-10px_0_30px_rgba(0,0,0,0.8)] z-10 justify-between">
-                    {/* Current Player Stats */}
-                    <div className="flex-shrink-0">
-                      <PlayerPillar 
-                        player={currentPlayer} 
-                        title="Tu Guardián" 
-                      />
-                    </div>
+                <div 
+                  className={`fixed md:relative top-0 right-0 h-full z-30 md:z-10 transition-all duration-300 ease-in-out flex flex-col justify-between ${
+                    isRightCollapsed 
+                      ? 'fixed translate-x-full md:relative md:w-0 border-l-0 bg-transparent shadow-none' 
+                      : 'fixed translate-x-0 right-0 w-[260px] md:relative md:w-[18%] lg:md:w-[15%] bg-[#1e1a14]/95 border-l-4 border-[#8A6938] shadow-[-10px_0_30px_rgba(0,0,0,0.8)]'
+                  }`}
+                >
+                    <div className={`flex flex-col h-full w-full justify-between transition-opacity duration-300 ${isRightCollapsed ? 'md:hidden opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                        {/* Current Player Stats */}
+                        <div className="flex-shrink-0">
+                          <PlayerPillar 
+                            player={currentPlayer} 
+                            title="Tu Guardián" 
+                          />
+                        </div>
 
-                    {/* Action Hub / Control Panel */}
-                    <div className="flex-grow flex flex-col justify-end p-4 border-t border-[#574d3c]/30">
-                        {isCurrentPlayerTurn && gameMode === 'playing' ? (
-                          <div className="flex flex-col gap-3 w-full bg-[#2A2A2A]/50 p-3 rounded-lg border border-[#574d3c] shadow-inner mb-3 text-center">
-                            <div className="text-[#D8C49A] font-runic-text font-bold text-xs uppercase tracking-widest">
-                              Acciones Libres
-                            </div>
-                            <div className="text-4xl font-extrabold font-orbitron text-[#D8C49A] tracking-tighter my-1">
-                              {actionsRemaining}
-                            </div>
-                            
-                            <button 
-                              onClick={() => dispatch({ type: 'DRAW_CARD'})} 
-                              disabled={!canAct} 
-                              className={`stone-button w-full py-2.5 text-xs text-[#1e1a14] ${showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''}`}
-                            >
-                              Robar (1 Act)
-                            </button>
-                            
-                            <button 
-                              onClick={() => dispatch({ type: 'END_TURN'})} 
-                              disabled={kingMoveState?.isMoving} 
-                              className={`stone-button stone-button-red w-full py-2.5 text-xs ${showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''}`}
-                            >
-                              Terminar Turno
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="w-full bg-[#2A2A2A]/20 p-3 rounded-lg border border-[#574d3c]/40 text-center mb-3">
-                            <p className="text-xs text-[#9A8B72] italic uppercase tracking-wider animate-pulse">
-                              Esperando al rival...
-                            </p>
-                          </div>
-                        )}
+                        {/* Action Hub / Control Panel */}
+                        <div className="flex-grow flex flex-col justify-end p-4 border-t border-[#574d3c]/30">
+                            {isCurrentPlayerTurn && gameMode === 'playing' ? (
+                              <div className="flex flex-col gap-3 w-full bg-[#2A2A2A]/50 p-3 rounded-lg border border-[#574d3c] shadow-inner mb-3 text-center">
+                                <div className="text-[#D8C49A] font-runic-text font-bold text-xs uppercase tracking-widest">
+                                  Acciones Libres
+                                </div>
+                                <div className="text-4xl font-extrabold font-orbitron text-[#D8C49A] tracking-tighter my-1">
+                                  {actionsRemaining}
+                                </div>
+                                
+                                <button 
+                                  onClick={() => dispatch({ type: 'DRAW_CARD'})} 
+                                  disabled={!canAct} 
+                                  className={`stone-button w-full py-2.5 text-xs text-[#1e1a14] ${showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''}`}
+                                >
+                                  Robar (1 Act)
+                                </button>
+                                
+                                <button 
+                                  onClick={() => dispatch({ type: 'END_TURN'})} 
+                                  disabled={kingMoveState?.isMoving} 
+                                  className={`stone-button stone-button-red w-full py-2.5 text-xs ${showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''}`}
+                                >
+                                  Terminar Turno
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="w-full bg-[#2A2A2A]/20 p-3 rounded-lg border border-[#574d3c]/40 text-center mb-3">
+                                <p className="text-xs text-[#9A8B72] italic uppercase tracking-wider animate-pulse">
+                                  Esperando al rival...
+                                </p>
+                              </div>
+                            )}
 
-                        {/* Recent History log */}
-                        <div className="h-20 bg-[#120f0b] rounded border border-[#574d3c] p-2 overflow-y-auto text-[9px] sm:text-[10px] text-[#9A8B72] font-mono shadow-inner">
-                          {state.log.slice(0, 3).map((l, index) => (
-                            <div key={index} className="truncate border-b border-[#574d3c]/10 pb-0.5 mb-0.5">
-                              <span className="text-[#8A6938] font-bold">&gt; </span>
-                              {l}
+                            {/* Recent History log */}
+                            <div className="h-20 bg-[#120f0b] rounded border border-[#574d3c] p-2 overflow-y-auto text-[9px] sm:text-[10px] text-[#9A8B72] font-mono shadow-inner">
+                              {state.log.slice(0, 3).map((l, index) => (
+                                <div key={index} className="truncate border-b border-[#574d3c]/10 pb-0.5 mb-0.5">
+                                  <span className="text-[#8A6938] font-bold">&gt; </span>
+                                  {l}
+                                </div>
+                              ))}
                             </div>
-                          ))}
                         </div>
                     </div>
+
+                    {/* Right Sidebar Toggle Tab (Drawer handle) */}
+                    <button 
+                      onClick={() => setIsRightCollapsed(!isRightCollapsed)}
+                      className="absolute top-1/2 -translate-y-1/2 right-full z-40 bg-[#1e1a14] border-y-2 border-l-2 border-[#8A6938] hover:bg-[#2e261f] text-[#D8C49A] p-2 rounded-l-md transition-all duration-300 shadow-md font-extrabold flex items-center justify-center text-xs cursor-pointer"
+                      style={{ height: '50px', width: '20px' }}
+                    >
+                      {isRightCollapsed ? '◀' : '▶'}
+                    </button>
                 </div>
             </div>
 

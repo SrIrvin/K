@@ -19,8 +19,10 @@ import {
   deleteLobbyRoom, 
   subscribeToLobbyRooms, 
   getLeaderboard,
+  getTopRankedPlayers,
   LobbyRoom, 
-  GameRecord 
+  GameRecord,
+  PlayerStats
 } from '../services/firebaseService';
 
 interface OnlineLobbyProps {
@@ -47,6 +49,8 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
   // Firebase specific states
   const [availableRooms, setAvailableRooms] = useState<LobbyRoom[]>([]);
   const [leaderboard, setLeaderboard] = useState<GameRecord[]>([]);
+  const [ranking, setRanking] = useState<PlayerStats[]>([]);
+  const [activeTab, setActiveTab] = useState<'ranking' | 'records'>('ranking');
 
   useEffect(() => {
     localStorage.setItem('k_player_name', playerName);
@@ -67,7 +71,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     initAuth();
   }, [playerName]);
 
-  // Subscribe to RTDB active rooms and load leaderboard
+  // Subscribe to RTDB active rooms and load leaderboard/ranking
   useEffect(() => {
     if (activeRoomId || connecting) return;
 
@@ -83,10 +87,19 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
       console.warn('[Firebase] Failed to load lobby rooms:', e);
     }
 
-    // 2. Fetch Leaderboard
-    getLeaderboard(5).then(records => {
-      setLeaderboard(records);
-    }).catch(err => console.error('[Firebase] Leaderboard fetch error:', err));
+    // 2. Fetch Leaderboard and Ranking
+    const loadStats = async () => {
+      try {
+        const records = await getLeaderboard(5);
+        setLeaderboard(records);
+        
+        const stats = await getTopRankedPlayers(10);
+        setRanking(stats);
+      } catch (err) {
+        console.error('[Firebase] Error loading stats:', err);
+      }
+    };
+    loadStats();
 
     return () => {
       unsubscribeRooms();
@@ -356,7 +369,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Option 1: Create Room */}
               <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col justify-between gap-3 shadow-md">
                 <div>
@@ -436,33 +449,105 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               </div>
             </div>
 
-            {/* Option 4: Leaderboard */}
+            {/* Option 4: Tabbed Panel (Ranking Global vs Crónicas de Duelo) */}
             <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col gap-3 shadow-md">
-              <h3 className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5">
-                🏆 CRÓNICAS DE HONOR (RÉCORDS)
-              </h3>
+              {/* Tab headers */}
+              <div className="flex border-b border-[#574d3c] pb-1 gap-2">
+                <button
+                  onClick={() => setActiveTab('ranking')}
+                  className={`text-xs font-orbitron font-bold uppercase tracking-wider pb-1 transition-all border-b-2 px-2 ${
+                    activeTab === 'ranking' 
+                      ? 'text-[#D8C49A] border-[#D8C49A]' 
+                      : 'text-[#9A8B72]/60 border-transparent hover:text-[#9A8B72]'
+                  }`}
+                >
+                  🏆 Ranking (Top 10)
+                </button>
+                <button
+                  onClick={() => setActiveTab('records')}
+                  className={`text-xs font-orbitron font-bold uppercase tracking-wider pb-1 transition-all border-b-2 px-2 ${
+                    activeTab === 'records' 
+                      ? 'text-[#D8C49A] border-[#D8C49A]' 
+                      : 'text-[#9A8B72]/60 border-transparent hover:text-[#9A8B72]'
+                  }`}
+                >
+                  📜 Crónicas de Duelo
+                </button>
+              </div>
               
-              <div className="flex flex-col gap-1.5 max-h-32 overflow-y-auto pr-1">
-                {leaderboard.length === 0 ? (
-                  <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
-                    Aún no hay registros de batalla.
+              {/* Tab contents */}
+              <div className="max-h-40 overflow-y-auto pr-1">
+                {activeTab === 'ranking' ? (
+                  /* TAB CONTENT: RANKING */
+                  <div className="flex flex-col gap-1.5">
+                    {ranking.length === 0 ? (
+                      <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
+                        Los templos aún no tienen guerreros consagrados...
+                      </div>
+                    ) : (
+                      ranking.map((player, index) => {
+                        const isTop3 = index < 3;
+                        const rankGlow = index === 0 
+                          ? 'text-yellow-500 font-extrabold' 
+                          : index === 1 
+                            ? 'text-gray-400 font-extrabold' 
+                            : index === 2 
+                              ? 'text-amber-600 font-extrabold' 
+                              : 'text-[#9A8B72]';
+
+                        return (
+                          <div 
+                            key={player.name}
+                            className={`bg-[#120f0b]/90 border border-[#574d3c]/50 p-2 rounded flex justify-between items-center text-left text-[11px] ${
+                              isTop3 ? 'border-amber-600/30' : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={`font-mono w-4 text-center ${rankGlow}`}>
+                                {index + 1}
+                              </span>
+                              <span className="font-bold text-[#D8C49A]">{player.name}</span>
+                            </div>
+                            <div className="flex gap-4 font-mono text-[10px] text-right">
+                              <div>
+                                <span className="text-green-500 font-bold">{player.wins} V</span>
+                                <span className="text-[#9A8B72]/50 mx-1">/</span>
+                                <span className="text-red-500">{player.losses} D</span>
+                              </div>
+                              <div className="text-[#9A8B72] font-semibold w-16 text-right">
+                                PG: {player.totalGames}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 ) : (
-                  leaderboard.map((record, index) => (
-                    <div 
-                      key={index}
-                      className="bg-[#120f0b]/90 border border-[#574d3c]/50 p-2 rounded flex justify-between items-center text-left text-[11px]"
-                    >
-                      <div>
-                        <span className="font-bold text-[#D8C49A]">{record.winnerName}</span> 
-                        <span className="text-[#9A8B72]/65"> derrotó a </span>
-                        <span className="font-bold text-[#D8C49A]">{record.loserName}</span>
+                  /* TAB CONTENT: RECENT GAME LOGS */
+                  <div className="flex flex-col gap-1.5">
+                    {leaderboard.length === 0 ? (
+                      <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
+                        Aún no hay registros de batalla en los templos.
                       </div>
-                      <div className="font-mono text-[10px] text-[#8A6938] font-bold">
-                        {record.winnerDamage} - {record.loserDamage}
-                      </div>
-                    </div>
-                  ))
+                    ) : (
+                      leaderboard.map((record, index) => (
+                        <div 
+                          key={index}
+                          className="bg-[#120f0b]/90 border border-[#574d3c]/50 p-2 rounded flex justify-between items-center text-left text-[11px]"
+                        >
+                          <div>
+                            <span className="font-bold text-[#D8C49A]">{record.winnerName}</span> 
+                            <span className="text-[#9A8B72]/65"> derrotó a </span>
+                            <span className="font-bold text-[#D8C49A]">{record.loserName}</span>
+                          </div>
+                          <div className="font-mono text-[10px] text-[#8A6938] font-bold">
+                            {record.winnerDamage} - {record.loserDamage}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 )}
               </div>
             </div>

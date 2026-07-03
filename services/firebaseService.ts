@@ -11,7 +11,10 @@ import {
   query, 
   orderBy, 
   limit, 
-  serverTimestamp 
+  serverTimestamp,
+  doc,
+  setDoc,
+  increment
 } from 'firebase/firestore';
 import { 
   ref, 
@@ -92,6 +95,58 @@ export const getLeaderboard = async (limitCount = 10): Promise<GameRecord[]> => 
     });
   } catch (error) {
     console.error('[Firebase] Error getting leaderboard:', error);
+    return [];
+  }
+};
+
+export interface PlayerStats {
+  name: string;
+  wins: number;
+  losses: number;
+  totalGames: number;
+}
+
+/**
+ * Update player statistics in Firestore (atomic increments)
+ */
+export const updatePlayerStats = async (playerName: string, isWinner: boolean) => {
+  if (!playerName || playerName.trim() === '') return;
+  
+  try {
+    const playerRef = doc(db, 'players_stats', playerName);
+    await setDoc(playerRef, {
+      name: playerName,
+      wins: increment(isWinner ? 1 : 0),
+      losses: increment(isWinner ? 0 : 1),
+      totalGames: increment(1),
+      lastUpdated: serverTimestamp()
+    }, { merge: true });
+    console.log(`[Firebase] Updated stats for ${playerName}`);
+  } catch (error) {
+    console.error('[Firebase] Error updating player stats:', error);
+  }
+};
+
+/**
+ * Get top 10 ranked players ordered by wins
+ */
+export const getTopRankedPlayers = async (limitCount = 10): Promise<PlayerStats[]> => {
+  try {
+    const statsCol = collection(db, 'players_stats');
+    const q = query(statsCol, orderBy('wins', 'desc'), limit(limitCount));
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        name: data.name || doc.id,
+        wins: data.wins || 0,
+        losses: data.losses || 0,
+        totalGames: data.totalGames || 0
+      };
+    });
+  } catch (error) {
+    console.error('[Firebase] Error getting ranking:', error);
     return [];
   }
 };

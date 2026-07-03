@@ -3,7 +3,7 @@ import { GameState, Action } from '../types';
 import { gameReducer, initialState } from '../reducers/gameReducer';
 import { sendGameAction, activeRoomId, isIncomingAction } from '../services/peerService';
 import { audioService } from '../services/audioService';
-import { saveGameRecord } from '../services/firebaseService';
+import { saveGameRecord, updatePlayerStats } from '../services/firebaseService';
 
 interface GameContextProps {
   state: GameState;
@@ -110,11 +110,12 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           audioService.playSFX('lose');
         }
 
-        // Save record to Firebase Firestore
+        // Save record and update statistics in Firebase Firestore
         try {
           const winnerPlayer = nextState.winner;
           const loserPlayer = nextState.players.find(p => p.id !== winnerPlayer.id);
           if (winnerPlayer && loserPlayer) {
+            // Save game record
             saveGameRecord({
               winnerName: winnerPlayer.name,
               winnerDamage: winnerPlayer.damage,
@@ -122,9 +123,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               loserDamage: loserPlayer.damage,
               gameType: nextState.gameType || 'local'
             });
+
+            // Update stats for global ranking (ignore standard Hero default names to keep ranking clean)
+            if (!winnerPlayer.name.startsWith('Héroe_')) {
+              updatePlayerStats(winnerPlayer.name, true);
+            }
+            if (!loserPlayer.name.startsWith('Héroe_')) {
+              updatePlayerStats(loserPlayer.name, false);
+            }
           }
         } catch (err) {
-          console.warn('[Firebase] Failed to save game record:', err);
+          console.warn('[Firebase] Failed to save game record or stats:', err);
         }
       }
     } catch (e) {

@@ -105,11 +105,35 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         const maxPanX = ((zoom - 1) * rect.width) / 2;
         const maxPanY = ((zoom - 1) * rect.height) / 2;
 
-        // Map mouse percentage to translation offset
-        const panX = (0.5 - pctX) * 2 * maxPanX;
-        const panY = (0.5 - pctY) * 2 * maxPanY;
+        // Edge-Scrolling with Deadzone logic:
+        // No movement in the middle 50% of the board (from 25% to 75%).
+        // Moving mouse near the edges smoothly slides the board.
+        let factorX = 0;
+        if (pctX < 0.25) {
+            // Map pctX from [0.25 to 0] to [0 to 1]
+            factorX = (0.25 - pctX) / 0.25;
+        } else if (pctX > 0.75) {
+            // Map pctX from [0.75 to 1.0] to [0 to -1]
+            factorX = -(pctX - 0.75) / 0.25;
+        }
 
-        setPan({ x: panX, y: panY });
+        let factorY = 0;
+        if (pctY < 0.25) {
+            // Map pctY from [0.25 to 0] to [0 to 1] (slides board DOWN, showing the TOP)
+            factorY = (0.25 - pctY) / 0.25;
+        } else if (pctY > 0.75) {
+            // Map pctY from [0.75 to 1.0] to [0 to -1] (slides board UP, showing the BOTTOM)
+            factorY = -(pctY - 0.75) / 0.25;
+        }
+
+        // Apply smooth clamping
+        const finalFactorX = Math.min(1, Math.max(-1, factorX));
+        const finalFactorY = Math.min(1, Math.max(-1, factorY));
+
+        setPan({
+            x: finalFactorX * maxPanX,
+            y: finalFactorY * maxPanY
+        });
     };
 
     const handleMouseLeave = () => {
@@ -240,7 +264,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                 style={{
                     transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
                     transformOrigin: 'center center',
-                    transition: zoom === 1.0 ? 'transform 0.3s ease-out' : 'transform 0.1s ease-out'
+                    transition: zoom === 1.0 
+                        ? 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
+                        : 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
             >
                 {/* Opponent's Goal Zone (Top) */}

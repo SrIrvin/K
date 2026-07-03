@@ -74,7 +74,7 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
       {/* Top Header Row (z-10 to render over image) */}
       <div className="flex justify-between items-start z-10 select-none">
         <span className={`font-orbitron text-sm sm:text-base md:text-lg font-black tracking-tighter ${textClass}`}>
-          {card.rank === 'Joker' ? 'JK' : card.rank}
+          {card.rank === 'Joker' ? '🃏' : card.rank}
         </span>
         <span className={`text-xs sm:text-sm md:text-base font-bold px-1.5 py-0.5 rounded border ${isRed ? 'border-[#82443A]/50' : 'border-[#574d3c]/50'} ${suitTextClass}`}>
           {suitIcon}
@@ -129,7 +129,7 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
       {/* Bottom Row (Upside down, traditional card style) */}
       <div className="flex justify-between items-end z-10 select-none transform rotate-180">
         <span className={`font-orbitron text-sm sm:text-base md:text-lg font-black tracking-tighter ${textClass}`}>
-          {card.rank === 'Joker' ? 'JK' : card.rank}
+          {card.rank === 'Joker' ? '🃏' : card.rank}
         </span>
         <span className={`text-xs sm:text-sm md:text-base font-bold px-1.5 py-0.5 rounded border ${isRed ? 'border-[#82443A]/50' : 'border-[#574d3c]/50'} ${suitTextClass}`}>
           {suitIcon}

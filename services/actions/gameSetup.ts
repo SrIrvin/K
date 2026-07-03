@@ -3,8 +3,8 @@ import { BOARD_ROWS, BOARD_COLS, INITIAL_ACTIONS, INITIAL_DRAW } from '@/utils/c
 import { createDeck } from '../gameService';
 import * as mutators from '../stateMutators';
 
-export const startGame = (initialState: GameState, payload: { gameType: 'ai' | 'p2'; playerName?: string }): GameState => {
-  const { gameType } = payload;
+export const startGame = (initialState: GameState, payload: { gameType: 'ai' | 'p2'; playerName?: string; aiDifficulty?: 'easy' | 'hard' }): GameState => {
+  const { gameType, aiDifficulty } = payload;
   const blackDeck = createDeck(CardColor.Black);
   const redDeck = createDeck(CardColor.Red);
 
@@ -21,7 +21,9 @@ export const startGame = (initialState: GameState, payload: { gameType: 'ai' | '
   
   const player2: Player = { 
     id: 1, 
-    name: gameType === 'ai' ? 'AI Opponent (Red)' : 'Player 2 (Red)', 
+    name: gameType === 'ai' 
+      ? (aiDifficulty === 'hard' ? 'IA Táctica (Red)' : 'IA Aprendiz (Red)') 
+      : 'Player 2 (Red)', 
     color: CardColor.Red, 
     damage: 0, 
     deck: redDeck, 
@@ -42,9 +44,10 @@ export const startGame = (initialState: GameState, payload: { gameType: 'ai' | '
     players: [player1, player2],
     currentPlayerId: 0,
     actionsRemaining: INITIAL_ACTIONS,
-    log: ["Game started! Player 1's turn."],
+    log: [`¡Partida iniciada! Te enfrentas a ${player2.name}.`],
     gameMode: 'playing',
     gameType,
+    aiDifficulty: aiDifficulty || 'easy',
   };
 };
 

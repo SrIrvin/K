@@ -108,7 +108,15 @@ const GameUI: React.FC = () => {
     
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
     const isCurrentPlayerTurn = useMemo(() => currentPlayerId === state.currentPlayerId, [currentPlayerId, state.currentPlayerId]);
-    const isLocalTurn = useMemo(() => state.gameType !== 'online' || state.localPlayerId === state.currentPlayerId, [state.gameType, state.localPlayerId, state.currentPlayerId]);
+    const isLocalTurn = useMemo(() => {
+        if (state.gameType === 'online') {
+            return state.localPlayerId === state.currentPlayerId;
+        }
+        if (state.gameType === 'ai') {
+            return state.currentPlayerId === 0;
+        }
+        return true;
+    }, [state.gameType, state.localPlayerId, state.currentPlayerId]);
     const canAct = useMemo(() => actionsRemaining > 0 && !state.isTargeting && !kingMoveState?.isMoving && isCurrentPlayerTurn && isLocalTurn, [actionsRemaining, state.isTargeting, kingMoveState, isCurrentPlayerTurn, isLocalTurn]);
 
     // 🕯️ Idle timer UX - Highlights options if player is inactive for 20 seconds
@@ -629,7 +637,7 @@ const GameUI: React.FC = () => {
                             ) : (
                               <div className="w-full bg-[#2A2A2A]/20 p-3 rounded-lg border border-[#574d3c]/40 text-center mb-3">
                                 <p className="text-xs text-[#9A8B72] italic uppercase tracking-wider animate-pulse">
-                                  {state.gameType === 'online' ? 'Esperando al rival...' : 'Esperando al rival...'}
+                                  {state.gameType === 'online' ? 'Esperando al rival...' : state.gameType === 'ai' ? 'La IA está decidiendo...' : 'Esperando al rival...'}
                                 </p>
                               </div>
                             )}

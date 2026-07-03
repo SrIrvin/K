@@ -103,8 +103,20 @@ const GameUI: React.FC = () => {
         }
     }, []);
 
-    const currentPlayer = useMemo(() => players?.[currentPlayerId], [players, currentPlayerId]);
-    const opponentPlayer = useMemo(() => players?.[1 - currentPlayerId], [players, currentPlayerId]);
+    // Resolve which player is "local" (the human user on this screen)
+    const localPlayerIdResolved = useMemo(() => {
+        if (state.gameType === 'online') {
+            return state.localPlayerId ?? 0;
+        }
+        if (state.gameType === 'ai') {
+            return 0; // Human is always Player 0
+        }
+        // In local P2, active player changes dynamically with turn
+        return currentPlayerId;
+    }, [state.gameType, state.localPlayerId, currentPlayerId]);
+
+    const currentPlayer = useMemo(() => players?.[localPlayerIdResolved], [players, localPlayerIdResolved]);
+    const opponentPlayer = useMemo(() => players?.[1 - localPlayerIdResolved], [players, localPlayerIdResolved]);
     
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
     const isCurrentPlayerTurn = useMemo(() => currentPlayerId === state.currentPlayerId, [currentPlayerId, state.currentPlayerId]);

@@ -65,8 +65,8 @@ export const playSpecialCard = (state: GameState, payload: { card: Card }): Game
   return state;
 };
 
-export const useAbilityOnTarget = (state: GameState, payload: { unitId: string }): GameState => {
-  logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget', targeting: state.isTargeting, unitId: payload.unitId });
+export const useAbilityOnTarget = (state: GameState, payload: { unitId: string; position?: { row: number, col: number } }): GameState => {
+  logger.info({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget', targeting: state.isTargeting, unitId: payload.unitId, position: payload.position });
   if (!state.isTargeting || !state.selectedCardIdInHand) return state;
 
   const currentPlayer = state.players[state.currentPlayerId];
@@ -79,19 +79,21 @@ export const useAbilityOnTarget = (state: GameState, payload: { unitId: string }
     return state;
   }
 
-  const { unitId } = payload;
+  const { unitId, position } = payload;
   const unitOnBoard = state.board.flat().find(u => u?.id === unitId);
-  if (!unitOnBoard) {
+  if (!unitOnBoard && !(state.isTargeting === 'queen' && position)) {
     logger.error({ timestamp: new Date().toISOString(), event: 'useAbilityOnTarget:error', reason: 'Target unit not on board' });
     return state;
   }
 
   switch (state.isTargeting) {
     case 'queen':
-      return applyQueenAbility(state, cardInHand, unitOnBoard, currentPlayer, opponentPlayer);
+      return applyQueenAbility(state, cardInHand, unitOnBoard || null, currentPlayer, opponentPlayer, position);
     case 'joker':
+      if (!unitOnBoard) return state;
       return applyJokerAbility(state, cardInHand, unitOnBoard, currentPlayer, opponentPlayer);
     case 'jack':
+      if (!unitOnBoard) return state;
       return applyJackAbility(state, cardInHand, unitOnBoard, currentPlayer);
     default:
       let resetState = mutators.setTargeting(state, null);

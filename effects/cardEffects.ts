@@ -1,14 +1,68 @@
 import { GameState, Card, Unit, Player } from '@/types';
 import logger from '../utils/logger';
 import * as mutators from '../services/stateMutators';
+import { createUnitFromCard } from '../services/gameService';
+import { BOARD_ROWS } from '../utils/constants';
 
 export const applyQueenAbility = (
     state: GameState, 
     cardInHand: Card, 
-    unitOnBoard: Unit, 
+    unitOnBoard: Unit | null, 
     currentPlayer: Player, 
-    opponentPlayer: Player
+    opponentPlayer: Player,
+    position?: { row: number; col: number }
 ): GameState => {
+    // Case 1: Resurrection of a unit from discard pile
+    if (!unitOnBoard) {
+        if (!position) {
+            return mutators.addLog(state, "Queen needs a target unit or empty start cell.");
+        }
+
+        const startRow = currentPlayer.id === 0 ? BOARD_ROWS - 1 : 0;
+        if (position.row !== startRow) {
+            return mutators.addLog(state, "Can only resurrect in your starting zone.");
+        }
+
+        const targetCell = state.board[position.row][position.col];
+        if (targetCell !== null) {
+            return mutators.addLog(state, "Target cell must be empty.");
+        }
+
+        // Find the last unit card in discard
+        let unitCardIndex = -1;
+        for (let i = currentPlayer.discard.length - 1; i >= 0; i--) {
+            const card = currentPlayer.discard[i];
+            const rankVal = parseInt(card.rank, 10);
+            if (!isNaN(rankVal) && rankVal >= 2 && rankVal <= 10) {
+                unitCardIndex = i;
+                break;
+            }
+        }
+
+        if (unitCardIndex === -1) {
+            return mutators.addLog(state, "No units in discard to resurrect.");
+        }
+
+        const cardToResurrect = currentPlayer.discard[unitCardIndex];
+        const resurrectedUnit = createUnitFromCard(cardToResurrect, position);
+        if (!resurrectedUnit) return state;
+
+        let updatedState = mutators.placeUnitOnBoard(state, position.row, position.col, resurrectedUnit);
+
+        const newDiscard = currentPlayer.discard.filter((_, idx) => idx !== unitCardIndex);
+        const newHand = currentPlayer.hand.filter(c => c.id !== cardInHand.id);
+        newDiscard.push(cardInHand); // Queen is spent and discarded
+
+        updatedState = mutators.updatePlayer(updatedState, currentPlayer.id, {
+            hand: newHand,
+            discard: newDiscard
+        });
+
+        const withActionSpent = mutators.spendAction(updatedState);
+        return mutators.addLog(withActionSpent, `QUEEN resurrected ${cardToResurrect.rank} of ${cardToResurrect.suit} to cell ${position.row},${position.col}.`);
+    }
+
+    // Case 2: Heal or Buff a friendly unit on board
     if (unitOnBoard.color !== currentPlayer.color) {
         return mutators.addLog(state, "Queen can only target friendly units.");
     }

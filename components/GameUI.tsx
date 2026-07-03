@@ -478,6 +478,30 @@ const GameUI: React.FC = () => {
             {/* Modals & Overlays */}
             <CardInfoModal />
             
+            {/* Special Ability Targeting Floating HUD */}
+            {state.isTargeting && (
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-[90%] pointer-events-none">
+                <div className="stone-modal p-4 flex flex-col items-center border-2 border-[#8A6938] shadow-2xl pointer-events-auto bg-[#1e1a14]/95 text-center">
+                  <h2 className="text-base font-ancient-header text-[#D8C49A] animate-pulse tracking-widest flex items-center gap-1.5 mb-1">
+                    ✨ HABILIDAD ACTIVA ✨
+                  </h2>
+                  <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
+                  <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
+                    {state.isTargeting === 'queen' && "REINA: Haz clic en una unidad aliada para curarla/potenciarla, o en una casilla vacía de tu ZONA DE SALIDA (última fila más cercana a ti) para resucitar tu última unidad del descarte."}
+                    {state.isTargeting === 'jack' && "JOTA: Haz clic en una unidad aliada para darle +1 de velocidad en su próximo movimiento."}
+                    {state.isTargeting === 'joker' && "JOKER: Haz clic en una unidad enemiga en el tablero para eliminarla instantáneamente."}
+                  </p>
+                  
+                  <button
+                    onClick={() => dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } })}
+                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
+                  >
+                    Cancelar Habilidad
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* King Command Floating HUD Alert (Non-blocking) */}
             {kingMoveState?.isMoving && (
               <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-[90%] pointer-events-none">

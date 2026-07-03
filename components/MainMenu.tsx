@@ -182,10 +182,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
         {/* Buttons carved in stone */}
         <div className="flex flex-col gap-4 w-full max-w-xs">
           <button 
-            onClick={() => startGame('p2')} 
+            onClick={() => startGame('ai')} 
             className="stone-button w-full py-3 text-sm"
           >
-            Duelo Local (Cara a Cara)
+            Desafiar a la IA
           </button>
 
           <button 
@@ -194,12 +194,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
           >
             Duelo en Línea (Salas)
           </button>
-          
+
           <button 
-            onClick={() => startGame('ai')} 
+            onClick={() => startGame('p2')} 
             className="stone-button w-full py-3 text-sm"
           >
-            Desafiar a la IA
+            Duelo Local (Cara a Cara)
           </button>
         </div>
       </div>

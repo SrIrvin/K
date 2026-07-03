@@ -22,10 +22,25 @@ const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectl
         }
     };
 
+    const handleDragOver = (e: React.DragEvent) => {
+        if (canScoreDirectly && isOpponent) {
+            e.preventDefault();
+        }
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        if (canScoreDirectly && isOpponent) {
+            dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
+        }
+    };
+
     return (
         <div 
             className={`w-full h-20 sm:h-24 md:h-28 bg-[#2A2A2A]/70 my-1.5 p-2 rounded-lg border-2 border-[#574d3c] flex-shrink-0 relative shadow-[inset_0_4px_10px_rgba(0,0,0,0.9)]`}
             onClick={handleDirectScore}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
             style={{
               borderRadius: '12px 10px 14px 8px / 8px 12px 9px 11px',
               borderStyle: 'double',
@@ -124,8 +139,27 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
     const handleDrop = (e: React.DragEvent, row: number, col: number) => {
         e.preventDefault();
-        if (selectedCardIdInHand && !kingMoveState?.isMoving) {
-            dispatch({ type: 'PLACE_UNIT', payload: { row, col } });
+        const draggedCardId = e.dataTransfer.getData('cardId');
+        const draggedUnitId = e.dataTransfer.getData('unitId');
+
+        if (draggedUnitId || selectedUnitIdOnBoard) {
+            // Dragged a unit on board to a destination
+            const isMoveValid = validMoves.some(m => m.row === row && m.col === col);
+            if (isMoveValid) {
+                dispatch({ type: 'MOVE_UNIT', payload: { to: { row, col } } });
+            }
+        } else if (draggedCardId || selectedCardIdInHand) {
+            // Dragged a card from hand to a board cell
+            if (isTargeting) {
+                const unitInCell = board[row][col];
+                if (unitInCell) {
+                    dispatch({ type: 'USE_ABILITY_ON_TARGET', payload: { unitId: unitInCell.id } });
+                }
+            } else {
+                if (!kingMoveState?.isMoving) {
+                    dispatch({ type: 'PLACE_UNIT', payload: { row, col } });
+                }
+            }
         }
     };
 
@@ -205,10 +239,20 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
                           return (
                             <div 
-                              className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass}`}
+                              className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass} ${actionsRemaining > 0 && !isKingMoveActive && unit.color === currentPlayer.color && !unit.hasMoved ? 'cursor-grab active:cursor-grabbing' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleCellInteraction(rowIndex, colIndex);
+                              }}
+                              draggable={actionsRemaining > 0 && !isKingMoveActive && unit.color === currentPlayer.color && !unit.hasMoved}
+                              onDragStart={(e) => {
+                                e.dataTransfer.setData('unitId', unit.id);
+                                dispatch({ type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: unit.id } });
+                              }}
+                              onDragEnd={() => {
+                                setTimeout(() => {
+                                  dispatch({ type: 'SELECT_UNIT_ON_BOARD', payload: { unitId: null } });
+                                }, 100);
                               }}
                             >
                               <div className={`w-full h-full stone-piece ${selectedUnitIdOnBoard === unit.id && !isKingMoveActive ? 'stone-piece-selected' : ''} ${isUnitHinted ? 'idle-unit-glow' : ''}`}>

@@ -12,6 +12,18 @@ import {
 } from '../services/peerService';
 import { startGame } from '../services/actions/gameSetup';
 import { GameState } from '../types';
+import { 
+  loginAsGuest, 
+  createLobbyRoom, 
+  joinLobbyRoom, 
+  deleteLobbyRoom, 
+  subscribeToLobbyRooms, 
+  getLeaderboard,
+  getTopRankedPlayers,
+  LobbyRoom, 
+  GameRecord,
+  PlayerStats
+} from '../services/firebaseService';
 
 interface OnlineLobbyProps {
   onBack: () => void;
@@ -32,11 +44,85 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
   const [statusText, setStatusText] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  
+  // Firebase specific states
+  const [availableRooms, setAvailableRooms] = useState<LobbyRoom[]>([]);
+  const [leaderboard, setLeaderboard] = useState<GameRecord[]>([]);
+  const [ranking, setRanking] = useState<PlayerStats[]>([]);
+  const [activeTab, setActiveTab] = useState<'ranking' | 'records'>('ranking');
 
   useEffect(() => {
     localStorage.setItem('k_player_name', playerName);
   }, [playerName]);
+
+  // Authenticate with Firebase on mount / name change
+  useEffect(() => {
+    if (!playerName.trim()) return;
+    
+    const initAuth = async () => {
+      try {
+        await loginAsGuest(playerName);
+        console.log('[Firebase] Authenticated anonymously');
+      } catch (err) {
+        console.warn('[Firebase] Auth failed, continuing in offline mode:', err);
+      }
+    };
+    initAuth();
+  }, [playerName]);
+
+  // Check for auto-joining room from URL link on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get('room');
+    if (roomFromUrl) {
+      // Clear parameter from URL silently
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      // Auto-join with a slight timeout to ensure peer / firebase is fully ready
+      setStatusText(`Cruzando portal de invitación ${roomFromUrl}...`);
+      setTimeout(() => {
+        handleJoinRoomByCode(roomFromUrl);
+      }, 600);
+    }
+  }, []);
+
+  // Subscribe to RTDB active rooms and load leaderboard/ranking
+  useEffect(() => {
+    if (activeRoomId || connecting) return;
+
+    // 1. Subscribe to active rooms
+    let unsubscribeRooms = () => {};
+    try {
+      unsubscribeRooms = subscribeToLobbyRooms((rooms) => {
+        // Only show rooms in 'waiting' status
+        const waitingRooms = rooms.filter(r => r.status === 'waiting');
+        setAvailableRooms(waitingRooms);
+      });
+    } catch (e) {
+      console.warn('[Firebase] Failed to load lobby rooms:', e);
+    }
+
+    // 2. Fetch Leaderboard and Ranking
+    const loadStats = async () => {
+      try {
+        const records = await getLeaderboard(5);
+        setLeaderboard(records);
+        
+        const stats = await getTopRankedPlayers(10);
+        setRanking(stats);
+      } catch (err) {
+        console.error('[Firebase] Error loading stats:', err);
+      }
+    };
+    loadStats();
+
+    return () => {
+      unsubscribeRooms();
+    };
+  }, [activeRoomId, connecting]);
 
   // Handle incoming Peer handshakes
   useEffect(() => {
@@ -124,6 +210,10 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
       (conn) => {
         setStatusText('¡Guerrero detectado! Conectando mentes...');
         setConnecting(false);
+        
+        // Remove room from Firebase RTDB lobby once connected
+        deleteLobbyRoom(code).catch(err => console.error('[Firebase] Clean room error:', err));
+        
         onGameJoined(code, 0);
         
         // Send our name to the guest
@@ -133,30 +223,31 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
       },
       // Closed
       () => {
+        deleteLobbyRoom(code).catch(err => console.error('[Firebase] Clean room error:', err));
         setConnecting(false);
         setActiveRoomId(null);
       },
       // Error
       (err) => {
+        deleteLobbyRoom(code).catch(err => console.error('[Firebase] Clean room error:', err));
         setConnecting(false);
         setActiveRoomId(null);
         setErrorMsg('Error al crear la sala. Prueba de nuevo o revisa tu conexión.');
       }
     );
+
+    // Register room in Firebase RTDB
+    createLobbyRoom(code, `${playerName}'s Portal`, code).catch(err => {
+      console.error('[Firebase] Failed to register lobby room:', err);
+    });
   };
 
-  const handleJoinRoom = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleJoinRoomByCode = (code: string) => {
     if (!playerName.trim()) {
       setErrorMsg('Debes ingresar tu nombre de héroe.');
       return;
     }
-    if (!roomCodeInput.trim()) {
-      setErrorMsg('Debes ingresar el código de la sala.');
-      return;
-    }
 
-    const code = roomCodeInput.trim().toUpperCase();
     setConnecting(true);
     setErrorMsg(null);
     setIsHost(false);
@@ -171,6 +262,9 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
         setConnecting(false);
         onGameJoined(code, 1);
         
+        // Register join in Firebase RTDB
+        joinLobbyRoom(code, playerName, conn.peer).catch(err => console.error('[Firebase] Join room error:', err));
+        
         // Send our name to the host
         conn.send({ type: 'handshake', payload: { name: playerName } });
       },
@@ -182,12 +276,24 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
       // Error
       (err) => {
         setConnecting(false);
-        setErrorMsg('No se pudo encontrar la sala. Verifica que el código sea correcto.');
+        setErrorMsg('No se pudo encontrar la sala. Verifica que el código sea correcto o que no esté llena.');
       }
     );
   };
 
+  const handleJoinRoom = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!roomCodeInput.trim()) {
+      setErrorMsg('Debes ingresar el código de la sala.');
+      return;
+    }
+    handleJoinRoomByCode(roomCodeInput.trim().toUpperCase());
+  };
+
   const handleLeaveRoom = () => {
+    if (activeRoomId) {
+      deleteLobbyRoom(activeRoomId).catch(err => console.error('[Firebase] Clean room error:', err));
+    }
     cleanupPeer();
     setActiveRoomId(null);
     setOpponentName(null);
@@ -199,6 +305,15 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
       navigator.clipboard.writeText(activeRoomId);
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
+  const copyDirectLink = () => {
+    if (activeRoomId) {
+      const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${activeRoomId}`;
+      navigator.clipboard.writeText(inviteUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
     }
   };
 
@@ -236,12 +351,12 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
           </h1>
           <div className="h-0.5 w-24 mx-auto my-2 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent" />
           <h2 className="text-xs font-orbitron tracking-widest text-[#9A8B72] mt-1">
-            DUELO EN LÍNEA DE NAVEGADOR A NAVEGADOR
+            DUELO EN LÍNEA POR PORTAL SAGRADO
           </h2>
         </div>
 
         {errorMsg && (
-          <div className="w-full bg-red-950/80 border border-red-700 text-red-200 text-xs rounded-lg p-2.5 mb-4 font-mono">
+          <div className="w-full bg-red-950/80 border border-red-700 text-red-200 text-xs rounded-lg p-2.5 mb-4 font-mono text-left">
             ⚠️ {errorMsg}
           </div>
         )}
@@ -266,9 +381,9 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
           </div>
         ) : !activeRoomId ? (
           /* LOBBY VIEW */
-          <div className="w-full flex flex-col gap-6 text-left">
+          <div className="w-full flex flex-col gap-5 text-left">
             {/* Player Profile */}
-            <div className="bg-[#120f0b]/75 border border-[#574d3c] p-3 rounded-lg flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div className="bg-[#120f0b]/75 border border-[#574d3c] p-3 rounded-lg flex flex-col sm:flex-row gap-3 items-center justify-between shadow-inner">
               <label className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider">
                 Tu Nombre de Héroe:
               </label>
@@ -281,53 +396,193 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               />
             </div>
 
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Option 1: Create Room */}
-              <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col gap-3">
-                <h3 className="text-sm font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5">
-                  1. Crear un Portal (Ser Host)
-                </h3>
-                <p className="text-[11px] text-[#9A8B72] font-runic-text italic leading-relaxed">
-                  Crearás una sala y obtendrás un código sagrado de 5 letras. Pásale este código a tu amigo para que se conecte directamente a tu pantalla.
-                </p>
+              <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col justify-between gap-3 shadow-md">
+                <div>
+                  <h3 className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5">
+                    1. Crear Portal (Host)
+                  </h3>
+                  <p className="text-[10px] text-[#9A8B72] font-runic-text italic leading-relaxed mt-2">
+                    Abrirás un nuevo portal y esperarás a que un oponente ingrese tu código o se una desde la lista.
+                  </p>
+                </div>
                 <button 
                   onClick={handleCreateRoom}
-                  className="stone-button text-xs py-2 w-full mt-1"
+                  className="stone-button text-xs py-2 w-full mt-2"
                 >
                   Abrir Portal
                 </button>
               </div>
 
               {/* Option 2: Join Room */}
-              <form onSubmit={handleJoinRoom} className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col gap-3">
-                <h3 className="text-sm font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5">
-                  2. Entrar a un Portal (Ser Invitado)
-                </h3>
-                <p className="text-[11px] text-[#9A8B72] font-runic-text italic leading-relaxed">
-                  ¿Tu amigo ya abrió un portal? Pídele el código, ingrésalo aquí abajo y cruza el portal para batirte en duelo.
-                </p>
-                
-                <div className="flex flex-col gap-1 mt-1">
-                  <label className="text-[10px] text-[#9A8B72] uppercase font-bold">Código del Portal:</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: K-HF4B2"
-                    value={roomCodeInput}
-                    onChange={(e) => setRoomCodeInput(e.target.value)}
-                    className="bg-[#120f0b] border border-[#574d3c] text-[#D8C49A] text-xs px-2.5 py-2 rounded focus:outline-none focus:ring-1 focus:ring-[#8A6938] font-mono tracking-widest font-bold text-center"
-                  />
+              <form onSubmit={handleJoinRoom} className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col justify-between gap-3 shadow-md">
+                <div>
+                  <h3 className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5">
+                    2. Unirse por Código
+                  </h3>
+                  <div className="flex flex-col gap-1 mt-2">
+                    <label className="text-[9px] text-[#9A8B72] uppercase font-bold">Código del Portal:</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: K-HF4B2"
+                      value={roomCodeInput}
+                      onChange={(e) => setRoomCodeInput(e.target.value)}
+                      className="bg-[#120f0b] border border-[#574d3c] text-[#D8C49A] text-xs px-2.5 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-[#8A6938] font-mono tracking-widest font-bold text-center"
+                    />
+                  </div>
                 </div>
-
-                <button type="submit" className="stone-button stone-button-blue text-xs py-2 w-full mt-1">
+                <button type="submit" className="stone-button stone-button-blue text-xs py-2 w-full mt-2">
                   Cruzar Portal
                 </button>
               </form>
             </div>
 
+            {/* Option 3: Realtime Database Room List */}
+            <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col gap-3 shadow-md">
+              <h3 className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5 flex items-center justify-between">
+                <span>3. Portales Activos en el Templo</span>
+                <span className="text-[8px] bg-green-950/70 border border-green-600/40 text-green-400 px-1.5 py-0.5 rounded font-mono animate-pulse">EN VIVO</span>
+              </h3>
+              
+              <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-1">
+                {availableRooms.length === 0 ? (
+                  <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
+                    No hay portales abiertos en este momento. ¡Abre uno!
+                  </div>
+                ) : (
+                  availableRooms.map((room) => (
+                    <div 
+                      key={room.id}
+                      className="bg-[#120f0b]/90 border border-[#574d3c]/60 p-2 rounded flex items-center justify-between hover:border-[#8A6938] transition-colors"
+                    >
+                      <div className="flex flex-col text-left">
+                        <span className="text-[11px] font-bold text-[#D8C49A]">
+                          {room.name}
+                        </span>
+                        <span className="text-[9px] text-[#9A8B72] font-mono">
+                          Creador: {room.host.name}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleJoinRoomByCode(room.id)}
+                        className="stone-button stone-button-blue text-[9px] py-1 px-3"
+                      >
+                        UNIRSE
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Option 4: Tabbed Panel (Ranking Global vs Crónicas de Duelo) */}
+            <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col gap-3 shadow-md">
+              {/* Tab headers */}
+              <div className="flex border-b border-[#574d3c] pb-1 gap-2">
+                <button
+                  onClick={() => setActiveTab('ranking')}
+                  className={`text-xs font-orbitron font-bold uppercase tracking-wider pb-1 transition-all border-b-2 px-2 ${
+                    activeTab === 'ranking' 
+                      ? 'text-[#D8C49A] border-[#D8C49A]' 
+                      : 'text-[#9A8B72]/60 border-transparent hover:text-[#9A8B72]'
+                  }`}
+                >
+                  🏆 Ranking (Top 10)
+                </button>
+                <button
+                  onClick={() => setActiveTab('records')}
+                  className={`text-xs font-orbitron font-bold uppercase tracking-wider pb-1 transition-all border-b-2 px-2 ${
+                    activeTab === 'records' 
+                      ? 'text-[#D8C49A] border-[#D8C49A]' 
+                      : 'text-[#9A8B72]/60 border-transparent hover:text-[#9A8B72]'
+                  }`}
+                >
+                  📜 Crónicas de Duelo
+                </button>
+              </div>
+              
+              {/* Tab contents */}
+              <div className="max-h-40 overflow-y-auto pr-1">
+                {activeTab === 'ranking' ? (
+                  /* TAB CONTENT: RANKING */
+                  <div className="flex flex-col gap-1.5">
+                    {ranking.length === 0 ? (
+                      <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
+                        Los templos aún no tienen guerreros consagrados...
+                      </div>
+                    ) : (
+                      ranking.map((player, index) => {
+                        const isTop3 = index < 3;
+                        const rankGlow = index === 0 
+                          ? 'text-yellow-500 font-extrabold' 
+                          : index === 1 
+                            ? 'text-gray-400 font-extrabold' 
+                            : index === 2 
+                              ? 'text-amber-600 font-extrabold' 
+                              : 'text-[#9A8B72]';
+
+                        return (
+                          <div 
+                            key={player.name}
+                            className={`bg-[#120f0b]/90 border border-[#574d3c]/50 p-2 rounded flex justify-between items-center text-left text-[11px] ${
+                              isTop3 ? 'border-amber-600/30' : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={`font-mono w-4 text-center ${rankGlow}`}>
+                                {index + 1}
+                              </span>
+                              <span className="font-bold text-[#D8C49A]">{player.name}</span>
+                            </div>
+                            <div className="flex gap-4 font-mono text-[10px] text-right">
+                              <div>
+                                <span className="text-green-500 font-bold">{player.wins} V</span>
+                                <span className="text-[#9A8B72]/50 mx-1">/</span>
+                                <span className="text-red-500">{player.losses} D</span>
+                              </div>
+                              <div className="text-[#9A8B72] font-semibold w-16 text-right">
+                                PG: {player.totalGames}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                ) : (
+                  /* TAB CONTENT: RECENT GAME LOGS */
+                  <div className="flex flex-col gap-1.5">
+                    {leaderboard.length === 0 ? (
+                      <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
+                        Aún no hay registros de batalla en los templos.
+                      </div>
+                    ) : (
+                      leaderboard.map((record, index) => (
+                        <div 
+                          key={index}
+                          className="bg-[#120f0b]/90 border border-[#574d3c]/50 p-2 rounded flex justify-between items-center text-left text-[11px]"
+                        >
+                          <div>
+                            <span className="font-bold text-[#D8C49A]">{record.winnerName}</span> 
+                            <span className="text-[#9A8B72]/65"> derrotó a </span>
+                            <span className="font-bold text-[#D8C49A]">{record.loserName}</span>
+                          </div>
+                          <div className="font-mono text-[10px] text-[#8A6938] font-bold">
+                            {record.winnerDamage} - {record.loserDamage}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Back Button */}
             <button
               onClick={onBack}
-              className="stone-button stone-button-red text-xs py-2 w-32 self-center mt-2"
+              className="stone-button stone-button-red text-xs py-2 w-32 self-center mt-2 shadow"
             >
               Volver al Menú
             </button>
@@ -336,19 +591,30 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
           /* ROOM WAITING LOBBY */
           <div className="w-full flex flex-col gap-6 text-left">
             <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-5 rounded-lg flex flex-col gap-4 text-center">
-              <h2 className="text-lg font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider">
+              <h2 className="text-lg font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider animate-pulse">
                 PORTAL ABIERTO
               </h2>
               
-              <div className="flex justify-center items-center gap-2">
-                <span className="bg-[#120f0b] border border-[#8A6938] text-[#D8C49A] text-base font-mono px-4 py-2 rounded font-bold tracking-wider shadow-inner">
-                  {activeRoomId}
-                </span>
+              <div className="flex flex-col gap-3.5 max-w-sm mx-auto w-full">
+                {/* Visual block with Room Code and Copy button */}
+                <div className="flex justify-center items-center gap-2">
+                  <span className="bg-[#120f0b] border border-[#8A6938] text-[#D8C49A] text-lg font-mono px-4 py-2 rounded font-bold tracking-wider shadow-inner">
+                    {activeRoomId}
+                  </span>
+                  <button
+                    onClick={copyRoomCode}
+                    className="bg-[#8A6938] text-white hover:bg-[#D8C49A] hover:text-[#2A2A2A] text-xs font-bold px-3 py-2 rounded.5 transition-all shadow border border-[#D8C49A]/30 flex items-center gap-1.5"
+                  >
+                    <span>📋</span> {copiedCode ? '¡Copiado!' : 'Copiar Código'}
+                  </button>
+                </div>
+
+                {/* Direct Invite URL Link button */}
                 <button
-                  onClick={copyRoomCode}
-                  className="bg-[#8A6938] text-white hover:bg-[#D8C49A] hover:text-[#2A2A2A] text-xs font-bold px-3 py-2 rounded transition-all shadow border border-[#D8C49A]/30"
+                  onClick={copyDirectLink}
+                  className="bg-[#1e40af] text-white hover:bg-[#2563eb] text-xs font-bold py-2.5 px-4 rounded transition-all shadow border border-blue-500/40 flex items-center justify-center gap-2 w-full"
                 >
-                  {copiedCode ? '¡Copiado!' : 'Copiar'}
+                  <span>🔗</span> {copiedLink ? '¡Enlace Copiado!' : 'Copiar Enlace de Invitación'}
                 </button>
               </div>
 
@@ -399,7 +665,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
             {/* Leave Room Button */}
             <button
               onClick={handleLeaveRoom}
-              className="stone-button stone-button-red text-xs py-2 w-44 self-center mt-2"
+              className="stone-button stone-button-red text-xs py-2 w-44 self-center mt-2 shadow"
             >
               Cerrar Portal
             </button>

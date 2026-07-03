@@ -4,6 +4,7 @@ import MainMenu from './components/MainMenu';
 import GameUI from './components/GameUI';
 import OnlineLobby from './components/OnlineLobby';
 import ErrorBoundary from './components/ErrorBoundary';
+import AudioSettings from './components/AudioSettings';
 import { 
   addPeerListener, 
   removePeerListener, 
@@ -42,38 +43,56 @@ function AppContent() {
     };
   }, [dispatch]);
 
+  // Redirect to Online Lobby if invite room is in the URL query parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get('room');
+    if (roomFromUrl) {
+      dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' });
+    }
+  }, [dispatch]);
+
   const handleGameJoined = (roomId: string, localPlayerId: number) => {
     // Handled automatically inside peerService
   };
 
-  switch (state.gameMode) {
-    case 'menu':
-      return (
-        <MainMenu 
-          onOnlineMode={() => dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' })} 
-        />
-      );
-    case 'online_lobby':
-      return (
-        <OnlineLobby 
-          onBack={() => {
-            cleanupPeer();
-            dispatch({ type: 'SET_GAME_MODE', payload: 'menu' });
-          }}
-          onGameJoined={handleGameJoined}
-        />
-      );
-    case 'playing':
-    case 'switch_turn':
-    case 'game_over':
-      return <GameUI />;
-    default:
-      return (
-        <MainMenu 
-          onOnlineMode={() => dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' })} 
-        />
-      );
-  }
+  const renderContent = () => {
+    switch (state.gameMode) {
+      case 'menu':
+        return (
+          <MainMenu 
+            onOnlineMode={() => dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' })} 
+          />
+        );
+      case 'online_lobby':
+        return (
+          <OnlineLobby 
+            onBack={() => {
+              cleanupPeer();
+              dispatch({ type: 'SET_GAME_MODE', payload: 'menu' });
+            }}
+            onGameJoined={handleGameJoined}
+          />
+        );
+      case 'playing':
+      case 'switch_turn':
+      case 'game_over':
+        return <GameUI />;
+      default:
+        return (
+          <MainMenu 
+            onOnlineMode={() => dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' })} 
+          />
+        );
+    }
+  };
+
+  return (
+    <>
+      {renderContent()}
+      <AudioSettings />
+    </>
+  );
 }
 
 export default function App() {
@@ -83,3 +102,4 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+

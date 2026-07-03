@@ -3,14 +3,14 @@ import { BOARD_ROWS, BOARD_COLS, INITIAL_ACTIONS, INITIAL_DRAW } from '@/utils/c
 import { createDeck } from '../gameService';
 import * as mutators from '../stateMutators';
 
-export const startGame = (initialState: GameState, payload: { gameType: 'ai' | 'p2' }): GameState => {
+export const startGame = (initialState: GameState, payload: { gameType: 'ai' | 'p2'; playerName?: string }): GameState => {
   const { gameType } = payload;
   const blackDeck = createDeck(CardColor.Black);
   const redDeck = createDeck(CardColor.Red);
 
   const player1: Player = { 
     id: 0, 
-    name: 'Player 1 (Black)', 
+    name: payload.playerName || 'Player 1 (Black)', 
     color: CardColor.Black, 
     damage: 0, 
     deck: blackDeck, 

@@ -81,7 +81,7 @@ export const getValidMoves = (unit: Unit, board: (Unit | null)[][], playerId: nu
 
         // If the path is clear, continue the search from this new spot
         if (!targetCell) {
-          if (newRow === goalRow) {
+          if (newRow === goalRow && nextDist < speed) {
             canScoreDirectly = true;
           }
           queue.push({ pos: { row: newRow, col: newCol }, dist: nextDist });

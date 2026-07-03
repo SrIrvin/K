@@ -15,7 +15,9 @@ interface GameBoardProps {
 
 const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectly?: boolean }> = ({ player, isOpponent = false, canScoreDirectly = false }) => {
     const { state, dispatch } = useContext(GameContext);
-    const isLocalTurn = state.gameType !== 'online' || state.localPlayerId === state.currentPlayerId;
+    const isLocalTurn = state.gameType === 'online'
+        ? state.localPlayerId === state.currentPlayerId
+        : (state.gameType === 'ai' ? state.currentPlayerId === 0 : true);
 
     const handleDirectScore = () => {
         if (canScoreDirectly && isLocalTurn) {
@@ -141,7 +143,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         setPan({ x: 0, y: 0 });
     };
 
-    const isLocalTurn = state.gameType !== 'online' || state.localPlayerId === state.currentPlayerId;
+    const isLocalTurn = state.gameType === 'online'
+        ? state.localPlayerId === state.currentPlayerId
+        : (state.gameType === 'ai' ? state.currentPlayerId === 0 : true);
 
     const handleCellInteraction = (row: number, col: number) => {
         if (!isLocalTurn) return;

@@ -368,7 +368,7 @@ const GameUI: React.FC = () => {
                               const hasQueenInHand = specialCards.some(c => c.rank === 'Q');
                               const lastUnitInDiscard = [...currentPlayer.discard].reverse().find(card => {
                                 const val = parseInt(card.rank, 10);
-                                return !isNaN(val) && val >= 2 && val <= 10;
+                                return !isNaN(val) && val >= 2 && val <= 10 && card.color === currentPlayer.color;
                               });
 
                               return (

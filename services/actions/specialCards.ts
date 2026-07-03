@@ -115,6 +115,7 @@ export const resurrectUnitToHand = (
   if (targetCardIndex === -1) return state;
 
   const cardToResurrect = currentPlayer.discard[targetCardIndex];
+  if (cardToResurrect.color !== currentPlayer.color) return state; // Only own color allowed
 
   const newHand = currentPlayer.hand.filter(c => c.id !== queenCard.id);
   let newDiscard = currentPlayer.discard.filter((_, idx) => idx !== targetCardIndex);
@@ -189,16 +190,22 @@ export const finishKingMove = (state: GameState): GameState => {
 
   let updatedState = state;
   const currentPlayer = state.players[state.currentPlayerId];
+  const opponentPlayer = state.players[1 - state.currentPlayerId];
+  if (!currentPlayer || !opponentPlayer) return state;
+
   let newDiscard = [...currentPlayer.discard];
+  let newOpponentDiscard = [...opponentPlayer.discard];
 
   const unmovedUnits = state.board.flat().filter(u => u && unmovedIds.includes(u.id)) as Unit[];
   for (const unit of unmovedUnits) {
     updatedState = mutators.placeUnitOnBoard(updatedState, unit.position.row, unit.position.col, null);
     newDiscard.push(mutators.unitToCard(unit));
-    newDiscard.push(...unit.stackedAttackers);
+    // Stacked attackers belong to the opponent!
+    newOpponentDiscard.push(...unit.stackedAttackers);
   }
 
   updatedState = mutators.updatePlayer(updatedState, currentPlayer.id, { discard: newDiscard });
+  updatedState = mutators.updatePlayer(updatedState, opponentPlayer.id, { discard: newOpponentDiscard });
   updatedState = mutators.updateKingMoveState(updatedState, null);
   updatedState = mutators.selectUnitOnBoard(updatedState, null);
 

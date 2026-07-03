@@ -15,8 +15,8 @@ export const handleCombat = (state: GameState, attacker: Unit, defender: Unit): 
     if (attacker.currentDamage > defender.currentDamage) {
         logMsg += ` Attacker is stronger. Both units destroyed!`;
         attackerDiscard.push(mutators.unitToCard(attacker));
+        attackerDiscard.push(...defender.stackedAttackers);
         defenderDiscard.push(mutators.unitToCard(defender));
-        defenderDiscard.push(...defender.stackedAttackers);
         
         // Remove defender from board
         updatedState = mutators.placeUnitOnBoard(updatedState, defender.position.row, defender.position.col, null);
@@ -34,7 +34,7 @@ export const handleCombat = (state: GameState, attacker: Unit, defender: Unit): 
         if (newDefender.currentDamage <= 0) {
             logMsg += ` Defender destroyed!`;
             defenderDiscard.push(mutators.unitToCard(newDefender));
-            defenderDiscard.push(...newDefender.stackedAttackers);
+            attackerDiscard.push(...newDefender.stackedAttackers);
             updatedState = mutators.placeUnitOnBoard(updatedState, defender.position.row, defender.position.col, null);
         } else {
             updatedState = mutators.placeUnitOnBoard(updatedState, defender.position.row, defender.position.col, newDefender);

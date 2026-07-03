@@ -27,6 +27,11 @@ class AudioService {
   private bgmInterval: any = null;
   private bgmNodes: { oscillators: OscillatorNode[]; gain: GainNode }[] = [];
   
+  // Nature ambient sound nodes
+  private windSource: AudioBufferSourceNode | null = null;
+  private windLFO: OscillatorNode | null = null;
+  private windGain: GainNode | null = null;
+  
   // Settings (stored in localStorage)
   private sfxMuted: boolean = false;
   private bgmMuted: boolean = false;
@@ -89,14 +94,12 @@ class AudioService {
     this.bgmVolume = Math.max(0, Math.min(1, vol));
     localStorage.setItem('k_bgm_volume', String(this.bgmVolume));
     
-    // Adjust volume of active BGM nodes dynamically
-    this.bgmNodes.forEach(group => {
+    // Adjust wind volume dynamically
+    if (this.windGain && this.ctx) {
       try {
-        group.gain.gain.setValueAtTime(this.bgmMuted ? 0 : this.bgmVolume, this.ctx?.currentTime ?? 0);
-      } catch (e) {
-        // Safe catch if node is ended
-      }
-    });
+        this.windGain.gain.setValueAtTime(this.bgmMuted ? 0 : this.bgmVolume * 0.25, this.ctx.currentTime);
+      } catch (e) {}
+    }
   }
 
   // --- SFX SYNTHESIZERS ---
@@ -504,7 +507,7 @@ class AudioService {
     });
   }
 
-  // --- BGM SYNTHESIZER (AMBIENT LOOP) ---
+  // --- BGM SYNTHESIZER (NATURE AMBIENT LOOP) ---
   public startBGM() {
     this.bgmPlaying = true;
     if (this.bgmMuted || this.bgmVolume <= 0) return;
@@ -512,104 +515,139 @@ class AudioService {
 
     try {
       const ctx = this.initContext();
-      
-      // Progression of chords in A minor / Strategic atmosphere:
-      // Am -> Fmaj7 -> Dm7 -> Em7
-      const progressions = [
-        [110.00, 220.00, 261.63, 329.63, 392.00], // Am9 (A, A, C, E, G)
-        [87.31, 174.61, 261.63, 329.63, 349.23],  // Fmaj7 (F, F, C, E, F)
-        [73.42, 146.83, 220.00, 261.63, 293.66],  // Dm7 (D, D, A, C, D)
-        [82.41, 164.81, 246.94, 293.66, 329.63],  // Em7 (E, E, B, D, E)
-      ];
-      
-      let chordIndex = 0;
-      const chordDuration = 5.0; // 5 seconds per chord
+      const now = ctx.currentTime;
 
-      const playNextChord = () => {
+      // 1. WIND GENERATOR (Lowpass Filtered Looping White Noise)
+      const bufferSize = ctx.sampleRate * 4.0; // 4 seconds of noise buffer
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      this.windSource = ctx.createBufferSource();
+      this.windSource.buffer = buffer;
+      this.windSource.loop = true;
+
+      // Soft wind lowpass filter
+      const windFilter = ctx.createBiquadFilter();
+      windFilter.type = 'lowpass';
+      windFilter.frequency.setValueAtTime(320, now);
+      windFilter.Q.setValueAtTime(1.5, now);
+
+      // Slow LFO to modulate filter frequency (creates breathing wind gusts)
+      this.windLFO = ctx.createOscillator();
+      this.windLFO.type = 'sine';
+      this.windLFO.frequency.setValueAtTime(0.06, now); // Very slow frequency change (every 16s)
+
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.setValueAtTime(180, now); // Modulate by +/- 180 Hz
+
+      // Connect LFO modulator
+      this.windLFO.connect(lfoGain);
+      lfoGain.connect(windFilter.frequency);
+
+      // Main wind volume
+      this.windGain = ctx.createGain();
+      this.windGain.gain.setValueAtTime(0, now);
+      this.windGain.gain.linearRampToValueAtTime(this.bgmVolume * 0.25, now + 2.0); // Slow fade-in
+
+      // Connect wind nodes
+      this.windSource.connect(windFilter);
+      windFilter.connect(this.windGain);
+      this.windGain.connect(ctx.destination);
+
+      // Start wind
+      this.windSource.start(now);
+      this.windLFO.start(now);
+
+      // 2. PERIODIC SONG BIRDS (Synthesizes soft random forest chirps)
+      const playForestBirdCall = () => {
         if (!this.bgmPlaying || this.bgmMuted) return;
-        
-        const now = ctx.currentTime;
-        const freqs = progressions[chordIndex];
-        
-        const oscs: OscillatorNode[] = [];
-        const gain = ctx.createGain();
-        
-        // Warm lowpass filter
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(450, now);
-        filter.frequency.linearRampToValueAtTime(300, now + chordDuration - 1);
-        
-        gain.gain.setValueAtTime(0, now);
-        // Slow attack
-        gain.gain.linearRampToValueAtTime(this.bgmVolume * 0.3, now + 1.5);
-        // Sustain
-        gain.gain.setValueAtTime(this.bgmVolume * 0.3, now + chordDuration - 1.5);
-        // Slow decay/release
-        gain.gain.linearRampToValueAtTime(0.001, now + chordDuration);
-        
-        freqs.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          // Use triangle for soft strategic sound
-          osc.type = idx === 0 ? 'sine' : 'triangle'; 
-          
-          // Subtle detune to create chorus effect
-          osc.frequency.setValueAtTime(freq + (Math.random() * 0.5 - 0.25), now);
-          
-          osc.connect(filter);
-          osc.start(now);
-          osc.stop(now + chordDuration);
-          oscs.push(osc);
-        });
 
-        filter.connect(gain);
-        gain.connect(ctx.destination);
+        const callTime = ctx.currentTime;
+        const baseFreq = 1400 + Math.random() * 500; // Random bird species pitch
+        const numChirps = 2 + Math.floor(Math.random() * 3); // 2-4 chirps per call
 
-        const nodeGroup = { oscillators: oscs, gain };
-        this.bgmNodes.push(nodeGroup);
-        
-        // Clean up node group reference after chord finished
-        setTimeout(() => {
-          this.bgmNodes = this.bgmNodes.filter(g => g !== nodeGroup);
-        }, chordDuration * 1000 + 100);
+        const playSingleChirp = (delay: number, pitch: number) => {
+          const chirpT = callTime + delay;
+          const birdOsc = ctx.createOscillator();
+          const birdGain = ctx.createGain();
 
-        chordIndex = (chordIndex + 1) % progressions.length;
+          birdOsc.type = 'sine';
+          birdOsc.frequency.setValueAtTime(pitch, chirpT);
+          // Quick pitch sweep up and down
+          birdOsc.frequency.exponentialRampToValueAtTime(pitch * 1.4, chirpT + 0.035);
+          birdOsc.frequency.exponentialRampToValueAtTime(pitch * 0.85, chirpT + 0.07);
+
+          birdGain.gain.setValueAtTime(0, chirpT);
+          birdGain.gain.linearRampToValueAtTime(this.bgmVolume * 0.12, chirpT + 0.015);
+          birdGain.gain.exponentialRampToValueAtTime(0.001, chirpT + 0.07);
+
+          birdOsc.connect(birdGain);
+          birdGain.connect(ctx.destination);
+
+          birdOsc.start(chirpT);
+          birdOsc.stop(chirpT + 0.08);
+        };
+
+        // Trigger chirp sequence
+        for (let i = 0; i < numChirps; i++) {
+          const delay = i * (0.12 + Math.random() * 0.05);
+          const pitchOffset = i * 60; // Slightly rising chirps
+          playSingleChirp(delay, baseFreq + pitchOffset);
+        }
       };
 
-      // Play immediately
-      playNextChord();
+      // Play first bird call after a short delay
+      setTimeout(playForestBirdCall, 4000);
+
+      // Schedule periodic bird calls (every 8 to 15 seconds randomly)
+      const triggerNextBirdCall = () => {
+        if (!this.bgmPlaying || this.bgmMuted) return;
+        playForestBirdCall();
+        const nextDelay = 8000 + Math.random() * 7000;
+        this.bgmInterval = setTimeout(triggerNextBirdCall, nextDelay);
+      };
       
-      // Loop
-      this.bgmInterval = setInterval(playNextChord, chordDuration * 1000);
+      this.bgmInterval = setTimeout(triggerNextBirdCall, 10000);
+
     } catch (e) {
-      console.warn('Failed to start synthesized BGM:', e);
+      console.warn('Failed to start nature BGM:', e);
     }
   }
 
   public stopBGM() {
     this.bgmPlaying = false;
+    
+    // Clear bird call scheduler
     if (this.bgmInterval) {
-      clearInterval(this.bgmInterval);
+      clearTimeout(this.bgmInterval);
       this.bgmInterval = null;
     }
-    
-    // Fade out all active chord nodes immediately
+
     const now = this.ctx?.currentTime ?? 0;
-    this.bgmNodes.forEach(group => {
+
+    // Fade out wind source
+    if (this.windGain && this.ctx) {
       try {
-        group.gain.gain.cancelScheduledValues(now);
-        group.gain.gain.setValueAtTime(group.gain.gain.value, now);
-        group.gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-        setTimeout(() => {
-          group.oscillators.forEach(osc => {
-            try { osc.stop(); } catch (e) {}
-          });
-        }, 600);
-      } catch (e) {
-        // Safe catch
-      }
-    });
-    this.bgmNodes = [];
+        this.windGain.gain.cancelScheduledValues(now);
+        this.windGain.gain.setValueAtTime(this.windGain.gain.value, now);
+        this.windGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0); // Smooth 1s fade-out
+      } catch (e) {}
+    }
+
+    // Stop oscillators after fade-out completes
+    const sourceToStop = this.windSource;
+    const lfoToStop = this.windLFO;
+    setTimeout(() => {
+      try { sourceToStop?.stop(); } catch (e) {}
+      try { lfoToStop?.stop(); } catch (e) {}
+    }, 1100);
+
+    this.windSource = null;
+    this.windLFO = null;
+    this.windGain = null;
   }
 }
 

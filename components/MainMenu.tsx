@@ -204,9 +204,17 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
         </div>
       </div>
 
-      {/* Footer / Copyright in runic style */}
-      <div className="absolute bottom-4 z-20 text-[10px] md:text-xs tracking-widest text-[#9A8B72] font-ancient-header opacity-60">
-        A.D. MMXXVI • ARTEFACTO SAGRADO
+      {/* Footer / Copyright in runic style & Contact */}
+      <div className="absolute bottom-4 z-20 flex flex-col items-center gap-1 text-[9px] md:text-xs tracking-widest text-[#9A8B72] font-ancient-header opacity-75">
+        <div>A.D. MMXXVI • ARTEFACTO SAGRADO</div>
+        <a 
+          href="https://linkedin.com/in/sr-irvin/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-[#D8C49A] hover:text-[#fff] transition-all flex items-center gap-1 font-orbitron text-[8px] tracking-normal mt-0.5 border-b border-dashed border-[#D8C49A]/30 hover:border-[#fff]"
+        >
+          <span>💼</span> linkedin.com/in/sr-irvin/
+        </a>
       </div>
     </div>
   );

@@ -20,6 +20,19 @@ export const setIncomingActionFlag = (val: boolean) => {
   isIncomingAction = val;
 };
 
+// WebRTC ICE Server Configuration using public Google STUN servers
+const PEER_CONFIG = {
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' }
+    ]
+  }
+};
+
 export const initializeHostPeer = (
   roomId: string,
   onOpponentJoined: (conn: DataConnection) => void,
@@ -28,7 +41,7 @@ export const initializeHostPeer = (
 ) => {
   cleanupPeer();
 
-  peer = new Peer(roomId);
+  peer = new Peer(roomId, PEER_CONFIG);
 
   peer.on('open', (id) => {
     console.log('Host Peer opened with ID:', id);
@@ -62,7 +75,7 @@ export const initializeGuestPeer = (
 ) => {
   cleanupPeer();
 
-  peer = new Peer();
+  peer = new Peer(PEER_CONFIG);
 
   peer.on('open', (id) => {
     console.log('Guest Peer opened with ID:', id);

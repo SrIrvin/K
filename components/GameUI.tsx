@@ -92,6 +92,7 @@ const GameUI: React.FC = () => {
     const [showHints, setShowHints] = useState(false);
     const [isLeftCollapsed, setIsLeftCollapsed] = useState(true);
     const [isRightCollapsed, setIsRightCollapsed] = useState(true);
+    const [hoveredRank, setHoveredRank] = useState<string | null>(null);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && window.innerWidth >= 768) {
@@ -223,7 +224,29 @@ const GameUI: React.FC = () => {
 
     // Split hand cards for better visual spacing
     const specialCards = currentPlayer.hand.filter(c => ['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank));
-    const unitCards = currentPlayer.hand.filter(c => !['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)).sort((a,b) => parseInt(a.rank) - parseInt(a.rank));
+    const unitCards = currentPlayer.hand.filter(c => !['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)).sort((a,b) => parseInt(a.rank) - parseInt(b.rank));
+
+    const groupedSpecialCards = useMemo(() => {
+      const groups: Record<string, Card[]> = {};
+      for (const card of specialCards) {
+        if (!groups[card.rank]) {
+          groups[card.rank] = [];
+        }
+        groups[card.rank].push(card);
+      }
+      return groups;
+    }, [specialCards]);
+
+    const groupedUnitCards = useMemo(() => {
+      const groups: Record<string, Card[]> = {};
+      for (const card of unitCards) {
+        if (!groups[card.rank]) {
+          groups[card.rank] = [];
+        }
+        groups[card.rank].push(card);
+      }
+      return groups;
+    }, [unitCards]);
 
     const handleSelectCard = (cardId: string | null) => {
         if (canAct || selectedCardIdInHand === cardId) {
@@ -338,7 +361,7 @@ const GameUI: React.FC = () => {
 
                             {/* Hand Cards */}
                             {(() => {
-                                                            const isCardHinted = showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard;
+                              const isCardHinted = showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard;
                               const hasQueenInHand = specialCards.some(c => c.rank === 'Q');
                               const lastUnitInDiscard = [...currentPlayer.discard].reverse().find(card => {
                                 const val = parseInt(card.rank, 10);
@@ -346,36 +369,94 @@ const GameUI: React.FC = () => {
                               });
 
                               return (
-                                <div className="flex justify-between items-center gap-4 h-[86px] sm:h-[96px] md:h-[120px]">
-                                    {/* Unit Cards Area (Left) */}
-                                    <div className="flex-grow flex gap-2 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40">
-                                        {unitCards.length === 0 && !lastUnitInDiscard ? (
-                                            <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
-                                              Sin cartas de unidad
-                                            </div>
-                                        ) : (
-                                            <>
-                                              {unitCards.map(card => (
-                                                  <div 
-                                                    key={card.id} 
-                                                    className="h-full flex-shrink-0"
-                                                    style={{ aspectRatio: '5/7' }}
-                                                    onClick={() => handleSelectCard(selectedCardIdInHand === card.id ? null : card.id)}
-                                                  >
-                                                      <div className={`w-full h-full ${selectedCardIdInHand === card.id ? 'stone-card-selected' : 'stone-card-container'} ${isCardHinted ? 'idle-hint-glow' : ''}`}>
-                                                          <GameCard 
-                                                              card={card}
-                                                              isSelected={selectedCardIdInHand === card.id}
-                                                          />
+                                <div className="flex justify-between items-center gap-4 h-[86px] sm:h-[96px] md:h-[120px] w-full">
+                                     {/* Unit Cards Area (Left) - 50% width */}
+                                     <div className="w-1/2 flex gap-4 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40 items-center">
+                                         {unitCards.length === 0 && !lastUnitInDiscard ? (
+                                             <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
+                                               Sin cartas de unidad
+                                             </div>
+                                         ) : (
+                                             <>
+                                              {Object.entries(groupedUnitCards).map(([rank, cards]) => {
+                                                  const isHovered = hoveredRank === rank;
+                                                  const stackWidth = isHovered 
+                                                      ? `${72 + (cards.length - 1) * 75}px` 
+                                                      : '72px';
+                                                  const topCard = cards[cards.length - 1];
+                                                  const isTopCardSelected = selectedCardIdInHand === topCard.id;
+                                                  
+                                                  return (
+                                                      <div 
+                                                        key={rank} 
+                                                        className="h-full flex flex-col justify-center transition-all duration-300 ease-out relative"
+                                                        style={{ 
+                                                            width: stackWidth,
+                                                        }}
+                                                        onMouseEnter={() => setHoveredRank(rank)}
+                                                        onMouseLeave={() => setHoveredRank(null)}
+                                                      >
+                                                          {/* Stack Wrapper */}
+                                                          <div className="relative w-full flex-grow max-h-[80%] flex items-center justify-start">
+                                                              {cards.map((card, index) => {
+                                                                  const translateX = isHovered ? index * 75 : index * 3;
+                                                                  const translateY = isHovered ? 0 : index * -3;
+                                                                  const rotate = isHovered ? 0 : (index * 1.5 - (cards.length - 1) * 0.75);
+                                                                  const scale = isHovered ? 1.02 : 1;
+                                                                  const isSelected = selectedCardIdInHand === card.id;
+                                                                  
+                                                                  return (
+                                                                      <div 
+                                                                        key={card.id} 
+                                                                        className="absolute left-0 top-0 h-full flex flex-col items-center justify-center transition-all duration-300 ease-out cursor-pointer"
+                                                                        style={{ 
+                                                                            width: '72px',
+                                                                            aspectRatio: '5/7',
+                                                                            transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
+                                                                            zIndex: isHovered ? index + 10 : index,
+                                                                        }}
+                                                                        onClick={(e) => {
+                                                                            if (isHovered || cards.length === 1) {
+                                                                                e.stopPropagation();
+                                                                                handleSelectCard(isSelected ? null : card.id);
+                                                                            }
+                                                                        }}
+                                                                      >
+                                                                          <div className={`w-full h-full ${isSelected ? 'stone-card-selected' : 'stone-card-container'} ${isCardHinted ? 'idle-hint-glow' : ''}`}>
+                                                                              <GameCard 
+                                                                                  card={card} 
+                                                                                  isSelected={isSelected}
+                                                                                  onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })} 
+                                                                              />
+                                                                          </div>
+                                                                      </div>
+                                                                  );
+                                                              })}
+                                                          </div>
+
+                                                          {/* Count Badge (only when stacked and > 1) */}
+                                                          {!isHovered && cards.length > 1 && (
+                                                              <div className="absolute top-1 right-1 z-25 bg-[#8A6938] text-white border border-[#D8C49A] text-[9px] font-orbitron font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-lg pointer-events-none animate-pulse">
+                                                                {cards.length}
+                                                              </div>
+                                                          )}
+
+                                                          {/* Clicking the stacked pile when not hovered selects/deselects the top card */}
+                                                          {!isHovered && cards.length > 1 && (
+                                                              <div 
+                                                                className="absolute inset-0 z-20 cursor-pointer"
+                                                                onClick={() => handleSelectCard(isTopCardSelected ? null : topCard.id)}
+                                                              />
+                                                          )}
                                                       </div>
-                                                  </div>
-                                              ))}
+                                                  );
+                                              })}
 
                                               {/* Ghost Card for Queen's Resurrection ability */}
                                               {hasQueenInHand && lastUnitInDiscard && (
                                                 <div 
-                                                  className="h-full flex-shrink-0 relative opacity-40 hover:opacity-85 border-2 border-dashed border-yellow-600/70 rounded-lg cursor-pointer transform hover:scale-[1.03] transition-all duration-300 group shadow-lg"
-                                                  style={{ aspectRatio: '5/7' }}
+                                                  className="h-full flex-shrink-0 relative opacity-40 hover:opacity-85 border-2 border-dashed border-yellow-600/70 rounded-lg cursor-pointer transform hover:scale-[1.03] transition-all duration-300 group shadow-lg flex flex-col justify-center"
+                                                  style={{ width: '72px', aspectRatio: '5/7' }}
                                                   onClick={() => {
                                                     const queenCard = specialCards.find(c => c.rank === 'Q');
                                                     if (queenCard && actionsRemaining > 0) {
@@ -387,7 +468,7 @@ const GameUI: React.FC = () => {
                                                   }}
                                                   title="Haz clic para resucitar a tu mano usando tu Reina (Q)"
                                                 >
-                                                    <div className="w-full h-full pointer-events-none filter sepia contrast-125 brightness-75">
+                                                    <div className="w-full h-full max-h-[80%] pointer-events-none filter sepia contrast-125 brightness-75 stone-card-container">
                                                         <GameCard 
                                                             card={lastUnitInDiscard}
                                                             isSelected={false}
@@ -402,36 +483,95 @@ const GameUI: React.FC = () => {
                                                 </div>
                                               )}
                                             </>
-                                        )}
-                                    </div>
+                                         )}
+                                     </div>
+ 
+                                     {/* Special Cards Area (Right) - 50% width */}
+                                     <div className="w-1/2 flex gap-4 overflow-x-auto h-full pl-3 items-center">
+                                         {specialCards.length === 0 ? (
+                                             <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
+                                               Sin habilidades
+                                             </div>
+                                         ) : (
+                                             Object.entries(groupedSpecialCards).map(([rank, cards]) => {
+                                                 const isHovered = hoveredRank === rank;
+                                                 const stackWidth = isHovered 
+                                                     ? `${72 + (cards.length - 1) * 75}px` 
+                                                     : '72px';
+                                                 
+                                                 return (
+                                                     <div 
+                                                       key={rank} 
+                                                       className="h-full flex flex-col justify-center transition-all duration-300 ease-out relative"
+                                                       style={{ 
+                                                           width: stackWidth,
+                                                       }}
+                                                       onMouseEnter={() => setHoveredRank(rank)}
+                                                       onMouseLeave={() => setHoveredRank(null)}
+                                                     >
+                                                         {/* Stack Wrapper */}
+                                                         <div className="relative w-full flex-grow max-h-[80%] flex items-center justify-start">
+                                                             {cards.map((card, index) => {
+                                                                 const translateX = isHovered ? index * 75 : index * 3;
+                                                                 const translateY = isHovered ? 0 : index * -3;
+                                                                 const rotate = isHovered ? 0 : (index * 1.5 - (cards.length - 1) * 0.75);
+                                                                 const scale = isHovered ? 1.02 : 1;
+                                                                 
+                                                                 return (
+                                                                     <div 
+                                                                       key={card.id} 
+                                                                       className="absolute left-0 top-0 h-full flex flex-col items-center justify-between transition-all duration-300 ease-out"
+                                                                       style={{ 
+                                                                           width: '72px',
+                                                                           aspectRatio: '5/7',
+                                                                           transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
+                                                                           zIndex: isHovered ? index + 10 : index,
+                                                                       }}
+                                                                     >
+                                                                         <div className={`flex-grow w-full max-h-[80%] stone-card-container ${isCardHinted ? 'idle-hint-glow' : ''}`}>
+                                                                             <GameCard 
+                                                                                 card={card} 
+                                                                                 onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })} 
+                                                                             />
+                                                                         </div>
+                                                                         
+                                                                         {/* Show buttons only when expanded (hovered) or if it's the top card of a stack of 1 */}
+                                                                         {(isHovered || cards.length === 1) && (
+                                                                             <button 
+                                                                               onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} 
+                                                                               disabled={!canAct} 
+                                                                               className={`stone-button stone-button-blue text-[7px] sm:text-[8px] py-0.5 px-1 mt-1 w-full ${isCardHinted ? 'idle-hint-glow' : ''} shadow-md`}
+                                                                             >
+                                                                               Activar (1)
+                                                                             </button>
+                                                                         )}
+                                                                     </div>
+                                                                 );
+                                                             })}
+                                                         </div>
 
-                                    {/* Special Cards Area (Right) */}
-                                    <div className="flex gap-2 overflow-x-auto h-full pl-1 max-w-[45%]">
-                                        {specialCards.length === 0 ? (
-                                            <div className="flex items-center justify-center w-40 h-full text-xs text-[#9A8B72]/40 italic">
-                                              Sin habilidades
-                                            </div>
-                                        ) : (
-                                            specialCards.map(card => (
-                                                <div 
-                                                  key={card.id} 
-                                                  className="h-full flex flex-col items-center justify-between"
-                                                  style={{ aspectRatio: '5/7' }}
-                                                >
-                                                    <div className={`flex-grow w-full max-h-[80%] stone-card-container ${isCardHinted ? 'idle-hint-glow' : ''}`}>
-                                                        <GameCard card={card} onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })} />
-                                                    </div>
-                                                    <button 
-                                                      onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} 
-                                                      disabled={!canAct} 
-                                                      className={`stone-button stone-button-blue text-[8px] sm:text-[9px] py-0.5 px-2 mt-1 w-full ${isCardHinted ? 'idle-hint-glow' : ''}`}
-                                                    >
-                                                      Activar (1)
-                                                    </button>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
+                                                         {/* Count Badge (only when stacked and > 1) */}
+                                                         {!isHovered && cards.length > 1 && (
+                                                             <div className="absolute top-1 right-1 z-25 bg-[#8A6938] text-white border border-[#D8C49A] text-[9px] font-orbitron font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-lg pointer-events-none animate-pulse">
+                                                               {cards.length}
+                                                             </div>
+                                                         )}
+
+                                                         {/* Single Activar button under the stack when not hovered (only for stack > 1) */}
+                                                         {!isHovered && cards.length > 1 && (
+                                                             <button 
+                                                               onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card: cards[cards.length - 1] } })} 
+                                                               disabled={!canAct} 
+                                                               className={`stone-button stone-button-blue text-[8px] sm:text-[9px] py-0.5 px-2 mt-1 w-full ${isCardHinted ? 'idle-hint-glow' : ''}`}
+                                                             >
+                                                               Activar ({cards.length})
+                                                             </button>
+                                                         )}
+                                                     </div>
+                                                 );
+                                             })
+                                         )}
+                                     </div>
                                 </div>
                               );
                             })()}

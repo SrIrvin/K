@@ -2,8 +2,12 @@ import { GameState } from '@/types';
 import * as mutators from '../stateMutators';
 
 export const selectCardInHand = (state: GameState, payload: { cardId: string | null }): GameState => {
+  if (payload.cardId === null) {
+    let clearedState = mutators.setTargeting(state, null);
+    return mutators.selectCardInHand(clearedState, null);
+  }
   if (state.actionsRemaining <= 0 || state.isTargeting || state.kingMoveState?.isMoving) {
-    if (payload.cardId !== null) return state;
+    return state;
   }
   return mutators.selectCardInHand(state, payload.cardId);
 };

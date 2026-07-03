@@ -27,12 +27,19 @@ export const PlayerArea: React.FC<PlayerAreaProps> = ({ player, isOpponent = fal
         }
     };
     
-    const handleDragStart = (cardId: string) => {
+    const handleDragStart = (e: React.DragEvent, cardId: string) => {
         if (canAct) {
+            e.dataTransfer.setData('cardId', cardId);
             if (state.selectedCardIdInHand !== cardId) {
                 dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId } });
             }
         }
+    };
+
+    const handleDragEnd = () => {
+        setTimeout(() => {
+            dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } });
+        }, 100);
     };
 
     return (
@@ -67,8 +74,8 @@ export const PlayerArea: React.FC<PlayerAreaProps> = ({ player, isOpponent = fal
                         className="h-full"
                         style={{aspectRatio: '5/7'}}
                         draggable={canAct}
-                        onDragStart={() => handleDragStart(card.id)}
-                        onDragEnd={() => handleSelectCard(null)}
+                        onDragStart={(e) => handleDragStart(e, card.id)}
+                        onDragEnd={handleDragEnd}
                       >
                         <GameCard 
                             card={card}
@@ -82,7 +89,19 @@ export const PlayerArea: React.FC<PlayerAreaProps> = ({ player, isOpponent = fal
                   <div className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-2 pl-2 md:pl-3 lg:pl-0 lg:pt-2 h-full lg:w-full">
                   {specialCards.map(card => (
                       <div key={card.id} className="h-full flex flex-col items-center justify-around" style={{aspectRatio: '5/7'}}>
-                        <GameCard card={card} onInfoClick={() => onInfoClick(card)} />
+                        <div
+                          className="h-full w-full"
+                          draggable={canAct}
+                          onDragStart={(e) => handleDragStart(e, card.id)}
+                          onDragEnd={handleDragEnd}
+                        >
+                          <GameCard 
+                            card={card} 
+                            isSelected={state.selectedCardIdInHand === card.id}
+                            onClick={() => handleSelectCard(state.selectedCardIdInHand === card.id ? null : card.id)}
+                            onInfoClick={() => onInfoClick(card)} 
+                          />
+                        </div>
                         <button onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} disabled={!canAct} className="text-[9px] sm:text-[11px] px-2 py-0.5 bg-purple-600 rounded hover:bg-purple-500 disabled:bg-gray-600 w-full flex-shrink-0 mt-1">Play (1)</button>
                       </div>
                   ))}

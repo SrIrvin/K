@@ -49,6 +49,9 @@ export const gameReducer = (state: GameState, action: Action): GameState => {
     case 'USE_ABILITY_ON_TARGET':
       return logic.useAbilityOnTarget(state, action.payload);
 
+    case 'RESURRECT_UNIT_TO_HAND':
+      return logic.resurrectUnitToHand(state, action.payload);
+
     case 'SCORE_UNIT':
       return logic.scoreUnit(state);
 
@@ -57,6 +60,29 @@ export const gameReducer = (state: GameState, action: Action): GameState => {
     
     case 'RESET_TO_MENU': {
       return initialState;
+    }
+
+    case 'SET_ONLINE_GAME': {
+      return {
+        ...state,
+        gameType: 'online',
+        localPlayerId: action.payload.localPlayerId,
+      };
+    }
+
+    case 'SET_FULL_STATE': {
+      return {
+        ...action.payload,
+        // Make sure we carry over the localPlayerId if it is set
+        localPlayerId: state.localPlayerId !== undefined ? state.localPlayerId : action.payload.localPlayerId,
+      };
+    }
+
+    case 'SET_GAME_MODE': {
+      return {
+        ...state,
+        gameMode: action.payload,
+      };
     }
     
     case 'SET_CARD_INFO_MODAL': {

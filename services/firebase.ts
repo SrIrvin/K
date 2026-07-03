@@ -18,6 +18,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+// Verification log
+if (firebaseConfig.apiKey === "YOUR_API_KEY" || !firebaseConfig.apiKey) {
+  console.error("[Firebase] ❌ Error: La clave API de Firebase no está cargada. Asegúrate de tener el archivo .env configurado y reiniciar tu servidor de desarrollo con 'npm run dev'.");
+} else {
+  console.log("[Firebase] ⚡ Inicializado correctamente con el ID de proyecto:", firebaseConfig.projectId);
+}
+
 // Initialize Firebase services
 export const auth = getAuth(app);
 export const db = getFirestore(app);

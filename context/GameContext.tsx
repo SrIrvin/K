@@ -3,6 +3,7 @@ import { GameState, Action } from '../types';
 import { gameReducer, initialState } from '../reducers/gameReducer';
 import { sendGameAction, activeRoomId, isIncomingAction } from '../services/peerService';
 import { audioService } from '../services/audioService';
+import { saveGameRecord } from '../services/firebaseService';
 
 interface GameContextProps {
   state: GameState;
@@ -107,6 +108,23 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           audioService.playSFX('win');
         } else {
           audioService.playSFX('lose');
+        }
+
+        // Save record to Firebase Firestore
+        try {
+          const winnerPlayer = nextState.winner;
+          const loserPlayer = nextState.players.find(p => p.id !== winnerPlayer.id);
+          if (winnerPlayer && loserPlayer) {
+            saveGameRecord({
+              winnerName: winnerPlayer.name,
+              winnerDamage: winnerPlayer.damage,
+              loserName: loserPlayer.name,
+              loserDamage: loserPlayer.damage,
+              gameType: nextState.gameType || 'local'
+            });
+          }
+        } catch (err) {
+          console.warn('[Firebase] Failed to save game record:', err);
         }
       }
     } catch (e) {

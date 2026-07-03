@@ -2,7 +2,11 @@ import { auth, db, rtdb } from './firebase';
 import { 
   signInAnonymously, 
   updateProfile, 
-  User 
+  User,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
 } from 'firebase/auth';
 import { 
   collection, 
@@ -45,6 +49,29 @@ export const loginAsGuest = async (displayName: string): Promise<User> => {
  */
 export const getCurrentUser = () => {
   return auth.currentUser;
+};
+
+/**
+ * Sign in using Google Auth Pop-Up
+ */
+export const loginWithGoogle = async (): Promise<User> => {
+  const provider = new GoogleAuthProvider();
+  const userCredential = await signInWithPopup(auth, provider);
+  return userCredential.user;
+};
+
+/**
+ * Log out current user
+ */
+export const logoutUser = async (): Promise<void> => {
+  await signOut(auth);
+};
+
+/**
+ * Subscribe to auth changes
+ */
+export const subscribeToAuthChanges = (callback: (user: User | null) => void): (() => void) => {
+  return onAuthStateChanged(auth, callback);
 };
 
 // --- FIRESTORE: RECORDS & LEADERBOARD ---

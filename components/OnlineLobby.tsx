@@ -44,6 +44,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
   const [statusText, setStatusText] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [connecting, setConnecting] = useState(false);
   
   // Firebase specific states
@@ -70,6 +71,23 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     };
     initAuth();
   }, [playerName]);
+
+  // Check for auto-joining room from URL link on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get('room');
+    if (roomFromUrl) {
+      // Clear parameter from URL silently
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      // Auto-join with a slight timeout to ensure peer / firebase is fully ready
+      setStatusText(`Cruzando portal de invitación ${roomFromUrl}...`);
+      setTimeout(() => {
+        handleJoinRoomByCode(roomFromUrl);
+      }, 600);
+    }
+  }, []);
 
   // Subscribe to RTDB active rooms and load leaderboard/ranking
   useEffect(() => {
@@ -287,6 +305,15 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
       navigator.clipboard.writeText(activeRoomId);
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
+  const copyDirectLink = () => {
+    if (activeRoomId) {
+      const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${activeRoomId}`;
+      navigator.clipboard.writeText(inviteUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
     }
   };
 
@@ -564,19 +591,30 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
           /* ROOM WAITING LOBBY */
           <div className="w-full flex flex-col gap-6 text-left">
             <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-5 rounded-lg flex flex-col gap-4 text-center">
-              <h2 className="text-lg font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider">
+              <h2 className="text-lg font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider animate-pulse">
                 PORTAL ABIERTO
               </h2>
               
-              <div className="flex justify-center items-center gap-2">
-                <span className="bg-[#120f0b] border border-[#8A6938] text-[#D8C49A] text-base font-mono px-4 py-2 rounded font-bold tracking-wider shadow-inner">
-                  {activeRoomId}
-                </span>
+              <div className="flex flex-col gap-3.5 max-w-sm mx-auto w-full">
+                {/* Visual block with Room Code and Copy button */}
+                <div className="flex justify-center items-center gap-2">
+                  <span className="bg-[#120f0b] border border-[#8A6938] text-[#D8C49A] text-lg font-mono px-4 py-2 rounded font-bold tracking-wider shadow-inner">
+                    {activeRoomId}
+                  </span>
+                  <button
+                    onClick={copyRoomCode}
+                    className="bg-[#8A6938] text-white hover:bg-[#D8C49A] hover:text-[#2A2A2A] text-xs font-bold px-3 py-2 rounded.5 transition-all shadow border border-[#D8C49A]/30 flex items-center gap-1.5"
+                  >
+                    <span>📋</span> {copiedCode ? '¡Copiado!' : 'Copiar Código'}
+                  </button>
+                </div>
+
+                {/* Direct Invite URL Link button */}
                 <button
-                  onClick={copyRoomCode}
-                  className="bg-[#8A6938] text-white hover:bg-[#D8C49A] hover:text-[#2A2A2A] text-xs font-bold px-3 py-2 rounded transition-all shadow border border-[#D8C49A]/30"
+                  onClick={copyDirectLink}
+                  className="bg-[#1e40af] text-white hover:bg-[#2563eb] text-xs font-bold py-2.5 px-4 rounded transition-all shadow border border-blue-500/40 flex items-center justify-center gap-2 w-full"
                 >
-                  {copiedCode ? '¡Copiado!' : 'Copiar'}
+                  <span>🔗</span> {copiedLink ? '¡Enlace Copiado!' : 'Copiar Enlace de Invitación'}
                 </button>
               </div>
 

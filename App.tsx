@@ -43,6 +43,15 @@ function AppContent() {
     };
   }, [dispatch]);
 
+  // Redirect to Online Lobby if invite room is in the URL query parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get('room');
+    if (roomFromUrl) {
+      dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' });
+    }
+  }, [dispatch]);
+
   const handleGameJoined = (roomId: string, localPlayerId: number) => {
     // Handled automatically inside peerService
   };

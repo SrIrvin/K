@@ -6,6 +6,7 @@ import { getAiBestAction } from '../ai/aiService';
 import { GameCard, CardBack } from './GameCard';
 import { BOARD_ROWS } from '../constants';
 import GameBoard from './GameBoard';
+import { audioService } from '../services/audioService';
 
 // #region CARD DESCRIPTIONS
 const CARD_DESCRIPTIONS: Record<Rank, string> = {
@@ -93,6 +94,7 @@ const GameUI: React.FC = () => {
     const [isLeftCollapsed, setIsLeftCollapsed] = useState(true);
     const [isRightCollapsed, setIsRightCollapsed] = useState(true);
     const [hoveredRank, setHoveredRank] = useState<string | null>(null);
+    const [isLogExpanded, setIsLogExpanded] = useState(false);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && window.innerWidth >= 768) {
@@ -633,13 +635,40 @@ const GameUI: React.FC = () => {
                             )}
 
                             {/* Recent History log */}
-                            <div className="h-20 bg-[#120f0b] rounded border border-[#574d3c] p-2 overflow-y-auto text-[9px] sm:text-[10px] text-[#9A8B72] font-mono shadow-inner">
-                              {state.log.slice(0, 3).map((l, index) => (
-                                <div key={index} className="truncate border-b border-[#574d3c]/10 pb-0.5 mb-0.5">
-                                  <span className="text-[#8A6938] font-bold">&gt; </span>
-                                  {l}
+                            <div className="flex flex-col gap-1.5 mt-2">
+                              <div className="flex items-center justify-between text-[10px] text-[#9A8B72] uppercase tracking-wider font-bold">
+                                <span>Bitácora de Duelo</span>
+                                <button
+                                  onClick={() => {
+                                    audioService.playSFX('click');
+                                    setIsLogExpanded(true);
+                                  }}
+                                  className="text-[#D8C49A] hover:text-white transition-colors flex items-center gap-1 text-[9px] font-ancient-header border border-[#8A6938]/30 px-1.5 py-0.5 rounded bg-[#1e1a14]/50 shadow-sm"
+                                >
+                                  <span>VER CRÓNICA</span>
+                                </button>
+                              </div>
+                              <div 
+                                onClick={() => {
+                                  audioService.playSFX('click');
+                                  setIsLogExpanded(true);
+                                }}
+                                className="h-20 bg-[#120f0b] rounded border border-[#574d3c] p-2 overflow-y-auto text-[9px] sm:text-[10px] text-[#9A8B72] font-mono shadow-inner cursor-pointer hover:border-[#8A6938]/85 transition-colors relative group"
+                              >
+                                <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 px-1 rounded text-[8px] text-[#D8C49A] border border-[#574d3c]">
+                                  Ampliar 🔍
                                 </div>
-                              ))}
+                                {state.log.length === 0 ? (
+                                  <div className="italic text-center text-[#9A8B72]/40 mt-5">Las runas aguardan el primer movimiento...</div>
+                                ) : (
+                                  state.log.slice(0, 3).map((l, index) => (
+                                    <div key={index} className="truncate border-b border-[#574d3c]/10 pb-0.5 mb-0.5">
+                                      <span className="text-[#8A6938] font-bold">&gt; </span>
+                                      {l}
+                                    </div>
+                                  ))
+                                )}
+                              </div>
                             </div>
                         </div>
                     </div>
@@ -750,6 +779,42 @@ const GameUI: React.FC = () => {
                     className="stone-button stone-button-blue text-sm py-3 px-8 w-full shadow-lg"
                   >
                     Tomar Tablilla (Iniciar Turno)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Expanded Game Log Modal overlay (Runic parchment / Stone scroll) */}
+            {isLogExpanded && (
+              <div className="absolute inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="stone-modal p-6 md:p-8 text-center border-4 border-[#8A6938] max-w-lg w-full shadow-[0_0_40px_rgba(216,196,154,0.35)] flex flex-col max-h-[80vh]">
+                  <h2 className="text-xl md:text-2xl font-ancient-header text-[#D8C49A] mb-1 tracking-widest">
+                    📜 CRÓNICA DEL DUELO 📜
+                  </h2>
+                  <div className="h-0.5 w-24 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent mx-auto mb-4" />
+                  
+                  {/* Scrollable log list */}
+                  <div className="flex-grow overflow-y-auto bg-[#120f0b]/90 border border-[#574d3c] rounded p-4 text-left font-mono text-xs sm:text-sm text-[#9A8B72] shadow-inner mb-6 space-y-2.5">
+                    {state.log.length === 0 ? (
+                      <div className="italic text-center text-[#9A8B72]/50 mt-10">Las piedras sagradas aún no registran combates...</div>
+                    ) : (
+                      [...state.log].reverse().map((l, index) => (
+                        <div key={index} className="border-b border-[#574d3c]/15 pb-1.5 flex gap-2">
+                          <span className="text-[#8A6938] font-bold select-none">&gt;</span>
+                          <span className="leading-relaxed">{l}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      audioService.playSFX('click');
+                      setIsLogExpanded(false);
+                    }} 
+                    className="stone-button stone-button-red py-2 px-8 shadow-md mx-auto"
+                  >
+                    REGRESAR AL DUELO
                   </button>
                 </div>
               </div>

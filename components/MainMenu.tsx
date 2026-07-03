@@ -17,6 +17,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const [playerName, setPlayerName] = useState(() => {
     return localStorage.getItem('k_player_name') || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
   });
+  const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'hard'>('easy');
 
   // Listen to Authentication changes to update Google Profile
   useEffect(() => {
@@ -62,7 +63,14 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const startGame = (gameType: 'ai' | 'p2') => {
     const finalName = playerName.trim() || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
     handleNameChange(finalName);
-    dispatch({ type: 'START_GAME', payload: { gameType, playerName: finalName } });
+    dispatch({ 
+      type: 'START_GAME', 
+      payload: { 
+        gameType, 
+        playerName: finalName,
+        aiDifficulty: gameType === 'ai' ? aiDifficulty : undefined
+      } 
+    });
   };
 
   // Generate 15 dust particles for ambient animation
@@ -181,12 +189,40 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
 
         {/* Buttons carved in stone */}
         <div className="flex flex-col gap-4 w-full max-w-xs">
-          <button 
-            onClick={() => startGame('ai')} 
-            className="stone-button w-full py-3 text-sm"
-          >
-            Desafiar a la IA
-          </button>
+          {/* AI Section with Difficulty Selection */}
+          <div className="bg-[#1c1812]/90 border border-[#8A6938]/30 rounded-lg p-2.5 flex flex-col gap-2.5 items-center shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+            <button 
+              onClick={() => startGame('ai')} 
+              className="stone-button w-full py-3 text-sm"
+            >
+              Desafiar a la IA
+            </button>
+            <div className="flex items-center justify-between w-full px-1 text-[10px] text-[#9A8B72] font-orbitron">
+              <span className="tracking-wide">Dificultad IA:</span>
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => setAiDifficulty('easy')}
+                  className={`px-2 py-0.5 rounded text-[8px] font-bold border transition-all ${
+                    aiDifficulty === 'easy'
+                      ? 'bg-green-950/80 text-green-400 border-green-600/60 font-extrabold shadow-[0_0_5px_rgba(34,197,94,0.4)]'
+                      : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
+                  }`}
+                >
+                  Aprendiz (Fácil)
+                </button>
+                <button
+                  onClick={() => setAiDifficulty('hard')}
+                  className={`px-2 py-0.5 rounded text-[8px] font-bold border transition-all ${
+                    aiDifficulty === 'hard'
+                      ? 'bg-red-950/80 text-red-400 border-red-600/60 font-extrabold shadow-[0_0_5px_rgba(239,68,68,0.4)]'
+                      : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
+                  }`}
+                >
+                  Táctico (Difícil)
+                </button>
+              </div>
+            </div>
+          </div>
 
           <button 
             onClick={onOnlineMode} 

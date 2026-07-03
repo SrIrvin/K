@@ -724,6 +724,42 @@ const GameUI: React.FC = () => {
                 </div>
             </div>
 
+            {/* Floating Action Controls when right panel is collapsed */}
+            {isRightCollapsed && isLocalTurn && gameMode === 'playing' && (
+              <div className="fixed right-3 bottom-28 z-45 flex flex-col gap-2 bg-[#1e1a14]/95 border-2 border-[#8A6938] rounded-xl p-2 shadow-[0_10px_25px_rgba(0,0,0,0.9)] animate-fade-in font-orbitron items-center">
+                <div className="text-[8px] font-runic-text text-[#9A8B72] tracking-wider uppercase opacity-85">
+                  Acciones
+                </div>
+                <div className="text-base font-black text-[#D8C49A] leading-none mb-1">
+                  {actionsRemaining}
+                </div>
+                
+                <button 
+                  onClick={() => dispatch({ type: 'DRAW_CARD'})} 
+                  disabled={!canAct} 
+                  className={`w-10 h-10 flex flex-col items-center justify-center rounded-lg border border-[#8A6938] bg-[#2A2A2A] hover:bg-[#8A6938] hover:text-[#1e1a14] text-[#D8C49A] transition-all disabled:opacity-40 disabled:hover:bg-[#2A2A2A] disabled:hover:text-[#D8C49A] cursor-pointer shadow-md ${
+                    showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''
+                  }`}
+                  title="Robar Carta (1 Acción)"
+                >
+                  <span className="text-sm font-black">🎴</span>
+                  <span className="text-[7px] font-bold uppercase mt-0.5 tracking-tighter">Robar</span>
+                </button>
+                
+                <button 
+                  onClick={() => dispatch({ type: 'END_TURN'})} 
+                  disabled={kingMoveState?.isMoving} 
+                  className={`w-10 h-10 flex flex-col items-center justify-center rounded-lg border border-red-700 bg-red-950/70 hover:bg-red-600 hover:text-white text-red-200 transition-all disabled:opacity-40 disabled:hover:bg-red-950/70 disabled:hover:text-red-200 cursor-pointer shadow-md ${
+                    showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''
+                  }`}
+                  title="Terminar Turno"
+                >
+                  <span className="text-sm font-black">⏳</span>
+                  <span className="text-[7px] font-bold uppercase mt-0.5 tracking-tighter">Fin</span>
+                </button>
+              </div>
+            )}
+
             {/* Modals & Overlays */}
             <CardInfoModal />
             

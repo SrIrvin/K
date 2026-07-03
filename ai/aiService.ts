@@ -15,6 +15,7 @@ export const getAiBestAction = (state: GameState): Action | null => {
     const opponentPlayer = state.players[0];
     const aiUnits = state.board.flat().filter((u): u is Unit => u?.color === aiPlayer.color);
     const enemyUnits = state.board.flat().filter((u): u is Unit => u?.color === opponentPlayer.color);
+    const aiDifficulty = state.aiDifficulty || 'easy';
 
     // ==========================================
     // PHASE A: RESOLVE FORCED TARGETING STATE
@@ -24,8 +25,12 @@ export const getAiBestAction = (state: GameState): Action | null => {
         
         if (state.isTargeting === 'joker') {
             if (enemyUnits.length > 0) {
-                // Target the enemy unit with the highest damage value (strongest threat)
-                const target = [...enemyUnits].sort((a, b) => b.baseDamage - a.baseDamage)[0];
+                // If HARD difficulty: Target the advanced enemy unit closest to scoring (lowest row index)
+                // Otherwise (EASY): Target the unit with highest base damage
+                const target = aiDifficulty === 'hard'
+                    ? [...enemyUnits].sort((a, b) => a.position.row - b.position.row)[0]
+                    : [...enemyUnits].sort((a, b) => b.baseDamage - a.baseDamage)[0];
+                
                 return { type: 'USE_ABILITY_ON_TARGET', payload: { unitId: target.id } };
             }
         } 
@@ -109,13 +114,18 @@ export const getAiBestAction = (state: GameState): Action | null => {
     // ==========================================
     const possibleActions: AiScoredAction[] = [];
 
+    // Analyze threat levels of enemy units (human Player 0 moves UP towards row 0)
+    // Row 0 is the AI goal zone. Threat is highest when enemy row index is lowest (0 is touchdown, 1 and 2 are dangerous).
+    const advancedThreats = enemyUnits.filter(u => u.position.row <= 2);
+    const closestThreat = [...enemyUnits].sort((a, b) => a.position.row - b.position.row)[0];
+
     // 1. Scoring Action (Touchdown)
     // AI moves units from row 0 to row 4, so touchdown row is BOARD_ROWS - 1
     const scoringUnit = aiUnits.find(u => u.position.row === BOARD_ROWS - 1 && !u.hasMoved);
     if (scoringUnit) {
         possibleActions.push({
             type: 'SCORE_UNIT',
-            score: 1000 + scoringUnit.currentDamage,
+            score: 1200 + scoringUnit.currentDamage, // Extremely high priority to score points
             log: `AI will score touchdown with ${scoringUnit.rank} (${scoringUnit.currentDamage} pts)`
         });
     }
@@ -123,22 +133,37 @@ export const getAiBestAction = (state: GameState): Action | null => {
     // 2. Play Special Cards from hand
     const aceCard = aiPlayer.hand.find(c => c.rank === 'A');
     if (aceCard) {
+        // ACE does 1 point of direct damage to the opponent player
+        let score = 250;
+        // In HARD mode, if opponent is close to losing, prioritize ending the game
+        if (aiDifficulty === 'hard' && opponentPlayer.damage >= 18) {
+            score += 300;
+        }
         possibleActions.push({
             type: 'PLAY_SPECIAL_CARD',
             payload: { card: aceCard },
-            score: 250,
+            score,
             log: 'AI will play ACE for 1 direct damage point'
         });
     }
 
     const jokerCard = aiPlayer.hand.find(c => c.rank === 'Joker');
     if (jokerCard && enemyUnits.length > 0) {
-        const strongestEnemy = [...enemyUnits].sort((a, b) => b.baseDamage - a.baseDamage)[0];
+        let targetScore = 300;
+        if (aiDifficulty === 'hard' && closestThreat) {
+            // Target the closest threat to AI goal line (lowest row index)
+            targetScore += 250 + (3 - closestThreat.position.row) * 150;
+        } else {
+            // Target strongest enemy unit on board
+            const strongestEnemy = [...enemyUnits].sort((a, b) => b.baseDamage - a.baseDamage)[0];
+            targetScore += strongestEnemy.baseDamage;
+        }
+
         possibleActions.push({
             type: 'PLAY_SPECIAL_CARD',
             payload: { card: jokerCard },
-            score: 300 + strongestEnemy.baseDamage,
-            log: `AI will play JOKER to assassinate ${strongestEnemy.rank}`
+            score: targetScore,
+            log: 'AI will play JOKER to assassinate an opponent unit'
         });
     }
 
@@ -166,7 +191,7 @@ export const getAiBestAction = (state: GameState): Action | null => {
             possibleActions.push({
                 type: 'RESURRECT_UNIT_TO_HAND',
                 payload: { queenCardId: queenCard.id, targetCardId: lastUnit.id },
-                score: 155, // Higher than buffing, lower than healing a heavily damaged unit
+                score: 155,
                 log: `AI will play QUEEN to resurrect ${lastUnit.rank} of ${lastUnit.suit} to hand`
             });
         }
@@ -201,55 +226,96 @@ export const getAiBestAction = (state: GameState): Action | null => {
             const target = state.board[move.row][move.col];
             if (target && target.color !== aiPlayer.color) {
                 let score = 50;
-                if (unit.currentDamage > target.currentDamage) {
-                    score += 150 + target.baseDamage; // Very high priority if we destroy them entirely
-                } else {
-                    score += 40 + unit.currentDamage; // Deal partial stacking damage
-                }
                 
+                // Attack evaluation
+                if (unit.currentDamage > target.currentDamage) {
+                    score += 150 + target.baseDamage * 10; // High priority if we destroy them
+                } else {
+                    score += 40 + unit.currentDamage * 5; // Partial attack/stacking
+                }
+
+                // HARD Defensive Strategy: Prioritize attacking advanced threat units
+                if (aiDifficulty === 'hard' && target.position.row <= 2) {
+                    // Maximum defense bonus when attacking units close to scoring (row 1 or 2)
+                    score += 350 + (3 - target.position.row) * 150;
+                }
+
                 possibleActions.push({
                     type: 'MOVE_UNIT',
                     payload: { to: move },
                     score,
-                    log: `AI will attack ${target.rank} with ${unit.rank}`
+                    log: `AI will attack ${target.rank} with ${unit.rank} (${score} pts)`
                 });
             }
         }
     }
     
-    // 4. Move Actions (MOVE_UNIT forward)
+    // 4. Move Actions (MOVE_UNIT forward or to BLOCK)
     for (const unit of aiUnits) {
         if (unit.hasMoved) continue;
         const validMoves = getValidMoves(unit, state.board, 1);
-        // AI starts at row 0, goal is row 4, so sorting descending by row index is moving forward
-        // Filter out touchdown move coordinates (-1, -1) to prevent out of bounds crashes
         const forwardMoves = validMoves.filter(m => m.row !== -1 && !state.board[m.row][m.col]).sort((a, b) => b.row - a.row);
-        if (forwardMoves.length > 0) {
-            const bestMove = forwardMoves[0];
+        
+        for (const move of forwardMoves) {
+            let score = 15 + move.row * 8; // Default: moving forward is positive
+
+            // HARD Defensive Strategy: Prioritize moving to block an advancing enemy path!
+            if (aiDifficulty === 'hard') {
+                // Check if this move lands directly in front of an advancing enemy unit
+                // Enemy units move UP towards row 0, so cell in front is (enemy.row - 1, enemy.col)
+                const blocksEnemy = enemyUnits.some(enemy => 
+                    enemy.position.row - 1 === move.row && 
+                    enemy.position.col === move.col
+                );
+                
+                if (blocksEnemy) {
+                    const enemyBehind = enemyUnits.find(enemy => 
+                        enemy.position.row - 1 === move.row && 
+                        enemy.position.col === move.col
+                    );
+                    const threatLevel = enemyBehind ? (3 - enemyBehind.position.row) : 1;
+                    score += 450 + threatLevel * 100; // Major block bonus!
+                }
+            }
+
             possibleActions.push({
                 type: 'MOVE_UNIT',
-                payload: { to: bestMove },
-                score: 15 + bestMove.row * 8, // Higher row = closer to goal = higher score
-                log: `AI will move ${unit.rank} forward to row ${bestMove.row}`
+                payload: { to: move },
+                score,
+                log: `AI will move ${unit.rank} to row ${move.row}, col ${move.col} (${score} pts)`
             });
         }
     }
 
-    // 5. Place Unit Actions
+    // 5. Place Unit Actions (Deployment)
     const unitCardsInHand = aiPlayer.hand.filter(c => !(['J','Q','K','A','Joker'] as Rank[]).includes(c.rank));
     const placeableSpots = state.board[0].map((cell, i) => !cell ? i : -1).filter(i => i !== -1);
     if (unitCardsInHand.length > 0 && placeableSpots.length > 0) {
         const cardToPlay = [...unitCardsInHand].sort((a, b) => parseInt(b.rank) - parseInt(a.rank))[0]; // Strongest unit first
-        // Prefer center columns (1 or 2) over edges (0 or 3)
-        const sortedSpots = [...placeableSpots].sort((a, b) => Math.abs(a - 1.5) - Math.abs(b - 1.5));
-        const spot = sortedSpots[0];
         
-        possibleActions.push({
-            type: 'PLACE_UNIT',
-            payload: { row: 0, col: spot },
-            score: 30 + parseInt(cardToPlay.rank),
-            log: `AI will place ${cardToPlay.rank} in column ${spot}`
-        });
+        for (const spot of placeableSpots) {
+            let score = 30 + parseInt(cardToPlay.rank);
+
+            // Prefer center columns (1 or 2) over edges (0 or 3)
+            score += (1.5 - Math.abs(spot - 1.5)) * 10;
+
+            // HARD Defensive Strategy: Prioritize placing units in columns under threat
+            if (aiDifficulty === 'hard') {
+                // Check if there is an enemy unit in this column moving towards row 0
+                const threatInCol = enemyUnits.find(enemy => enemy.position.col === spot);
+                if (threatInCol) {
+                    const distanceThreat = 3 - threatInCol.position.row;
+                    score += 250 + distanceThreat * 80; // High score to deploy blocker in that column!
+                }
+            }
+
+            possibleActions.push({
+                type: 'PLACE_UNIT',
+                payload: { row: 0, col: spot },
+                score,
+                log: `AI will place ${cardToPlay.rank} in column ${spot} (${score} pts)`
+            });
+        }
     }
 
     // 6. Draw Card Action (Lowest default option)
@@ -294,12 +360,6 @@ export const getAiBestAction = (state: GameState): Action | null => {
             break;
         }
         case 'PLACE_UNIT': {
-             // Find matching card in hand to select first
-             const cardToPlay = unitCardsInHand.find(c => {
-                 // Match rank and suit to play the correct card
-                 const matchingInPayload = parseInt(c.rank);
-                 return matchingInPayload > 0; // Simple fallback
-             });
              // Select strongest card
              const strongestCard = [...unitCardsInHand].sort((a, b) => parseInt(b.rank) - parseInt(a.rank))[0];
              if (strongestCard && state.selectedCardIdInHand !== strongestCard.id) {

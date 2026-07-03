@@ -58,6 +58,7 @@ export interface GameState {
   gameMode: 'menu' | 'online_lobby' | 'playing' | 'switch_turn' | 'game_over';
   gameType: 'ai' | 'p2' | 'online' | null;
   localPlayerId?: number;
+  aiDifficulty?: 'easy' | 'hard';
   kingMoveState: {
     isMoving: boolean;
     unitsToMove: string[];
@@ -70,7 +71,7 @@ export interface GameState {
 export type MoveDirection = 'up' | 'down' | 'left' | 'right';
 
 export type Action =
-  | { type: 'START_GAME'; payload: { gameType: 'ai' | 'p2'; playerName?: string } }
+  | { type: 'START_GAME'; payload: { gameType: 'ai' | 'p2'; playerName?: string; aiDifficulty?: 'easy' | 'hard' } }
   | { type: 'SET_ONLINE_GAME'; payload: { localPlayerId: number } }
   | { type: 'SET_FULL_STATE'; payload: GameState }
   | { type: 'SET_GAME_MODE'; payload: 'menu' | 'online_lobby' | 'playing' | 'switch_turn' | 'game_over' }

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { GameContext } from '../context/GameContext';
 
 interface MainMenuProps {
@@ -7,9 +7,20 @@ interface MainMenuProps {
 
 const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const { dispatch } = useContext(GameContext);
+  
+  const [playerName, setPlayerName] = useState(() => {
+    return localStorage.getItem('k_player_name') || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
+  });
+
+  const handleNameChange = (name: string) => {
+    setPlayerName(name);
+    localStorage.setItem('k_player_name', name);
+  };
 
   const startGame = (gameType: 'ai' | 'p2') => {
-    dispatch({ type: 'START_GAME', payload: { gameType } });
+    const finalName = playerName.trim() || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
+    handleNameChange(finalName);
+    dispatch({ type: 'START_GAME', payload: { gameType, playerName: finalName } });
   };
 
   // Generate 15 dust particles for ambient animation
@@ -53,29 +64,44 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
           </h2>
         </div>
 
-        <p className="text-sm md:text-base text-[#D8C49A]/80 font-runic-text mb-10 max-w-xs leading-relaxed italic">
+        <p className="text-sm md:text-base text-[#D8C49A]/80 font-runic-text mb-6 max-w-xs leading-relaxed italic">
           "Las runas del pasado despiertan en el tablero. Solo uno de los guerreros sobrevivirá al juicio de piedra."
         </p>
+
+        {/* Hero Name / Nickname Input */}
+        <div className="w-full max-w-xs mb-8 bg-[#120f0b]/75 border border-[#574d3c]/70 p-3.5 rounded-lg flex flex-col gap-2 text-center shadow-inner relative z-30">
+          <label className="text-[10px] font-orbitron font-bold text-[#D8C49A] uppercase tracking-widest">
+            Tu Nombre de Héroe (Nickname)
+          </label>
+          <input
+            type="text"
+            value={playerName}
+            onChange={(e) => handleNameChange(e.target.value)}
+            maxLength={18}
+            className="bg-[#2c241b] border border-[#8A6938] text-[#D8C49A] font-bold text-sm px-3 py-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-[#D8C49A] text-center tracking-wider"
+            placeholder="Escribe tu apodo..."
+          />
+        </div>
 
         {/* Buttons carved in stone */}
         <div className="flex flex-col gap-4 w-full max-w-xs">
           <button 
             onClick={() => startGame('p2')} 
-            className="stone-button w-full py-3.5 text-base"
+            className="stone-button w-full py-3 text-sm"
           >
             Duelo Local (Cara a Cara)
           </button>
 
           <button 
             onClick={onOnlineMode} 
-            className="stone-button stone-button-blue w-full py-3.5 text-base"
+            className="stone-button stone-button-blue w-full py-3 text-sm"
           >
             Duelo en Línea (Salas)
           </button>
           
           <button 
             onClick={() => startGame('ai')} 
-            className="stone-button w-full py-3.5 text-base"
+            className="stone-button w-full py-3 text-sm"
           >
             Desafiar a la IA
           </button>

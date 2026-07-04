@@ -909,3 +909,46 @@ body {
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 25px #8A6938;
   animation: cell-heart-anim 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
+
+/* 👑 King's Command Phase Atmospheric Changes */
+@keyframes king-bg-fade {
+  from { background-color: rgba(0, 0, 0, 0); }
+  to { background-color: rgba(6, 5, 5, 0.9); }
+}
+
+.king-phase-bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  animation: king-bg-fade 0.8s ease-out forwards;
+}
+
+@keyframes king-watermark-fade {
+  from { opacity: 0; transform: scale(0.85) rotate(-8deg); }
+  to { opacity: 0.14; transform: scale(1) rotate(0deg); }
+}
+
+.king-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.king-watermark::before {
+  content: '𐎵'; /* Ancient runic K glyph */
+  font-family: var(--font-ancient);
+  font-size: 55vh; /* ~50-55% of screen height */
+  font-weight: 900;
+  color: #ffffff;
+  opacity: 0.14;
+  filter: drop-shadow(0 0 45px rgba(255, 255, 255, 0.45)) blur(1px);
+  animation: king-watermark-fade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+  user-select: none;
+}

@@ -303,6 +303,14 @@ const dustParticles = useMemo(() => {
             <div className="rune-overlay" />
             <div className="dust-container">{dustParticles}</div>
 
+            {/* King's Command Phase Atmospheric Overlays */}
+            {state.kingMoveState?.isMoving && (
+                <>
+                    <div className="king-phase-bg-overlay" />
+                    <div className="king-watermark" />
+                </>
+            )}
+
             {/* 🏛️ Layout: Widescreen Landscape Altar (3 columns: Left Pillar, Center Altar, Right Pillar) */}
             <div className="flex flex-col md:flex-row w-full h-full relative z-20 overflow-hidden">
                 

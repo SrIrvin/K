@@ -43,26 +43,36 @@ const GameUI: React.FC = () => {
     const [hoveredRank, setHoveredRank] = useState<string | null>(null);
     const [isLogExpanded, setIsLogExpanded] = useState(false);
 
-    const [activeEffect, setActiveEffect] = useState<'blood' | 'necrotic' | 'gold' | 'mystic' | null>(null);
+    const [activeEffect, setActiveEffect] = useState<'blood' | 'necrotic' | 'gold' | 'mystic' | 'queen_purify' | 'jack_speed' | 'king_iron' | 'ace_arrow' | null>(null);
     const logLength = state.log.length;
     
     useEffect(() => {
         if (logLength === 0) return;
         const latest = state.log[0].toUpperCase();
         
-        if (latest.includes('TOUCHDOWN') || latest.includes('ACE') || latest.includes('AS')) {
+        if (latest.includes('QUEEN') || latest.includes('REINA') || latest.includes('HEAL') || latest.includes('CURÓ') || latest.includes('CURACIÓN')) {
+            setActiveEffect('queen_purify');
+        } else if (latest.includes('JACK') || latest.includes('JOTA') || latest.includes('VELOCIDAD') || latest.includes('TURBO') || latest.includes('BOOST')) {
+            setActiveEffect('jack_speed');
+        } else if (latest.includes('KING\'S') || latest.includes('KING') || latest.includes('REY') || latest.includes('COMMAND') || latest.includes('MANDATO') || latest.includes('DICTADOR')) {
+            setActiveEffect('king_iron');
+        } else if (latest.includes('ACE PLAYED') || latest.includes('AS JUGADO') || (latest.includes('ACE') && latest.includes('DIRECT'))) {
+            setActiveEffect('ace_arrow');
+        } else if (latest.includes('TOUCHDOWN')) {
             setActiveEffect('gold');
         } else if (latest.includes('ELIMINATE') || latest.includes('ELIMINÓ') || latest.includes('DAMAGE') || latest.includes('DAÑO') || latest.includes('VS') || latest.includes('ATACANTE') || latest.includes('COMBATE') || latest.includes('ATTACK')) {
             setActiveEffect('blood');
-        } else if (latest.includes('JOKER') || latest.includes('QUEEN') || latest.includes('KING') || latest.includes('CURANDERA') || latest.includes('DICTADOR') || latest.includes('SICARIO')) {
+        } else if (latest.includes('JOKER') || latest.includes('SICARIO')) {
             setActiveEffect('necrotic');
-        } else if (latest.includes('PLACED') || latest.includes('COLOCÓ') || latest.includes('MOVED') || latest.includes('MOVIÓ') || latest.includes('DREW') || latest.includes('ROBÓ') || latest.includes('TURBO') || latest.includes('JACK')) {
+        } else if (latest.includes('PLACED') || latest.includes('COLOCÓ') || latest.includes('MOVED') || latest.includes('MOVIÓ') || latest.includes('DREW') || latest.includes('ROBÓ')) {
             setActiveEffect('mystic');
         }
     
+        const duration = (latest.includes('KING') || latest.includes('REY') || latest.includes('QUEEN') || latest.includes('REINA')) ? 1100 : 750;
+
         const timer = setTimeout(() => {
             setActiveEffect(null);
-        }, 600);
+        }, duration);
     
         return () => clearTimeout(timer);
     }, [logLength]);
@@ -770,6 +780,16 @@ const dustParticles = useMemo(() => {
 
             {/* Modals & Overlays */}
             <CardInfoModal />
+
+            {/* Dark Fantasy Full-Screen / Board-Screen Visual Overlays */}
+            {activeEffect === 'blood' && <div className="blood-slash-overlay" />}
+            {activeEffect === 'necrotic' && <div className="necrotic-overlay" />}
+            {activeEffect === 'gold' && <div className="gold-overlay" />}
+            {activeEffect === 'mystic' && <div className="mystic-overlay" />}
+            {activeEffect === 'queen_purify' && <div className="queen-purify-overlay" />}
+            {activeEffect === 'jack_speed' && <div className="jack-silver-overlay" />}
+            {activeEffect === 'king_iron' && <div className="king-iron-overlay" />}
+            {activeEffect === 'ace_arrow' && <div className="ace-arrow-projectile" />}
             
             {/* Special Ability Targeting Floating HUD */}
             {state.isTargeting && (

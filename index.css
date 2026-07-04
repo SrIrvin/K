@@ -717,3 +717,116 @@ body {
   color: #D8C49A;
   text-shadow: 0 0 20px #82443a, 0 0 35px #ab3e30;
 }
+
+/* 👑 Card-Specific Spell Effects */
+
+/* 1. Queen's Healing - Golden Purification Light */
+@keyframes queen-purify-anim {
+  0% { opacity: 0; transform: scaleY(0); }
+  30% { opacity: 0.95; transform: scaleY(1); filter: brightness(1.4) drop-shadow(0 0 25px rgba(216, 196, 154, 0.8)); }
+  70% { opacity: 0.85; }
+  100% { opacity: 0; filter: blur(8px); }
+}
+
+.queen-purify-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  background: linear-gradient(to bottom, rgba(216, 196, 154, 0.45), transparent 70%);
+  pointer-events: none;
+}
+
+.queen-purify-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 35%;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.85), #D8C49A, rgba(255, 255, 255, 0.85), transparent);
+  animation: queen-purify-anim 0.75s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+/* 2. Jack's Speed - Silver Spark / Electric Flash */
+@keyframes jack-silver-anim {
+  0% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(220, 225, 230, 0.5); }
+  15% { opacity: 0.95; box-shadow: inset 0 0 50px 25px rgba(255, 255, 255, 0.85); filter: brightness(1.5); }
+  30% { opacity: 0.8; }
+  100% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(220, 225, 230, 0); }
+}
+
+.jack-silver-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  pointer-events: none;
+  animation: jack-silver-anim 0.6s ease-out forwards;
+}
+
+/* 3. King's Iron Command - Giant Metallic Iron K */
+@keyframes king-iron-anim {
+  0% { opacity: 0; transform: scale(0.6) rotate(-10deg); filter: brightness(0.2); }
+  25% { opacity: 0.85; transform: scale(1.05) rotate(2deg); filter: brightness(1.2) drop-shadow(0 0 30px rgba(0,0,0,0.9)); }
+  75% { opacity: 0.85; transform: scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: scale(1.1) rotate(5deg); filter: blur(6px); }
+}
+
+.king-iron-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.7) 10%, transparent 80%);
+  pointer-events: none;
+}
+
+.king-iron-overlay::before {
+  content: '𐎵'; /* Ancient runic iron glyph */
+  font-family: var(--font-ancient);
+  font-size: 8rem;
+  font-weight: 900;
+  color: #7f8c8d;
+  background: linear-gradient(135deg, #7f8c8d 30%, #34495e 70%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(0,0,0,0.95)) drop-shadow(0 0 2px rgba(255,255,255,0.4));
+  animation: king-iron-anim 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  pointer-events: none;
+}
+
+/* 4. Ace Direct Attack - Runic Projectile Arrow flying bottom-to-top */
+@keyframes ace-arrow-anim {
+  0% { transform: translateY(110vh) scaleY(1.5) rotate(0deg); opacity: 0.95; filter: brightness(1.5); }
+  60% { transform: translateY(-10vh) scaleY(1.2) rotate(0deg); opacity: 0.95; }
+  100% { transform: translateY(-30vh) scaleY(1) rotate(0deg); opacity: 0; filter: blur(5px); }
+}
+
+.ace-arrow-projectile {
+  position: absolute;
+  left: 50%;
+  width: 8px;
+  height: 90px;
+  background: linear-gradient(to top, transparent, #ab3e30, #D8C49A 80%, #ffffff);
+  box-shadow: 0 0 20px #ab3e30, 0 0 4px #ffffff;
+  z-index: 40;
+  pointer-events: none;
+  transform-origin: center bottom;
+  animation: ace-arrow-anim 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.ace-arrow-projectile::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -6px;
+  width: 20px;
+  height: 20px;
+  border-left: 4px solid #ffffff;
+  border-top: 4px solid #ffffff;
+  transform: rotate(45deg);
+  filter: drop-shadow(0 0 8px #D8C49A);
+}

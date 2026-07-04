@@ -263,6 +263,16 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         setPan({ x: 0, y: 0 });
     };
 
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        // e.deltaY < 0 is scroll up (Zoom In), e.deltaY > 0 is scroll down (Zoom Out)
+        const direction = e.deltaY < 0 ? 1 : -1;
+        const zoomFactor = 0.05;
+        setZoom(prev => {
+            const nextZoom = parseFloat((prev + direction * zoomFactor).toFixed(2));
+            return Math.min(2.0, Math.max(0.5, nextZoom)); // Limit zoom range: 50% to 200%
+        });
+    };
+
     const isLocalTurn = state.gameType === 'online'
         ? state.localPlayerId === state.currentPlayerId
         : (state.gameType === 'ai' ? state.currentPlayerId === 0 : true);
@@ -360,6 +370,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
+            onWheel={handleWheel}
             className="w-full h-full relative overflow-hidden flex flex-col justify-center items-center select-none"
         >
             {/* 🔎 Floating Ancient Zoom Controls */}

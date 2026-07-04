@@ -74,11 +74,11 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
         <div className={`absolute inset-0 bg-gradient-to-t ${isRed ? 'from-[#361e1a] via-[#82443A]/25 to-transparent' : 'from-[#1c1a17] via-transparent to-transparent'} ${isPreview ? 'opacity-30' : 'opacity-90'}`} />
       </div>
 
-      {/* Info Button Overlay */}
-      {onInfoClick && (
+      {/* Info Button Overlay (Only visible when selected to prevent accidental clicks) */}
+      {onInfoClick && isSelected && (
          <button 
            onClick={handleInfoClick} 
-           className="absolute top-[32px] right-1.5 z-20 w-4 h-4 bg-[#8A6938]/90 text-white rounded-full flex items-center justify-center font-bold text-[9px] hover:bg-[#D8C49A] hover:text-[#2A2A2A] shadow-md border border-[#D8C49A]/30 transition-colors"
+           className="absolute top-[32px] right-1.5 z-20 w-4.5 h-4.5 bg-[#8A6938]/95 text-white rounded-full flex items-center justify-center font-bold text-[10px] hover:bg-[#D8C49A] hover:text-[#2A2A2A] shadow-md border border-[#D8C49A]/45 transition-colors animate-pulse"
            title="Info"
          >
            i

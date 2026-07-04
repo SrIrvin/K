@@ -39,6 +39,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         col: number;
     } | null>(null);
     const prevBoardRef = useRef<(Unit | null)[][] | null>(null);
+    const [activeSpellAnim, setActiveSpellAnim] = useState<{
+        type: 'jack_speed' | 'queen_purify';
+        row: number;
+        col: number;
+    } | null>(null);
     
     useEffect(() => {
         if (!prevBoardRef.current) {
@@ -48,6 +53,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
         let moveTimer: NodeJS.Timeout | null = null;
         let combatTimer: NodeJS.Timeout | null = null;
+        let spellTimer: NodeJS.Timeout | null = null;
         
         let movedUnit: Unit | null = null;
         let oldPos: { row: number; col: number } | null = null;
@@ -148,12 +154,59 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                 setCombatAnim(null);
             }, 600);
         }
+
+        // 3. Detect spells (Jack / Queen)
+        let spellAnimType: 'jack_speed' | 'queen_purify' | null = null;
+        let spellRow = -1;
+        let spellCol = -1;
+
+        for (let r = 0; r < board.length; r++) {
+            for (let c = 0; c < board[r].length; c++) {
+                const oldUnit = prevBoardRef.current[r][c];
+                const newUnit = board[r][c];
+                
+                if (oldUnit && newUnit) {
+                    // Jack speed boost: boosterCard was null, now is non-null
+                    if (!oldUnit.boosterCard && newUnit.boosterCard) {
+                        spellAnimType = 'jack_speed';
+                        spellRow = r;
+                        spellCol = c;
+                    }
+                    // Queen purify: healing (currentDamage increased), stacked attackers cleared, or baseDamage increased
+                    else if (
+                        newUnit.baseDamage > oldUnit.baseDamage ||
+                        newUnit.currentDamage > oldUnit.currentDamage ||
+                        oldUnit.stackedAttackers.length > newUnit.stackedAttackers.length
+                    ) {
+                        spellAnimType = 'queen_purify';
+                        spellRow = r;
+                        spellCol = c;
+                    }
+                }
+            }
+            if (spellAnimType && spellRow !== -1) {
+                break;
+            }
+        }
+
+        if (spellAnimType && spellRow !== -1) {
+            setActiveSpellAnim({
+                type: spellAnimType,
+                row: spellRow,
+                col: spellCol
+            });
+            
+            spellTimer = setTimeout(() => {
+                setActiveSpellAnim(null);
+            }, 800);
+        }
     
         prevBoardRef.current = board;
 
         return () => {
             if (moveTimer) clearTimeout(moveTimer);
             if (combatTimer) clearTimeout(combatTimer);
+            if (spellTimer) clearTimeout(spellTimer);
         };
     }, [board]);
 
@@ -208,6 +261,16 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
     const handleMouseLeave = () => {
         setPan({ x: 0, y: 0 });
+    };
+
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        // e.deltaY < 0 is scroll up (Zoom In), e.deltaY > 0 is scroll down (Zoom Out)
+        const direction = e.deltaY < 0 ? 1 : -1;
+        const zoomFactor = 0.05;
+        setZoom(prev => {
+            const nextZoom = parseFloat((prev + direction * zoomFactor).toFixed(2));
+            return Math.min(2.0, Math.max(0.5, nextZoom)); // Limit zoom range: 50% to 200%
+        });
     };
 
     const isLocalTurn = state.gameType === 'online'
@@ -307,6 +370,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
+            onWheel={handleWheel}
             className="w-full h-full relative overflow-hidden flex flex-col justify-center items-center select-none"
         >
             {/* 🔎 Floating Ancient Zoom Controls */}
@@ -407,6 +471,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
     <div className={combatAnim.type === 'destruction' ? 'destruction-burst' : 'bleeding-slash'} />
   )}
 
+  {/* Spell Animation Overlay */}
+  {activeSpellAnim && activeSpellAnim.row === rowIndex && activeSpellAnim.col === colIndex && (
+    <div className={activeSpellAnim.type === 'jack_speed' ? 'cell-lightning' : 'cell-heart'} />
+  )}
+
 
   {animatingMove && animatingMove.isHeavy && animatingMove.row === rowIndex && animatingMove.col === colIndex && (
     <div className="slam-dust-ring" />
@@ -458,7 +527,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                                   {unit.id === selectedUnitIdOnBoard && canUnitScore && actionsRemaining > 0 && (
                                      <button 
                                        onClick={(e) => { e.stopPropagation(); dispatch({ type: 'SCORE_UNIT' })}}
-                                       className={`absolute -bottom-2.5 z-20 px-3 py-1 text-[9px] sm:text-[10px] font-ancient-header font-bold text-white bg-[#8A6938] rounded-lg border border-[#D8C49A] shadow-[0_4px_8px_rgba(0,0,0,0.8)] hover:bg-[#a57f49] active:translate-y-0.5 transition-all ${showHints ? 'shadow-[0_0_15px_rgba(216,196,154,0.8)] animate-pulse' : ''}`}>
+                                       className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 px-3.5 py-1.5 text-[10px] sm:text-xs font-ancient-header font-bold text-white bg-[#8A6938]/95 border-2 border-[#D8C49A] rounded-lg shadow-[0_6px_15px_rgba(0,0,0,0.95)] hover:bg-[#a57f49] hover:scale-105 active:scale-95 transition-all whitespace-nowrap ${showHints ? 'shadow-[0_0_20px_rgba(216,196,154,0.9)] animate-pulse' : ''}`}>
                                        ANOTAR (1)
                                      </button>
                                   )}

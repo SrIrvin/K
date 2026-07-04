@@ -55,8 +55,8 @@ export interface GameState {
   selectedUnitIdOnBoard: string | null;
   isTargeting: TargetingMode;
   winner: Player | null;
-  gameMode: 'menu' | 'online_lobby' | 'playing' | 'switch_turn' | 'game_over';
-  gameType: 'ai' | 'p2' | 'online' | null;
+  gameMode: 'menu' | 'online_lobby' | 'playing' | 'switch_turn' | 'game_over' | 'tutorial';
+  gameType: 'ai' | 'p2' | 'online' | 'tutorial' | null;
   localPlayerId?: number;
   aiDifficulty?: 'easy' | 'hard';
   kingMoveState: {
@@ -72,9 +72,10 @@ export type MoveDirection = 'up' | 'down' | 'left' | 'right';
 
 export type Action =
   | { type: 'START_GAME'; payload: { gameType: 'ai' | 'p2'; playerName?: string; aiDifficulty?: 'easy' | 'hard' } }
+  | { type: 'START_TUTORIAL' }
   | { type: 'SET_ONLINE_GAME'; payload: { localPlayerId: number } }
   | { type: 'SET_FULL_STATE'; payload: GameState }
-  | { type: 'SET_GAME_MODE'; payload: 'menu' | 'online_lobby' | 'playing' | 'switch_turn' | 'game_over' }
+  | { type: 'SET_GAME_MODE'; payload: 'menu' | 'online_lobby' | 'playing' | 'switch_turn' | 'game_over' | 'tutorial' }
   | { type: 'BEGIN_NEW_TURN' }
   | { type: 'END_TURN' }
   | { type: 'SELECT_CARD_IN_HAND'; payload: { cardId: string | null } }

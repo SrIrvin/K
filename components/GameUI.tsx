@@ -43,26 +43,36 @@ const GameUI: React.FC = () => {
     const [hoveredRank, setHoveredRank] = useState<string | null>(null);
     const [isLogExpanded, setIsLogExpanded] = useState(false);
 
-    const [activeEffect, setActiveEffect] = useState<'blood' | 'necrotic' | 'gold' | 'mystic' | null>(null);
+    const [activeEffect, setActiveEffect] = useState<'blood' | 'necrotic' | 'gold' | 'mystic' | 'queen_purify' | 'jack_speed' | 'king_iron' | 'ace_arrow' | null>(null);
     const logLength = state.log.length;
     
     useEffect(() => {
         if (logLength === 0) return;
         const latest = state.log[0].toUpperCase();
         
-        if (latest.includes('TOUCHDOWN') || latest.includes('ACE') || latest.includes('AS')) {
+        if (latest.includes('QUEEN') || latest.includes('REINA') || latest.includes('HEAL') || latest.includes('CURÓ') || latest.includes('CURACIÓN')) {
+            setActiveEffect('queen_purify');
+        } else if (latest.includes('JACK') || latest.includes('JOTA') || latest.includes('VELOCIDAD') || latest.includes('TURBO') || latest.includes('BOOST')) {
+            setActiveEffect('jack_speed');
+        } else if (latest.includes('KING\'S') || latest.includes('KING') || latest.includes('REY') || latest.includes('COMMAND') || latest.includes('MANDATO') || latest.includes('DICTADOR')) {
+            setActiveEffect('king_iron');
+        } else if (latest.includes('ACE PLAYED') || latest.includes('AS JUGADO') || (latest.includes('ACE') && latest.includes('DIRECT'))) {
+            setActiveEffect('ace_arrow');
+        } else if (latest.includes('TOUCHDOWN')) {
             setActiveEffect('gold');
         } else if (latest.includes('ELIMINATE') || latest.includes('ELIMINÓ') || latest.includes('DAMAGE') || latest.includes('DAÑO') || latest.includes('VS') || latest.includes('ATACANTE') || latest.includes('COMBATE') || latest.includes('ATTACK')) {
             setActiveEffect('blood');
-        } else if (latest.includes('JOKER') || latest.includes('QUEEN') || latest.includes('KING') || latest.includes('CURANDERA') || latest.includes('DICTADOR') || latest.includes('SICARIO')) {
+        } else if (latest.includes('JOKER') || latest.includes('SICARIO')) {
             setActiveEffect('necrotic');
-        } else if (latest.includes('PLACED') || latest.includes('COLOCÓ') || latest.includes('MOVED') || latest.includes('MOVIÓ') || latest.includes('DREW') || latest.includes('ROBÓ') || latest.includes('TURBO') || latest.includes('JACK')) {
+        } else if (latest.includes('PLACED') || latest.includes('COLOCÓ') || latest.includes('MOVED') || latest.includes('MOVIÓ') || latest.includes('DREW') || latest.includes('ROBÓ')) {
             setActiveEffect('mystic');
         }
     
+        const duration = (latest.includes('KING') || latest.includes('REY') || latest.includes('QUEEN') || latest.includes('REINA')) ? 1100 : 750;
+
         const timer = setTimeout(() => {
             setActiveEffect(null);
-        }, 600);
+        }, duration);
     
         return () => clearTimeout(timer);
     }, [logLength]);
@@ -293,6 +303,14 @@ const dustParticles = useMemo(() => {
             <div className="rune-overlay" />
             <div className="dust-container">{dustParticles}</div>
 
+            {/* King's Command Phase Atmospheric Overlays */}
+            {state.kingMoveState?.isMoving && (
+                <>
+                    <div className="king-phase-bg-overlay" />
+                    <div className="king-watermark" />
+                </>
+            )}
+
             {/* 🏛️ Layout: Widescreen Landscape Altar (3 columns: Left Pillar, Center Altar, Right Pillar) */}
             <div className="flex flex-col md:flex-row w-full h-full relative z-20 overflow-hidden">
                 
@@ -376,6 +394,52 @@ const dustParticles = useMemo(() => {
                     {/* Current Player's Active Hand (tactile slots) */}
                     {state.gameMode === 'playing' && (
                         <div className="w-full max-w-2xl bg-[#1e1a14]/60 p-2 rounded-lg border-2 border-[#574d3c] flex flex-col gap-2 relative shadow-inner shadow-black mb-1.5 flex-shrink-0 z-20">
+                            {/* Special Ability Targeting Floating HUD - Positioned over/covering the hand */}
+                            {state.isTargeting && (
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 max-w-sm w-[95%] pointer-events-none">
+                                <div className="stone-modal p-4 flex flex-col items-center border-2 border-[#8A6938] shadow-2xl pointer-events-auto bg-[#1e1a14]/95 text-center">
+                                  <h2 className="text-base font-ancient-header text-[#D8C49A] animate-pulse tracking-widest flex items-center gap-1.5 mb-1">
+                                    ✨ HABILIDAD ACTIVA ✨
+                                  </h2>
+                                  <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
+                                  <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
+                                    {state.isTargeting === 'queen' && "REINA: Haz clic en una unidad aliada en el tablero para curarla/potenciarla."}
+                                    {state.isTargeting === 'jack' && "JOTA: Haz clic en una unidad aliada para darle +1 de velocidad en su próximo movimiento."}
+                                    {state.isTargeting === 'joker' && "JOKER: Haz clic en una unidad enemiga en el tablero para eliminarla instantáneamente."}
+                                  </p>
+                                  
+                                  <button
+                                    onClick={() => dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } })}
+                                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
+                                  >
+                                    Cancelar Habilidad
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* King Command Floating HUD Alert - Positioned over/covering the hand */}
+                            {kingMoveState?.isMoving && (
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 max-w-sm w-[95%] pointer-events-none">
+                                <div className="stone-modal p-4 flex flex-col items-center border-2 border-[#8A6938] shadow-2xl pointer-events-auto bg-[#1e1a14]/95 text-center">
+                                  <h2 className="text-base font-ancient-header text-[#D8C49A] animate-pulse tracking-widest flex items-center gap-1.5 mb-1">
+                                    👑 MANDO DEL REY 👑
+                                  </h2>
+                                  <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
+                                  <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
+                                    Avanza tus unidades (ortogonal). Las unidades no movidas serán destruidas al finalizar la orden.
+                                  </p>
+                                  
+                                  <button
+                                    onClick={() => dispatch({type: 'FINISH_KING_MOVE'})}
+                                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
+                                  >
+                                    Terminar Orden ({kingMoveState.unitsToMove.length} pendientes)
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
                             {/* Hand Header */}
                             <div className="flex justify-between items-center px-1 text-[10px] sm:text-xs text-[#9A8B72] font-runic-text">
                               <span className="uppercase tracking-widest font-bold">Tus Unidades (Desplegar)</span>
@@ -770,52 +834,16 @@ const dustParticles = useMemo(() => {
 
             {/* Modals & Overlays */}
             <CardInfoModal />
-            
-            {/* Special Ability Targeting Floating HUD */}
-            {state.isTargeting && (
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-[90%] pointer-events-none">
-                <div className="stone-modal p-4 flex flex-col items-center border-2 border-[#8A6938] shadow-2xl pointer-events-auto bg-[#1e1a14]/95 text-center">
-                  <h2 className="text-base font-ancient-header text-[#D8C49A] animate-pulse tracking-widest flex items-center gap-1.5 mb-1">
-                    ✨ HABILIDAD ACTIVA ✨
-                  </h2>
-                  <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
-                  <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
-                    {state.isTargeting === 'queen' && "REINA: Haz clic en una unidad aliada en el tablero para curarla/potenciarla."}
-                    {state.isTargeting === 'jack' && "JOTA: Haz clic en una unidad aliada para darle +1 de velocidad en su próximo movimiento."}
-                    {state.isTargeting === 'joker' && "JOKER: Haz clic en una unidad enemiga en el tablero para eliminarla instantáneamente."}
-                  </p>
-                  
-                  <button
-                    onClick={() => dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } })}
-                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
-                  >
-                    Cancelar Habilidad
-                  </button>
-                </div>
-              </div>
-            )}
 
-            {/* King Command Floating HUD Alert (Non-blocking) */}
-            {kingMoveState?.isMoving && (
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 max-w-sm w-[90%] pointer-events-none">
-                <div className="stone-modal p-4 flex flex-col items-center border-2 border-[#8A6938] shadow-2xl pointer-events-auto bg-[#1e1a14]/95 text-center">
-                  <h2 className="text-base font-ancient-header text-[#D8C49A] animate-pulse tracking-widest flex items-center gap-1.5 mb-1">
-                    👑 MANDO DEL REY 👑
-                  </h2>
-                  <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
-                  <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
-                    Avanza tus unidades (ortogonal). Las unidades no movidas serán destruidas al finalizar la orden.
-                  </p>
-                  
-                  <button
-                    onClick={() => dispatch({type: 'FINISH_KING_MOVE'})}
-                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
-                  >
-                    Terminar Orden ({kingMoveState.unitsToMove.length} pendientes)
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Dark Fantasy Full-Screen / Board-Screen Visual Overlays */}
+            {activeEffect === 'blood' && <div className="blood-slash-overlay" />}
+            {activeEffect === 'necrotic' && <div className="necrotic-overlay" />}
+            {activeEffect === 'gold' && <div className="gold-overlay" />}
+            {activeEffect === 'mystic' && <div className="mystic-overlay" />}
+            {activeEffect === 'queen_purify' && <div className="queen-purify-overlay" />}
+            {activeEffect === 'jack_speed' && <div className="jack-silver-overlay" />}
+            {activeEffect === 'king_iron' && <div className="king-iron-overlay" />}
+            {activeEffect === 'ace_arrow' && <div className="ace-arrow-projectile" />}
 
             {/* Game Over Modal overlay (Runic celebration) */}
             {gameMode === 'game_over' && winner && (

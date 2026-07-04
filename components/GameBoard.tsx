@@ -26,6 +26,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const [combatAnim, setCombatAnim] = useState<{
+        type: 'bleeding' | 'destruction';
+        row: number;
+        col: number;
+    } | null>(null);
     const [animatingMove, setAnimatingMove] = useState<{
         unitId: string;
         direction: 'up' | 'down' | 'left' | 'right';
@@ -40,11 +45,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
             prevBoardRef.current = board;
             return;
         }
+
+        let moveTimer: NodeJS.Timeout | null = null;
+        let combatTimer: NodeJS.Timeout | null = null;
         
         let movedUnit: Unit | null = null;
         let oldPos: { row: number; col: number } | null = null;
         let newPos: { row: number; col: number } | null = null;
     
+        // 1. Detect movement
         for (let r = 0; r < board.length; r++) {
             for (let c = 0; c < board[r].length; c++) {
                 const cell = board[r][c];
@@ -88,12 +97,64 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                 col: newPos.col
             });
     
-            const timer = setTimeout(() => {
+            moveTimer = setTimeout(() => {
                 setAnimatingMove(null);
             }, 500);
         }
+
+        // 2. Detect combat
+        let combatType: 'bleeding' | 'destruction' | null = null;
+        let combatRow = -1;
+        let combatCol = -1;
+        
+        for (let r = 0; r < board.length; r++) {
+            for (let c = 0; c < board[r].length; c++) {
+                const oldUnit = prevBoardRef.current[r][c];
+                const newUnit = board[r][c];
+                
+                if (oldUnit) {
+                    // Case A: Defender unit destroyed
+                    if (!newUnit) {
+                        const isStillOnBoard = board.flat().some(u => u?.id === oldUnit.id);
+                        if (!isStillOnBoard) {
+                            if (movedUnit?.id !== oldUnit.id) {
+                                combatType = 'destruction';
+                                combatRow = r;
+                                combatCol = c;
+                            }
+                        }
+                    }
+                    // Case B: Defender unit took bleeding damage
+                    else if (newUnit.stackedAttackers.length > oldUnit.stackedAttackers.length) {
+                        combatType = 'bleeding';
+                        combatRow = r;
+                        combatCol = c;
+                    }
+                }
+            }
+            if (combatType && combatRow !== -1) {
+                break;
+            }
+        }
+
+        if (combatType && combatRow !== -1) {
+            setCombatAnim({
+                type: combatType,
+                row: combatRow,
+                col: combatCol
+            });
+            
+            combatTimer = setTimeout(() => {
+                setCombatAnim(null);
+            }, 600);
+        }
     
         prevBoardRef.current = board;
+
+        return () => {
+            if (moveTimer) clearTimeout(moveTimer);
+            if (combatTimer) clearTimeout(combatTimer);
+        };
     }, [board]);
 
 
@@ -340,6 +401,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                             onDrop={(e) => handleDrop(e, rowIndex, colIndex)}
                             onDragOver={handleDragOver}
                           >
+
+  {/* Combat Animation Overlay */}
+  {combatAnim && combatAnim.row === rowIndex && combatAnim.col === colIndex && (
+    <div className={combatAnim.type === 'destruction' ? 'destruction-burst' : 'bleeding-slash'} />
+  )}
+
 
   {animatingMove && animatingMove.isHeavy && animatingMove.row === rowIndex && animatingMove.col === colIndex && (
     <div className="slam-dust-ring" />

@@ -12,7 +12,7 @@ interface GameCardProps {
   isPreview?: boolean;
 }
 
-export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, onInfoClick, isUnitOnBoard = false, unit, isPreview = false }) => {
+export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, onInfoClick, isUnitOnBoard = false, unit, isPreview = false }) => {
   if (!card) {
     return (
       <div className="w-full h-full border-4 border-dashed border-[#574d3c] rounded-lg bg-[#2A2A2A]/40 flex-shrink-0 flex items-center justify-center">
@@ -142,9 +142,28 @@ export const GameCard: React.FC<GameCardProps> = ({ card, isSelected, onClick, o
       </div>
     </div>
   );
-};
+},
+  (prevProps, nextProps) => {
+    return (
+      prevProps.isSelected === nextProps.isSelected &&
+      prevProps.isUnitOnBoard === nextProps.isUnitOnBoard &&
+      prevProps.isPreview === nextProps.isPreview &&
+      prevProps.card?.id === nextProps.card?.id &&
+      prevProps.card?.rank === nextProps.card?.rank &&
+      prevProps.card?.suit === nextProps.card?.suit &&
+      prevProps.card?.color === nextProps.card?.color &&
+      prevProps.unit?.id === nextProps.unit?.id &&
+      prevProps.unit?.currentDamage === nextProps.unit?.currentDamage &&
+      prevProps.unit?.baseDamage === nextProps.unit?.baseDamage &&
+      prevProps.unit?.speed === nextProps.unit?.speed &&
+      prevProps.unit?.hasMoved === nextProps.unit?.hasMoved &&
+      prevProps.unit?.boosterCard?.id === nextProps.unit?.boosterCard?.id &&
+      (prevProps.unit?.stackedAttackers || []).length === (nextProps.unit?.stackedAttackers || []).length
+    );
+  }
+);
 
-export const CardBack: React.FC<{ count: number; type?: 'deck' | 'discard' | 'scored' }> = ({ count, type = 'deck' }) => {
+export const CardBack = React.memo<{ count: number; type?: 'deck' | 'discard' | 'scored' }>(({ count, type = 'deck' }) => {
   const gradientClass = {
     deck: 'from-[#446881] to-[#2A2A2A]',
     discard: 'from-[#60584b] to-[#2A2A2A]',
@@ -189,4 +208,4 @@ export const CardBack: React.FC<{ count: number; type?: 'deck' | 'discard' | 'sc
       )}
     </div>
   );
-};
+});

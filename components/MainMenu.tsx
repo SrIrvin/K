@@ -237,6 +237,16 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
           >
             Duelo Local (Cara a Cara)
           </button>
+
+          <button 
+            onClick={() => dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' })} 
+            className="stone-button w-full py-3 text-sm text-[#E2C799] border-[#8A6938] hover:border-[#D8C49A] shadow-[0_0_12px_rgba(216,196,154,0.15)]"
+            style={{
+              background: 'linear-gradient(135deg, #1c1812 0%, #2e2316 100%)'
+            }}
+          >
+            ✨ Aprender a Jugar (Tutorial)
+          </button>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import GameUI from './components/GameUI';
 import OnlineLobby from './components/OnlineLobby';
 import ErrorBoundary from './components/ErrorBoundary';
 import AudioSettings from './components/AudioSettings';
+import { TutorialUI } from './components/TutorialUI';
 import { 
   addPeerListener, 
   removePeerListener, 
@@ -78,6 +79,8 @@ function AppContent() {
       case 'switch_turn':
       case 'game_over':
         return <GameUI />;
+      case 'tutorial':
+        return <TutorialUI />;
       default:
         return (
           <MainMenu 

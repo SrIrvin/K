@@ -404,3 +404,171 @@ body {
   }
 }
 
+
+/* 💥 Dark Fantasy Visual Effects & Combat Animations */
+
+/* Screen Shake Animation */
+@keyframes screenshake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-4px, 3px) rotate(-1.5deg); }
+  20% { transform: translate(4px, -3px) rotate(1.5deg); }
+  30% { transform: translate(-3px, -4px) rotate(0deg); }
+  40% { transform: translate(3px, 3px) rotate(1.5deg); }
+  50% { transform: translate(-2px, 3px) rotate(-1.5deg); }
+  60% { transform: translate(4px, 2px) rotate(0deg); }
+  75% { transform: translate(-3px, -2px) rotate(1.5deg); }
+  90% { transform: translate(3px, 2px) rotate(-1.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.shake-effect {
+  animation: screenshake 0.45s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Blood Slash Animation */
+@keyframes bloodslash {
+  0% { opacity: 0; transform: scale(0.6) rotate(-15deg); filter: brightness(1.5); }
+  20% { opacity: 0.9; transform: scale(1.05) rotate(-22deg); }
+  40% { opacity: 0.75; transform: scale(1) rotate(-20deg); }
+  100% { opacity: 0; transform: scale(1.15) rotate(-26deg); filter: blur(6px); }
+}
+
+.blood-slash-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  background: radial-gradient(circle at center, rgba(130, 68, 58, 0.5) 10%, transparent 65%);
+  pointer-events: none;
+}
+
+.blood-slash-overlay::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 10%;
+  right: 10%;
+  height: 40%;
+  background: linear-gradient(170deg, transparent 40%, rgba(171, 62, 48, 0.85) 48%, rgba(130, 68, 58, 0.98) 50%, rgba(171, 62, 48, 0.85) 52%, transparent 60%);
+  box-shadow: 0 0 40px #82443a;
+  animation: bloodslash 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Necrotic Purple Energy Ripple */
+@keyframes necroticripple {
+  0% { transform: scale(0.2); opacity: 0; box-shadow: 0 0 0 0 rgba(112, 48, 160, 0.8); }
+  30% { opacity: 0.95; }
+  100% { transform: scale(1.9); opacity: 0; box-shadow: 0 0 60px 40px rgba(112, 48, 160, 0); }
+}
+
+.necrotic-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(74, 20, 140, 0.15) 0%, transparent 70%);
+}
+
+.necrotic-overlay::before {
+  content: '';
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  border: 4px solid #8e24aa;
+  filter: drop-shadow(0 0 18px #8e24aa);
+  animation: necroticripple 0.65s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+/* Touchdown Golden Energy Flash */
+@keyframes goldflash {
+  0% { opacity: 0; background-color: rgba(216, 196, 154, 0); }
+  20% { opacity: 0.95; background-color: rgba(216, 196, 154, 0.35); }
+  100% { opacity: 0; background-color: rgba(216, 196, 154, 0); }
+}
+
+@keyframes goldexpand {
+  0% { transform: scale(0.5); opacity: 1; border-color: rgba(216, 196, 154, 0.95); }
+  100% { transform: scale(1.75); opacity: 0; border-color: rgba(138, 105, 56, 0); }
+}
+
+.gold-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  animation: goldflash 0.65s ease-out forwards;
+  pointer-events: none;
+}
+
+.gold-overlay::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  width: 70%;
+  height: 70%;
+  border: 3px double #D8C49A;
+  border-radius: 12px;
+  filter: drop-shadow(0 0 25px #8A6938);
+  animation: goldexpand 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+/* Mystic Blue Flash */
+@keyframes mysticglow {
+  0% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(79, 172, 254, 0.4); }
+  25% { opacity: 0.75; box-shadow: inset 0 0 45px 20px rgba(79, 172, 254, 0.65); }
+  100% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(79, 172, 254, 0); }
+}
+
+.mystic-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  animation: mysticglow 0.55s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Dark Fantasy Aura glows for cards */
+@keyframes pulse-blood {
+  0%, 100% { box-shadow: 0 0 8px rgba(130, 68, 58, 0.65), inset 0 0 8px rgba(130, 68, 58, 0.45); }
+  50% { box-shadow: 0 0 22px 6px rgba(171, 62, 48, 0.95), inset 0 0 14px 3px rgba(171, 62, 48, 0.75); }
+}
+
+.glow-blood {
+  animation: pulse-blood 1.8s infinite ease-in-out;
+  border-color: rgba(171, 62, 48, 0.9) !important;
+}
+
+@keyframes pulse-necrotic {
+  0%, 100% { box-shadow: 0 0 8px rgba(112, 48, 160, 0.55), inset 0 0 8px rgba(112, 48, 160, 0.35); }
+  50% { box-shadow: 0 0 22px 6px rgba(142, 36, 170, 0.95), inset 0 0 14px 3px rgba(142, 36, 170, 0.75); }
+}
+
+.glow-necrotic {
+  animation: pulse-necrotic 2.0s infinite ease-in-out;
+  border-color: rgba(142, 36, 170, 0.9) !important;
+}
+
+@keyframes pulse-mystic {
+  0%, 100% { box-shadow: 0 0 8px rgba(79, 172, 254, 0.55), inset 0 0 6px rgba(79, 172, 254, 0.35); }
+  50% { box-shadow: 0 0 20px 5px rgba(79, 172, 254, 0.9), inset 0 0 14px 3px rgba(79, 172, 254, 0.6); }
+}
+
+.glow-mystic {
+  animation: pulse-mystic 1.6s infinite ease-in-out;
+  border-color: rgba(79, 172, 254, 0.9) !important;
+}
+
+/* Floating Spell Levitation Animation */
+@keyframes levitate {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.levitate-spell {
+  animation: levitate 2.2s infinite ease-in-out;
+}

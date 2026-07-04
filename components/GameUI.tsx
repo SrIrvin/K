@@ -43,6 +43,31 @@ const GameUI: React.FC = () => {
     const [hoveredRank, setHoveredRank] = useState<string | null>(null);
     const [isLogExpanded, setIsLogExpanded] = useState(false);
 
+    const [activeEffect, setActiveEffect] = useState<'blood' | 'necrotic' | 'gold' | 'mystic' | null>(null);
+    const logLength = state.log.length;
+    
+    useEffect(() => {
+        if (logLength === 0) return;
+        const latest = state.log[0].toUpperCase();
+        
+        if (latest.includes('TOUCHDOWN') || latest.includes('ACE') || latest.includes('AS')) {
+            setActiveEffect('gold');
+        } else if (latest.includes('ELIMINATE') || latest.includes('ELIMINÓ') || latest.includes('DAMAGE') || latest.includes('DAÑO') || latest.includes('VS') || latest.includes('ATACANTE') || latest.includes('COMBATE') || latest.includes('ATTACK')) {
+            setActiveEffect('blood');
+        } else if (latest.includes('JOKER') || latest.includes('QUEEN') || latest.includes('KING') || latest.includes('CURANDERA') || latest.includes('DICTADOR') || latest.includes('SICARIO')) {
+            setActiveEffect('necrotic');
+        } else if (latest.includes('PLACED') || latest.includes('COLOCÓ') || latest.includes('MOVED') || latest.includes('MOVIÓ') || latest.includes('DREW') || latest.includes('ROBÓ') || latest.includes('TURBO') || latest.includes('JACK')) {
+            setActiveEffect('mystic');
+        }
+    
+        const timer = setTimeout(() => {
+            setActiveEffect(null);
+        }, 600);
+    
+        return () => clearTimeout(timer);
+    }, [logLength]);
+
+
     const [cardWidth, setCardWidth] = useState(72);
     const [cardSpacing, setCardSpacing] = useState(75);
 
@@ -189,12 +214,14 @@ const GameUI: React.FC = () => {
     }, [selectedUnit, board, currentPlayerId, kingMoveState]);
 
     // Generate 15 dust particles for background animation
-    const dustParticles = useMemo(() => {
-      return Array.from({ length: 15 }).map((_, i) => {
-        const size = Math.random() * 3 + 2;
+const dustParticles = useMemo(() => {
+      return Array.from({ length: 30 }).map((_, i) => {
+        const size = Math.random() * 4 + 1.5;
         const left = Math.random() * 100;
-        const delay = Math.random() * 20;
-        const duration = Math.random() * 15 + 20;
+        const delay = Math.random() * 25;
+        const duration = Math.random() * 10 + 15;
+        const colors = ['#D8C49A', '#ab3e30', '#8e24aa', '#8A6938'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
         return (
           <div
             key={i}
@@ -203,6 +230,9 @@ const GameUI: React.FC = () => {
               width: `${size}px`,
               height: `${size}px`,
               left: `${left}%`,
+              backgroundColor: color,
+              boxShadow: `0 0 8px ${color}`,
+              opacity: Math.random() * 0.35 + 0.15,
               animationDelay: `${delay}s`,
               animationDuration: `${duration}s`,
             }}
@@ -333,7 +363,7 @@ const GameUI: React.FC = () => {
                     </div>
 
                     {/* Game board takes about 70% of the screen height */}
-                    <div className="flex-grow flex items-center justify-center w-full min-h-0 py-1 md:py-2">
+                    <div className={`flex-grow flex items-center justify-center w-full min-h-0 py-1 md:py-2 ${activeEffect === 'blood' ? 'shake-effect' : ''}`}>
                         <GameBoard 
                           board={board}
                           currentPlayer={currentPlayer}

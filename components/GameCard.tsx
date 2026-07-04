@@ -23,6 +23,15 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
 
   const isRed = card.color === CardColor.Red;
   
+  const isSpecial = ['J', 'Q', 'K', 'A', 'Joker'].includes(card.rank);
+  const darkFantasyAura = isSelected 
+    ? '' 
+    : isSpecial 
+      ? 'glow-necrotic levitate-spell' 
+      : (card.rank && parseInt(card.rank, 10) >= 8) 
+        ? 'glow-blood' 
+        : (unit && unit.boosterCard ? 'glow-mystic' : '');
+  
   // Custom borders, backgrounds, gradients and text colors to clearly differentiate Red (Hearts/Diamonds) and Black (Clubs/Spades)
   const borderClass = isSelected
     ? 'border-[#4facfe] ring-4 ring-[#4facfe]/40 shadow-[0_0_20px_rgba(79,172,254,0.6)] scale-105 z-10'
@@ -43,7 +52,7 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
 
   return (
     <div
-      className={`relative w-full h-full rounded-lg border-2 p-1.5 flex flex-col justify-between shadow-xl transition-all duration-300 ${onClick ? 'cursor-pointer' : ''} ${borderClass} ${cardBgClass} overflow-hidden flex-shrink-0`}
+      className={`relative w-full h-full rounded-lg border-2 p-1.5 flex flex-col justify-between shadow-xl transition-all duration-300 ${onClick ? 'cursor-pointer' : ''} ${borderClass} ${cardBgClass} ${darkFantasyAura} overflow-hidden flex-shrink-0`}
       onClick={onClick}
       style={{
         boxShadow: isSelected ? '0 0 20px rgba(79,172,254,0.5)' : 'inset 0 0 10px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',

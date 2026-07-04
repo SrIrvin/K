@@ -51,10 +51,13 @@ const GameUI: React.FC = () => {
         
         if (latest.includes('QUEEN') || latest.includes('REINA') || latest.includes('HEAL') || latest.includes('CURÓ') || latest.includes('CURACIÓN')) {
             setActiveEffect('queen_purify');
+            audioService.playThematicBGM('queen');
         } else if (latest.includes('JACK') || latest.includes('JOTA') || latest.includes('VELOCIDAD') || latest.includes('TURBO') || latest.includes('BOOST')) {
             setActiveEffect('jack_speed');
+            audioService.playThematicBGM('jack');
         } else if (latest.includes('KING\'S') || latest.includes('KING') || latest.includes('REY') || latest.includes('COMMAND') || latest.includes('MANDATO') || latest.includes('DICTADOR')) {
             setActiveEffect('king_iron');
+            audioService.playThematicBGM('king');
         } else if (latest.includes('ACE PLAYED') || latest.includes('AS JUGADO') || (latest.includes('ACE') && latest.includes('DIRECT'))) {
             setActiveEffect('ace_arrow');
         } else if (latest.includes('TOUCHDOWN')) {
@@ -63,6 +66,7 @@ const GameUI: React.FC = () => {
             setActiveEffect('blood');
         } else if (latest.includes('JOKER') || latest.includes('SICARIO')) {
             setActiveEffect('necrotic');
+            audioService.playThematicBGM('joker');
         } else if (latest.includes('PLACED') || latest.includes('COLOCÓ') || latest.includes('MOVED') || latest.includes('MOVIÓ') || latest.includes('DREW') || latest.includes('ROBÓ')) {
             setActiveEffect('mystic');
         }

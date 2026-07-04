@@ -39,6 +39,10 @@ class AudioService {
   private bgmVolume: number = 0.3;
   private bgmPlaying: boolean = false;
 
+  // Thematic BGM Overlays
+  private activeThematicTimeout: any = null;
+  private thematicNodes: any[] = [];
+
   constructor() {
     if (typeof window !== 'undefined') {
       this.sfxMuted = localStorage.getItem('k_sfx_muted') === 'true';
@@ -615,6 +619,297 @@ class AudioService {
     } catch (e) {
       console.warn('Failed to start nature BGM:', e);
     }
+  }
+
+  // --- THEMATIC BGM SYNTHESIS (EPIC MELODY OVERLAYS) ---
+  public playThematicBGM(type: 'joker' | 'jack' | 'queen' | 'king') {
+    if (this.bgmMuted || this.bgmVolume <= 0) return;
+    
+    try {
+      const ctx = this.initContext();
+      const now = ctx.currentTime;
+      const vol = this.bgmVolume;
+
+      // Stop and clear any previous thematic melodies
+      this.stopActiveThematic();
+
+      // Temporarily lower ambient wind volume (ducking)
+      if (this.windGain) {
+        try {
+          this.windGain.gain.cancelScheduledValues(now);
+          this.windGain.gain.setValueAtTime(this.windGain.gain.value, now);
+          this.windGain.gain.linearRampToValueAtTime(vol * 0.02, now + 0.15); // Duck to 2% volume
+        } catch (e) {}
+      }
+
+      // Play the corresponding melody
+      let duration = 3.0; // Default duration of the melody
+      
+      switch (type) {
+        case 'joker':
+          duration = this.playJokerMelody(ctx, now, vol);
+          break;
+        case 'jack':
+          duration = this.playJackMelody(ctx, now, vol);
+          break;
+        case 'queen':
+          duration = this.playQueenMelody(ctx, now, vol);
+          break;
+        case 'king':
+          duration = this.playKingMelody(ctx, now, vol);
+          break;
+      }
+
+      // Schedule restoring the ambient wind volume
+      this.activeThematicTimeout = setTimeout(() => {
+        if (this.windGain && this.bgmPlaying && !this.bgmMuted) {
+          try {
+            const restoreNow = ctx.currentTime;
+            this.windGain.gain.cancelScheduledValues(restoreNow);
+            this.windGain.gain.setValueAtTime(this.windGain.gain.value, restoreNow);
+            this.windGain.gain.linearRampToValueAtTime(vol * 0.25, restoreNow + 1.2); // Fade in over 1.2s
+          } catch (e) {}
+        }
+      }, duration * 1000);
+
+    } catch (error) {
+      console.warn('Failed to play thematic BGM melody:', error);
+    }
+  }
+
+  private stopActiveThematic() {
+    if (this.activeThematicTimeout) {
+      clearTimeout(this.activeThematicTimeout);
+      this.activeThematicTimeout = null;
+    }
+    this.thematicNodes.forEach(node => {
+      try { node.stop(); } catch (e) {}
+      try { node.disconnect(); } catch (e) {}
+    });
+    this.thematicNodes = [];
+  }
+
+  private playJokerMelody(ctx: AudioContext, startT: number, vol: number): number {
+    const nodes: any[] = [];
+    
+    // 1. Heartbeats (tense, low-pitched thuds)
+    const heartbeatTimes = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0];
+    heartbeatTimes.forEach((delay) => {
+      const t = startT + delay;
+      // Double thump
+      for (let j = 0; j < 2; j++) {
+        const thumpT = t + (j * 0.12);
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(55, thumpT); // Low A
+        osc.frequency.exponentialRampToValueAtTime(30, thumpT + 0.1);
+        gain.gain.setValueAtTime(vol * 0.65, thumpT);
+        gain.gain.exponentialRampToValueAtTime(0.001, thumpT + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(thumpT);
+        osc.stop(thumpT + 0.12);
+        nodes.push(osc);
+      }
+    });
+
+    // 2. High Suspense Screech / Strings (minor second dissonance: E5 & F5)
+    const frequencies = [659.25, 698.46]; // E5 & F5
+    frequencies.forEach((freq) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, startT + 0.2);
+      
+      // Add heavy vibrato for tension
+      lfo.frequency.setValueAtTime(8, startT); // 8Hz vibrato
+      lfoGain.gain.setValueAtTime(10, startT);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+
+      // Low-pass filter to make it screechy but not ear-splitting
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1300, startT);
+
+      gain.gain.setValueAtTime(0, startT + 0.2);
+      gain.gain.linearRampToValueAtTime(vol * 0.12, startT + 0.8);
+      gain.gain.linearRampToValueAtTime(vol * 0.12, startT + 2.8);
+      gain.gain.exponentialRampToValueAtTime(0.001, startT + 3.2);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      lfo.start(startT);
+      osc.start(startT + 0.2);
+      lfo.stop(startT + 3.2);
+      osc.stop(startT + 3.2);
+
+      nodes.push(osc, lfo);
+    });
+
+    this.thematicNodes.push(...nodes);
+    return 3.4; // Duration in seconds
+  }
+
+  private playJackMelody(ctx: AudioContext, startT: number, vol: number): number {
+    const nodes: any[] = [];
+    const notes = [146.83, 164.81, 196.00, 220.00, 293.66, 329.63, 392.00, 440.00]; // D3, E3, G3, A3, D4, E4, G4, A4
+    
+    let currentDelay = 0;
+    let step = 0.20; // Starts at 200ms per note
+    
+    for (let i = 0; i < 20; i++) {
+      const noteT = startT + currentDelay;
+      const freq = notes[i % notes.length] * (1 + (i * 0.05)); // Pitches rise as we accelerate!
+      
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, noteT);
+      
+      gain.gain.setValueAtTime(vol * 0.35, noteT);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteT + step * 0.95);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start(noteT);
+      osc.stop(noteT + step);
+      nodes.push(osc);
+      
+      currentDelay += step;
+      step *= 0.88; // Accelerate! Each note plays 12% faster than the last
+    }
+
+    // Add a final laser swoosh sweep
+    const laserT = startT + currentDelay;
+    const sweepOsc = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    sweepOsc.type = 'sine';
+    sweepOsc.frequency.setValueAtTime(200, laserT);
+    sweepOsc.frequency.exponentialRampToValueAtTime(1700, laserT + 0.55);
+    sweepGain.gain.setValueAtTime(vol * 0.45, laserT);
+    sweepGain.gain.exponentialRampToValueAtTime(0.001, laserT + 0.55);
+    sweepOsc.connect(sweepGain);
+    sweepGain.connect(ctx.destination);
+    sweepOsc.start(laserT);
+    sweepOsc.stop(laserT + 0.55);
+    nodes.push(sweepOsc);
+
+    this.thematicNodes.push(...nodes);
+    return currentDelay + 0.6;
+  }
+
+  private playQueenMelody(ctx: AudioContext, startT: number, vol: number): number {
+    const nodes: any[] = [];
+    // Heavenly Gmaj9 / Cmaj9 arpeggio: G4, B4, D5, F#5, A5, C6, E6
+    const melodyNotes = [392.00, 493.88, 587.33, 739.99, 880.00, 1046.50, 1318.51];
+    
+    melodyNotes.forEach((freq, idx) => {
+      const noteT = startT + (idx * 0.14); // Staggered arpeggio
+      const osc = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      // Warm sine + soft triangle for bell tone
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, noteT);
+      
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(freq * 2, noteT); // Sub octave sparkle
+      
+      gain.gain.setValueAtTime(0, noteT);
+      gain.gain.linearRampToValueAtTime(vol * 0.28, noteT + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteT + 1.6); // Long magical ring decay
+      
+      osc.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start(noteT);
+      osc2.start(noteT);
+      osc.stop(noteT + 1.65);
+      osc2.stop(noteT + 1.65);
+      nodes.push(osc, osc2);
+    });
+
+    this.thematicNodes.push(...nodes);
+    return 2.8;
+  }
+
+  private playKingMelody(ctx: AudioContext, startT: number, vol: number): number {
+    const nodes: any[] = [];
+    
+    // 1. Epic War Drums (Low frequency white noise bursts + pitch sweeps)
+    const drumBeats = [0, 0.4, 0.8, 1.2, 1.4, 1.6, 2.0, 2.4, 2.8, 3.0];
+    drumBeats.forEach((delay) => {
+      const t = startT + delay;
+      // Synthesize deep kick drum
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(110, t);
+      osc.frequency.exponentialRampToValueAtTime(45, t + 0.18);
+      gain.gain.setValueAtTime(vol * 0.95, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.22);
+      nodes.push(osc);
+    });
+
+    // 2. Powerful Royal Brass/Synth Theme (A2-E3-A3 -> G2-D3-G3 -> F2-C3-F3 -> E2-B2-E3)
+    const brassChords = [
+      { delay: 0.0, root: 110.00 }, // A2 (power chord)
+      { delay: 0.8, root: 97.99 },  // G2
+      { delay: 1.6, root: 87.31 },  // F2
+      { delay: 2.4, root: 82.41 },  // E2
+    ];
+
+    brassChords.forEach((chord) => {
+      const chordT = startT + chord.delay;
+      const pitches = [chord.root, chord.root * 1.5, chord.root * 2.0]; // Root, Fifth, Octave!
+      
+      pitches.forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, chordT);
+        
+        // Slightly detune to sound thicker (orchestral ensemble effect)
+        osc.detune.setValueAtTime(Math.random() * 10 - 5, chordT);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(450, chordT);
+        filter.frequency.linearRampToValueAtTime(650, chordT + 0.3); // Brass swell filter
+        
+        gain.gain.setValueAtTime(0, chordT);
+        gain.gain.linearRampToValueAtTime(vol * 0.2, chordT + 0.1);
+        gain.gain.linearRampToValueAtTime(vol * 0.16, chordT + 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.001, chordT + 0.8);
+        
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(chordT);
+        osc.stop(chordT + 0.85);
+        nodes.push(osc);
+      });
+    });
+
+    this.thematicNodes.push(...nodes);
+    return 3.5;
   }
 
   public stopBGM() {

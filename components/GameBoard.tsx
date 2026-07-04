@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { GameContext } from '../context/GameContext';
 import { Unit, Player, Card, Rank } from '../types';
 import { GameCard } from './GameCard';
@@ -25,6 +25,77 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
     const [zoom, setZoom] = useState<number>(1.0);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const [animatingMove, setAnimatingMove] = useState<{
+        unitId: string;
+        direction: 'up' | 'down' | 'left' | 'right';
+        isHeavy: boolean;
+        row: number;
+        col: number;
+    } | null>(null);
+    const prevBoardRef = useRef<(Unit | null)[][] | null>(null);
+    
+    useEffect(() => {
+        if (!prevBoardRef.current) {
+            prevBoardRef.current = board;
+            return;
+        }
+        
+        let movedUnit: Unit | null = null;
+        let oldPos: { row: number; col: number } | null = null;
+        let newPos: { row: number; col: number } | null = null;
+    
+        for (let r = 0; r < board.length; r++) {
+            for (let c = 0; c < board[r].length; c++) {
+                const cell = board[r][c];
+                if (cell) {
+                    let foundOld = false;
+                    for (let prevR = 0; prevR < prevBoardRef.current.length; prevR++) {
+                        for (let prevC = 0; prevC < prevBoardRef.current[prevR].length; prevC++) {
+                            const prevCell = prevBoardRef.current[prevR][prevC];
+                            if (prevCell && prevCell.id === cell.id) {
+                                if (prevR !== r || prevC !== c) {
+                                    movedUnit = cell;
+                                    oldPos = { row: prevR, col: prevC };
+                                    newPos = { row: r, col: c };
+                                    foundOld = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (foundOld) break;
+                    }
+                }
+                if (movedUnit) break;
+            }
+            if (movedUnit) break;
+        }
+    
+        if (movedUnit && oldPos && newPos) {
+            let direction: 'up' | 'down' | 'left' | 'right' = 'down';
+            if (newPos.row < oldPos.row) direction = 'up';
+            else if (newPos.row > oldPos.row) direction = 'down';
+            else if (newPos.col < oldPos.col) direction = 'left';
+            else if (newPos.col > oldPos.col) direction = 'right';
+    
+            const isHeavy = (movedUnit.baseDamage || 0) >= 8;
+    
+            setAnimatingMove({
+                unitId: movedUnit.id,
+                direction,
+                isHeavy,
+                row: newPos.row,
+                col: newPos.col
+            });
+    
+            const timer = setTimeout(() => {
+                setAnimatingMove(null);
+            }, 500);
+        }
+    
+        prevBoardRef.current = board;
+    }, [board]);
+
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (zoom <= 1.0 || !containerRef.current) {
@@ -269,6 +340,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                             onDrop={(e) => handleDrop(e, rowIndex, colIndex)}
                             onDragOver={handleDragOver}
                           >
+
+  {animatingMove && animatingMove.isHeavy && animatingMove.row === rowIndex && animatingMove.col === colIndex && (
+    <div className="slam-dust-ring" />
+  )}
+
                             
                             {unit && (() => {
                               const isUnitHinted = showHints && 
@@ -279,9 +355,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                                                    unit.color === currentPlayer.color && 
                                                    !unit.hasMoved;
 
+
+                              const moveAnimClass = animatingMove && animatingMove.unitId === unit.id
+                                ? `anim-${animatingMove.isHeavy ? 'slam' : 'dash'}-${animatingMove.direction}`
+                                : '';
+
                               return (
                                 <div 
-                                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass} ${actionsRemaining > 0 && !isKingMoveActive && unit.color === currentPlayer.color && !unit.hasMoved ? 'cursor-grab active:cursor-grabbing' : ''}`}
+                                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass} ${moveAnimClass} ${actionsRemaining > 0 && !isKingMoveActive && unit.color === currentPlayer.color && !unit.hasMoved ? 'cursor-grab active:cursor-grabbing' : ''}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleCellInteraction(rowIndex, colIndex);

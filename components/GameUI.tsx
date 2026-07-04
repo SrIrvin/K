@@ -139,17 +139,6 @@ const GameUI: React.FC = () => {
     const currentPlayer = useMemo(() => players?.[localPlayerIdResolved], [players, localPlayerIdResolved]);
     const opponentPlayer = useMemo(() => players?.[1 - localPlayerIdResolved], [players, localPlayerIdResolved]);
 
-    const isInteractingWithEffects = useMemo(() => {
-        if (state.isTargeting) return true;
-        if (hoveredRank && ['J', 'Q', 'K', 'A', 'Joker'].includes(hoveredRank)) return true;
-        if (selectedCardIdInHand) {
-            const selectedCard = currentPlayer?.hand.find(c => c.id === selectedCardIdInHand);
-            if (selectedCard && ['J', 'Q', 'K', 'A', 'Joker'].includes(selectedCard.rank)) {
-                return true;
-            }
-        }
-        return false;
-    }, [state.isTargeting, hoveredRank, selectedCardIdInHand, currentPlayer]);
 
     
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
@@ -426,7 +415,7 @@ const GameUI: React.FC = () => {
                               });
 
                               return (
-                                <div className={`flex justify-between items-center gap-4 transition-all duration-300 w-full ${isInteractingWithEffects ? 'h-[125px] sm:h-[135px] md:h-[160px]' : 'h-[86px] sm:h-[96px] md:h-[110px]'}`}>
+                                <div className="flex justify-between items-center gap-4 h-[125px] sm:h-[135px] md:h-[160px] w-full">
                                      {/* Unit Cards Area (Left) - 50% width */}
                                      <div className="w-1/2 flex gap-4 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40 items-start pt-1.5">
                                          {unitCards.length === 0 && !lastUnitInDiscard ? (
@@ -616,7 +605,7 @@ const GameUI: React.FC = () => {
                                                                          </div>
                                                                          
                                                                          {/* Show buttons only when expanded (hovered) or if it's the top card of a stack of 1 */}
-                                                                         {(isHovered || (cards.length === 1 && isInteractingWithEffects)) && (
+                                                                         {(isHovered || cards.length === 1) && (
                                                                              <button 
                                                                                onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} 
                                                                                disabled={!canAct} 

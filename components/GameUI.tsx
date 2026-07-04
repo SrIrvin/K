@@ -556,7 +556,7 @@ const dustParticles = useMemo(() => {
                                                                  return (
                                                                      <div 
                                                                        key={card.id} 
-                                                                       className="absolute left-0 top-0 flex flex-col items-center justify-start transition-all duration-300 ease-out"
+                                                                       className="absolute left-0 top-0 flex flex-col items-center justify-start transition-all duration-300 ease-out cursor-pointer"
                                                                        style={{ 
                                                                            width: `${cardWidth}px`,
 
@@ -573,6 +573,14 @@ const dustParticles = useMemo(() => {
                                                                                dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } });
                                                                            }, 150);
                                                                        }}
+                                                                         onClick={(e) => {
+                                                                             if (isHovered || cards.length === 1) {
+                                                                                 e.stopPropagation();
+                                                                                 if (canAct) {
+                                                                                     dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } });
+                                                                                 }
+                                                                             }
+                                                                         }}
                                                                      >
                                                                          <div className={`w-full stone-card-container ${isCardHinted ? 'idle-hint-glow' : ''}`} style={{ height: `${cardWidth * 1.4}px` }}>
                                                                              <GameCard 

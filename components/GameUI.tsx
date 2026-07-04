@@ -96,10 +96,31 @@ const GameUI: React.FC = () => {
     const [hoveredRank, setHoveredRank] = useState<string | null>(null);
     const [isLogExpanded, setIsLogExpanded] = useState(false);
 
+    const [cardWidth, setCardWidth] = useState(72);
+    const [cardSpacing, setCardSpacing] = useState(75);
+
     useEffect(() => {
-        if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-            setIsLeftCollapsed(false);
-            setIsRightCollapsed(false);
+        if (typeof window !== 'undefined') {
+            if (window.innerWidth >= 768) {
+                setIsLeftCollapsed(false);
+                setIsRightCollapsed(false);
+            }
+            
+            const handleResize = () => {
+                if (window.innerWidth < 640) {
+                    setCardWidth(56);
+                    setCardSpacing(58);
+                } else if (window.innerWidth < 768) {
+                    setCardWidth(64);
+                    setCardSpacing(68);
+                } else {
+                    setCardWidth(72);
+                    setCardSpacing(75);
+                }
+            };
+            handleResize();
+            window.addEventListener('resize', handleResize);
+            return () => window.removeEventListener('resize', handleResize);
         }
     }, []);
 
@@ -117,6 +138,19 @@ const GameUI: React.FC = () => {
 
     const currentPlayer = useMemo(() => players?.[localPlayerIdResolved], [players, localPlayerIdResolved]);
     const opponentPlayer = useMemo(() => players?.[1 - localPlayerIdResolved], [players, localPlayerIdResolved]);
+
+    const isInteractingWithEffects = useMemo(() => {
+        if (state.isTargeting) return true;
+        if (hoveredRank && ['J', 'Q', 'K', 'A', 'Joker'].includes(hoveredRank)) return true;
+        if (selectedCardIdInHand) {
+            const selectedCard = currentPlayer?.hand.find(c => c.id === selectedCardIdInHand);
+            if (selectedCard && ['J', 'Q', 'K', 'A', 'Joker'].includes(selectedCard.rank)) {
+                return true;
+            }
+        }
+        return false;
+    }, [state.isTargeting, hoveredRank, selectedCardIdInHand, currentPlayer]);
+
     
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
     const isCurrentPlayerTurn = useMemo(() => currentPlayerId === state.currentPlayerId, [currentPlayerId, state.currentPlayerId]);
@@ -375,7 +409,7 @@ const GameUI: React.FC = () => {
 
                     {/* Current Player's Active Hand (tactile slots) */}
                     {state.gameMode === 'playing' && (
-                        <div className="w-full max-w-2xl bg-[#1e1a14]/60 p-2 rounded-lg border-2 border-[#574d3c] flex flex-col gap-2 relative shadow-inner shadow-black mb-1.5 flex-shrink-0">
+                        <div className="w-full max-w-2xl bg-[#1e1a14]/60 p-2 rounded-lg border-2 border-[#574d3c] flex flex-col gap-2 relative shadow-inner shadow-black mb-1.5 flex-shrink-0 z-20">
                             {/* Hand Header */}
                             <div className="flex justify-between items-center px-1 text-[10px] sm:text-xs text-[#9A8B72] font-runic-text">
                               <span className="uppercase tracking-widest font-bold">Tus Unidades (Desplegar)</span>
@@ -392,9 +426,9 @@ const GameUI: React.FC = () => {
                               });
 
                               return (
-                                <div className="flex justify-between items-center gap-4 h-[86px] sm:h-[96px] md:h-[120px] w-full">
+                                <div className={`flex justify-between items-center gap-4 transition-all duration-300 w-full ${isInteractingWithEffects ? 'h-[125px] sm:h-[135px] md:h-[160px]' : 'h-[86px] sm:h-[96px] md:h-[110px]'}`}>
                                      {/* Unit Cards Area (Left) - 50% width */}
-                                     <div className="w-1/2 flex gap-4 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40 items-center">
+                                     <div className="w-1/2 flex gap-4 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40 items-start pt-1.5">
                                          {unitCards.length === 0 && !lastUnitInDiscard ? (
                                              <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
                                                Sin cartas de unidad
@@ -404,8 +438,8 @@ const GameUI: React.FC = () => {
                                               {Object.entries(groupedUnitCards).map(([rank, cards]) => {
                                                   const isHovered = hoveredRank === rank;
                                                   const stackWidth = isHovered 
-                                                      ? `${72 + (cards.length - 1) * 75}px` 
-                                                      : '72px';
+                                                      ? `${cardWidth + (cards.length - 1) * cardSpacing}px` 
+                                                      : `${cardWidth}px`;
                                                   const topCard = cards[cards.length - 1];
                                                   const isTopCardSelected = selectedCardIdInHand === topCard.id;
                                                   
@@ -420,9 +454,9 @@ const GameUI: React.FC = () => {
                                                         onMouseLeave={() => setHoveredRank(null)}
                                                       >
                                                           {/* Stack Wrapper */}
-                                                          <div className="relative w-full flex-grow max-h-[80%] flex items-center justify-start">
+                                                          <div className="relative w-full flex-grow flex items-center justify-start">
                                                               {cards.map((card, index) => {
-                                                                  const translateX = isHovered ? index * 75 : index * 3;
+                                                                  const translateX = isHovered ? index * cardSpacing : index * 3;
                                                                   const translateY = isHovered ? 0 : index * -3;
                                                                   const rotate = isHovered ? 0 : (index * 1.5 - (cards.length - 1) * 0.75);
                                                                   const scale = isHovered ? 1.02 : 1;
@@ -431,10 +465,10 @@ const GameUI: React.FC = () => {
                                                                   return (
                                                                       <div 
                                                                         key={card.id} 
-                                                                        className="absolute left-0 top-0 h-full flex flex-col items-center justify-center transition-all duration-300 ease-out cursor-pointer"
+                                                                        className="absolute left-0 top-0 flex flex-col items-center justify-center transition-all duration-300 ease-out cursor-pointer"
                                                                         style={{ 
-                                                                            width: '72px',
-                                                                            aspectRatio: '5/7',
+                                                                            width: `${cardWidth}px`,
+                                                                            height: `${cardWidth * 1.4}px`,
                                                                             transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
                                                                             zIndex: isHovered ? index + 10 : index,
                                                                         }}
@@ -488,8 +522,11 @@ const GameUI: React.FC = () => {
                                               {/* Ghost Card for Queen's Resurrection ability */}
                                               {hasQueenInHand && lastUnitInDiscard && (
                                                 <div 
-                                                  className="h-full flex-shrink-0 relative opacity-40 hover:opacity-85 border-2 border-dashed border-yellow-600/70 rounded-lg cursor-pointer transform hover:scale-[1.03] transition-all duration-300 group shadow-lg flex flex-col justify-center"
-                                                  style={{ width: '72px', aspectRatio: '5/7' }}
+                                                  className="flex-shrink-0 relative opacity-40 hover:opacity-85 border-2 border-dashed border-yellow-600/70 rounded-lg cursor-pointer transform hover:scale-[1.03] transition-all duration-300 group shadow-lg flex flex-col justify-center"
+                                                  style={{ 
+                                                      width: `${cardWidth}px`, 
+                                                      height: `${cardWidth * 1.4}px` 
+                                                  }}
                                                   onClick={() => {
                                                     const queenCard = specialCards.find(c => c.rank === 'Q');
                                                     if (queenCard && canAct) {
@@ -520,7 +557,7 @@ const GameUI: React.FC = () => {
                                      </div>
  
                                      {/* Special Cards Area (Right) - 50% width */}
-                                     <div className="w-1/2 flex gap-4 overflow-x-auto h-full pl-3 items-center">
+                                     <div className="w-1/2 flex gap-4 overflow-x-auto h-full pl-3 items-start pt-1.5">
                                          {specialCards.length === 0 ? (
                                              <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
                                                Sin habilidades
@@ -529,8 +566,8 @@ const GameUI: React.FC = () => {
                                              Object.entries(groupedSpecialCards).map(([rank, cards]) => {
                                                  const isHovered = hoveredRank === rank;
                                                  const stackWidth = isHovered 
-                                                     ? `${72 + (cards.length - 1) * 75}px` 
-                                                     : '72px';
+                                                     ? `${cardWidth + (cards.length - 1) * cardSpacing}px` 
+                                                     : `${cardWidth}px`;
                                                  
                                                  return (
                                                      <div 
@@ -543,9 +580,9 @@ const GameUI: React.FC = () => {
                                                        onMouseLeave={() => setHoveredRank(null)}
                                                      >
                                                          {/* Stack Wrapper */}
-                                                         <div className="relative w-full flex-grow max-h-[80%] flex items-center justify-start">
+                                                         <div className="relative w-full flex-grow flex items-center justify-start">
                                                              {cards.map((card, index) => {
-                                                                 const translateX = isHovered ? index * 75 : index * 3;
+                                                                 const translateX = isHovered ? index * cardSpacing : index * 3;
                                                                  const translateY = isHovered ? 0 : index * -3;
                                                                  const rotate = isHovered ? 0 : (index * 1.5 - (cards.length - 1) * 0.75);
                                                                  const scale = isHovered ? 1.02 : 1;
@@ -553,10 +590,10 @@ const GameUI: React.FC = () => {
                                                                  return (
                                                                      <div 
                                                                        key={card.id} 
-                                                                       className="absolute left-0 top-0 h-full flex flex-col items-center justify-between transition-all duration-300 ease-out"
+                                                                       className="absolute left-0 top-0 flex flex-col items-center justify-start transition-all duration-300 ease-out"
                                                                        style={{ 
-                                                                           width: '72px',
-                                                                           aspectRatio: '5/7',
+                                                                           width: `${cardWidth}px`,
+
                                                                            transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
                                                                            zIndex: isHovered ? index + 10 : index,
                                                                        }}
@@ -571,7 +608,7 @@ const GameUI: React.FC = () => {
                                                                            }, 150);
                                                                        }}
                                                                      >
-                                                                         <div className={`flex-grow w-full max-h-[80%] stone-card-container ${isCardHinted ? 'idle-hint-glow' : ''}`}>
+                                                                         <div className={`w-full stone-card-container ${isCardHinted ? 'idle-hint-glow' : ''}`} style={{ height: `${cardWidth * 1.4}px` }}>
                                                                              <GameCard 
                                                                                  card={card} 
                                                                                  onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })} 
@@ -579,7 +616,7 @@ const GameUI: React.FC = () => {
                                                                          </div>
                                                                          
                                                                          {/* Show buttons only when expanded (hovered) or if it's the top card of a stack of 1 */}
-                                                                         {(isHovered || cards.length === 1) && (
+                                                                         {(isHovered || (cards.length === 1 && isInteractingWithEffects)) && (
                                                                              <button 
                                                                                onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} 
                                                                                disabled={!canAct} 

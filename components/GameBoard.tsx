@@ -1,7 +1,8 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { GameContext } from '../context/GameContext';
 import { Unit, Player, Card, Rank } from '../types';
 import { GameCard } from './GameCard';
+import { GoalZone } from './GoalZone';
 import { BOARD_ROWS } from '../constants';
 import { getKingValidMoves } from '../services/gameService';
 
@@ -13,72 +14,6 @@ interface GameBoardProps {
   showHints: boolean;
 }
 
-const GoalZone: React.FC<{ player: Player, isOpponent?: boolean, canScoreDirectly?: boolean }> = ({ player, isOpponent = false, canScoreDirectly = false }) => {
-    const { state, dispatch } = useContext(GameContext);
-    const isLocalTurn = state.gameType === 'online'
-        ? state.localPlayerId === state.currentPlayerId
-        : (state.gameType === 'ai' ? state.currentPlayerId === 0 : true);
-
-    const handleDirectScore = () => {
-        if (canScoreDirectly && isLocalTurn) {
-            dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
-        }
-    };
-
-    const handleDragOver = (e: React.DragEvent) => {
-        if (canScoreDirectly && isOpponent && isLocalTurn) {
-            e.preventDefault();
-        }
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        if (canScoreDirectly && isOpponent && isLocalTurn) {
-            dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
-        }
-    };
-
-    return (
-        <div 
-            className={`w-full h-20 sm:h-24 md:h-28 bg-[#2A2A2A]/70 my-1.5 p-2 rounded-lg border-2 border-[#574d3c] flex-shrink-0 relative shadow-[inset_0_4px_10px_rgba(0,0,0,0.9)]`}
-            onClick={handleDirectScore}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            style={{
-              borderRadius: '12px 10px 14px 8px / 8px 12px 9px 11px',
-              borderStyle: 'double',
-              borderWidth: '3px'
-            }}
-        >
-            {canScoreDirectly && isOpponent && (
-                <div className="absolute inset-0 bg-[#8A6938]/40 border-4 border-[#D8C49A] rounded-lg animate-pulse flex items-center justify-center cursor-pointer shadow-[0_0_25px_rgba(216,196,154,0.5)] z-20">
-                    <p className="text-[#D8C49A] font-orbitron text-base sm:text-lg font-black tracking-widest text-shadow-lg">
-                      𐎫 REGISTRAR PUNTOS (1) 𐎫
-                    </p>
-                </div>
-            )}
-            <div className="flex items-center space-x-2 h-full overflow-x-auto">
-                {player.scored.length === 0 && !canScoreDirectly && (
-                    <div className="flex items-center justify-center w-full h-full select-none">
-                        <p className="text-[#9A8B72]/45 font-orbitron text-xs sm:text-sm tracking-widest uppercase">
-                          Altar de Sacrificio (Anotación)
-                        </p>
-                    </div>
-                )}
-                {player.scored.map(card => (
-                    <div key={card.id} className="h-full flex-shrink-0" style={{ aspectRatio: '5/7' }}>
-                        <GameCard 
-                            card={card} 
-                            isUnitOnBoard={true} 
-                            unit={card as Unit}
-                            onInfoClick={() => dispatch({ type: 'SET_CARD_INFO_MODAL', payload: { card } })}
-                        />
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
 
 
 const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPlayer, validMoves, showHints }) => {
@@ -90,6 +25,138 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
     const [zoom, setZoom] = useState<number>(1.0);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const [combatAnim, setCombatAnim] = useState<{
+        type: 'bleeding' | 'destruction';
+        row: number;
+        col: number;
+    } | null>(null);
+    const [animatingMove, setAnimatingMove] = useState<{
+        unitId: string;
+        direction: 'up' | 'down' | 'left' | 'right';
+        isHeavy: boolean;
+        row: number;
+        col: number;
+    } | null>(null);
+    const prevBoardRef = useRef<(Unit | null)[][] | null>(null);
+    
+    useEffect(() => {
+        if (!prevBoardRef.current) {
+            prevBoardRef.current = board;
+            return;
+        }
+
+        let moveTimer: NodeJS.Timeout | null = null;
+        let combatTimer: NodeJS.Timeout | null = null;
+        
+        let movedUnit: Unit | null = null;
+        let oldPos: { row: number; col: number } | null = null;
+        let newPos: { row: number; col: number } | null = null;
+    
+        // 1. Detect movement
+        for (let r = 0; r < board.length; r++) {
+            for (let c = 0; c < board[r].length; c++) {
+                const cell = board[r][c];
+                if (cell) {
+                    let foundOld = false;
+                    for (let prevR = 0; prevR < prevBoardRef.current.length; prevR++) {
+                        for (let prevC = 0; prevC < prevBoardRef.current[prevR].length; prevC++) {
+                            const prevCell = prevBoardRef.current[prevR][prevC];
+                            if (prevCell && prevCell.id === cell.id) {
+                                if (prevR !== r || prevC !== c) {
+                                    movedUnit = cell;
+                                    oldPos = { row: prevR, col: prevC };
+                                    newPos = { row: r, col: c };
+                                    foundOld = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (foundOld) break;
+                    }
+                }
+                if (movedUnit) break;
+            }
+            if (movedUnit) break;
+        }
+    
+        if (movedUnit && oldPos && newPos) {
+            let direction: 'up' | 'down' | 'left' | 'right' = 'down';
+            if (newPos.row < oldPos.row) direction = 'up';
+            else if (newPos.row > oldPos.row) direction = 'down';
+            else if (newPos.col < oldPos.col) direction = 'left';
+            else if (newPos.col > oldPos.col) direction = 'right';
+    
+            const isHeavy = (movedUnit.baseDamage || 0) >= 8;
+    
+            setAnimatingMove({
+                unitId: movedUnit.id,
+                direction,
+                isHeavy,
+                row: newPos.row,
+                col: newPos.col
+            });
+    
+            moveTimer = setTimeout(() => {
+                setAnimatingMove(null);
+            }, 500);
+        }
+
+        // 2. Detect combat
+        let combatType: 'bleeding' | 'destruction' | null = null;
+        let combatRow = -1;
+        let combatCol = -1;
+        
+        for (let r = 0; r < board.length; r++) {
+            for (let c = 0; c < board[r].length; c++) {
+                const oldUnit = prevBoardRef.current[r][c];
+                const newUnit = board[r][c];
+                
+                if (oldUnit) {
+                    // Case A: Defender unit destroyed
+                    if (!newUnit) {
+                        const isStillOnBoard = board.flat().some(u => u?.id === oldUnit.id);
+                        if (!isStillOnBoard) {
+                            if (movedUnit?.id !== oldUnit.id) {
+                                combatType = 'destruction';
+                                combatRow = r;
+                                combatCol = c;
+                            }
+                        }
+                    }
+                    // Case B: Defender unit took bleeding damage
+                    else if (newUnit.stackedAttackers.length > oldUnit.stackedAttackers.length) {
+                        combatType = 'bleeding';
+                        combatRow = r;
+                        combatCol = c;
+                    }
+                }
+            }
+            if (combatType && combatRow !== -1) {
+                break;
+            }
+        }
+
+        if (combatType && combatRow !== -1) {
+            setCombatAnim({
+                type: combatType,
+                row: combatRow,
+                col: combatCol
+            });
+            
+            combatTimer = setTimeout(() => {
+                setCombatAnim(null);
+            }, 600);
+        }
+    
+        prevBoardRef.current = board;
+
+        return () => {
+            if (moveTimer) clearTimeout(moveTimer);
+            if (combatTimer) clearTimeout(combatTimer);
+        };
+    }, [board]);
+
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (zoom <= 1.0 || !containerRef.current) {
@@ -334,6 +401,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                             onDrop={(e) => handleDrop(e, rowIndex, colIndex)}
                             onDragOver={handleDragOver}
                           >
+
+  {/* Combat Animation Overlay */}
+  {combatAnim && combatAnim.row === rowIndex && combatAnim.col === colIndex && (
+    <div className={combatAnim.type === 'destruction' ? 'destruction-burst' : 'bleeding-slash'} />
+  )}
+
+
+  {animatingMove && animatingMove.isHeavy && animatingMove.row === rowIndex && animatingMove.col === colIndex && (
+    <div className="slam-dust-ring" />
+  )}
+
                             
                             {unit && (() => {
                               const isUnitHinted = showHints && 
@@ -344,9 +422,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                                                    unit.color === currentPlayer.color && 
                                                    !unit.hasMoved;
 
+
+                              const moveAnimClass = animatingMove && animatingMove.unitId === unit.id
+                                ? `anim-${animatingMove.isHeavy ? 'slam' : 'dash'}-${animatingMove.direction}`
+                                : '';
+
                               return (
                                 <div 
-                                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass} ${actionsRemaining > 0 && !isKingMoveActive && unit.color === currentPlayer.color && !unit.hasMoved ? 'cursor-grab active:cursor-grabbing' : ''}`}
+                                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 p-1 ${selectionClass} ${moveAnimClass} ${actionsRemaining > 0 && !isKingMoveActive && unit.color === currentPlayer.color && !unit.hasMoved ? 'cursor-grab active:cursor-grabbing' : ''}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleCellInteraction(rowIndex, colIndex);

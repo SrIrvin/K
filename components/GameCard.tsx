@@ -29,7 +29,7 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
     : isSpecial 
       ? 'glow-necrotic levitate-spell' 
       : (card.rank && parseInt(card.rank, 10) >= 8) 
-        ? 'glow-blood' 
+        ? 'glow-void' 
         : (unit && unit.boosterCard ? 'glow-mystic' : '');
   
   // Custom borders, backgrounds, gradients and text colors to clearly differentiate Red (Hearts/Diamonds) and Black (Clubs/Spades)

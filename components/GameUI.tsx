@@ -44,10 +44,9 @@ const GameUI: React.FC = () => {
     const [isLogExpanded, setIsLogExpanded] = useState(false);
 
     const [activeEffect, setActiveEffect] = useState<'blood' | 'necrotic' | 'gold' | 'mystic' | 'queen_purify' | 'jack_speed' | 'king_iron' | 'ace_arrow' | null>(null);
-    const logLength = state.log.length;
     
     useEffect(() => {
-        if (logLength === 0) return;
+        if (state.log.length === 0) return;
         const latest = state.log[0].toUpperCase();
         
         if (latest.includes('QUEEN') || latest.includes('REINA') || latest.includes('HEAL') || latest.includes('CURÓ') || latest.includes('CURACIÓN')) {
@@ -69,13 +68,13 @@ const GameUI: React.FC = () => {
         }
     
         const duration = (latest.includes('KING') || latest.includes('REY') || latest.includes('QUEEN') || latest.includes('REINA')) ? 1100 : 750;
-
+ 
         const timer = setTimeout(() => {
             setActiveEffect(null);
         }, duration);
     
         return () => clearTimeout(timer);
-    }, [logLength]);
+    }, [state.log]);
 
 
     const [cardWidth, setCardWidth] = useState(72);

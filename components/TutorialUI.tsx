@@ -5,46 +5,96 @@ import { GoalZone } from './GoalZone';
 import { BOARD_ROWS, BOARD_COLS } from '../utils/constants';
 
 const OrcIrwinAvatar: React.FC = () => {
+  const [imgError, setImgError] = useState(false);
+
+  if (!imgError) {
+    return (
+      <img 
+        src="/images/orc_irwin.png" 
+        alt="Maestro Irwin" 
+        onError={() => setImgError(true)}
+        className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#76a143] bg-[#12190e] shadow-[0_0_15px_rgba(118,161,67,0.5)] object-cover shrink-0"
+      />
+    );
+  }
+
   return (
-    <svg viewBox="0 0 100 100" className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#76a143] bg-gradient-to-br from-[#2c3d24] to-[#12190e] shadow-lg animate-pulse shrink-0">
-      {/* Orc green ears */}
-      <path d="M 15 45 C 5 35 5 25 20 30 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
-      <path d="M 85 45 C 95 35 95 25 80 30 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
+    <svg viewBox="0 0 100 100" className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#76a143] bg-gradient-to-br from-[#2c3d24] to-[#12190e] shadow-[0_0_15px_rgba(118,161,67,0.4)] animate-pulse shrink-0">
+      <defs>
+        <radialGradient id="auraGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#76a143" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#12190e" stopOpacity="1" />
+        </radialGradient>
+        <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#6b9643" />
+          <stop offset="50%" stopColor="#4f702f" />
+          <stop offset="100%" stopColor="#30441d" />
+        </linearGradient>
+        <linearGradient id="tuskGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="100%" stopColor="#d5d0be" />
+        </linearGradient>
+        <linearGradient id="collarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#54301d" />
+          <stop offset="100%" stopColor="#301b10" />
+        </linearGradient>
+      </defs>
+
+      {/* Aura background */}
+      <circle cx="50" cy="50" r="50" fill="url(#auraGlow)" />
+
+      {/* Orc green ears (more detailed) */}
+      <path d="M 12 43 C 2 33 4 20 20 28 C 15 35 15 40 12 43 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
+      <path d="M 88 43 C 98 33 96 20 80 28 C 85 35 85 40 88 43 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
+      <path d="M 15 37 C 8 32 10 24 20 29" stroke="#374e25" strokeWidth="1" fill="none" />
+      <path d="M 85 37 C 92 32 90 24 80 29" stroke="#374e25" strokeWidth="1" fill="none" />
       
       {/* Hair (wild black Mohawk or topknot) */}
-      <path d="M 35 15 C 45 5 55 5 65 15 C 60 25 40 25 35 15 Z" fill="#15171c" />
+      <path d="M 33 16 C 45 3 55 3 67 16 C 62 27 38 27 33 16 Z" fill="#111215" />
+      <path d="M 40 14 C 47 5 53 5 60 14" stroke="#2a2c35" strokeWidth="1.5" fill="none" />
       
       {/* Head shape */}
-      <ellipse cx="50" cy="45" rx="30" ry="25" fill="#5b7f3d" stroke="#2c3a1d" strokeWidth="2" />
+      <ellipse cx="50" cy="45" rx="31" ry="26" fill="url(#skinGrad)" stroke="#1d2a13" strokeWidth="2.5" />
       
+      {/* Forehead wrinkles */}
+      <path d="M 38 30 Q 50 27 62 30" stroke="#202f12" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.8" />
+      <path d="M 42 26 Q 50 24 58 26" stroke="#202f12" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
+
       {/* Eyebrows */}
-      <path d="M 30 35 C 35 30 43 33 45 37" stroke="#15171c" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <path d="M 70 35 C 65 30 57 33 55 37" stroke="#15171c" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M 28 35 C 34 30 43 32 46 38" stroke="#111215" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+      <path d="M 72 35 C 66 30 57 32 54 38" stroke="#111215" strokeWidth="3.5" strokeLinecap="round" fill="none" />
 
       {/* Wise Glowing Orange Eyes */}
-      <circle cx="38" cy="40" r="4" fill="#ff9100" />
-      <circle cx="38" cy="40" r="1.5" fill="#fff" />
-      <circle cx="62" cy="40" r="4" fill="#ff9100" />
-      <circle cx="62" cy="40" r="1.5" fill="#fff" />
+      <circle cx="37" cy="40" r="4.5" fill="#ff7700" filter="drop-shadow(0 0 2px #ffbb00)" />
+      <circle cx="37" cy="40" r="1.5" fill="#fff" />
+      <circle cx="63" cy="40" r="4.5" fill="#ff7700" filter="drop-shadow(0 0 2px #ffbb00)" />
+      <circle cx="63" cy="40" r="1.5" fill="#fff" />
       
-      {/* Nose */}
-      <path d="M 45 47 L 50 43 L 55 47 Z" fill="#3b5220" />
+      {/* Nose (broader, styled) */}
+      <path d="M 44 49 L 50 43 L 56 49 Z" fill="#2d3f1a" stroke="#1d2a13" strokeWidth="1" />
+      <path d="M 46 48 L 50 45 L 54 48" stroke="#3b5220" strokeWidth="1.5" fill="none" />
       
       {/* Mouth and tusks */}
-      <path d="M 35 55 Q 50 63 65 55" stroke="#1c2510" strokeWidth="2" fill="none" />
+      <path d="M 34 56 Q 50 64 66 56" stroke="#131b0a" strokeWidth="2.5" fill="none" />
       {/* Left tusk */}
-      <path d="M 38 56 L 41 48 L 44 55 Z" fill="#fdfdfd" stroke="#1c2510" strokeWidth="0.5" />
+      <path d="M 36 57 L 40 47 L 44 56 Z" fill="url(#tuskGrad)" stroke="#131b0a" strokeWidth="1" />
       {/* Right tusk */}
-      <path d="M 62 56 L 59 48 L 56 55 Z" fill="#fdfdfd" stroke="#1c2510" strokeWidth="0.5" />
+      <path d="M 64 57 L 60 47 L 56 56 Z" fill="url(#tuskGrad)" stroke="#131b0a" strokeWidth="1" />
       
-      {/* Cheeks blush */}
-      <circle cx="28" cy="48" r="2.5" fill="#4a6632" opacity="0.6" />
-      <circle cx="72" cy="48" r="2.5" fill="#4a6632" opacity="0.6" />
+      {/* Cheeks shadow and details */}
+      <circle cx="28" cy="48" r="2.5" fill="#243415" opacity="0.4" />
+      <circle cx="72" cy="48" r="2.5" fill="#243415" opacity="0.4" />
       
       {/* Leather collar */}
-      <path d="M 30 65 L 50 78 L 70 65 L 50 60 Z" fill="#422919" stroke="#1a100a" strokeWidth="1" />
+      <path d="M 28 66 L 50 80 L 72 66 L 50 61 Z" fill="url(#collarGrad)" stroke="#1a100a" strokeWidth="1.5" />
+      {/* Metallic studs on leather */}
+      <circle cx="35" cy="69" r="1.5" fill="#d2d2d2" stroke="#606060" strokeWidth="0.5" />
+      <circle cx="65" cy="69" r="1.5" fill="#d2d2d2" stroke="#606060" strokeWidth="0.5" />
+
       {/* Gold rune medal on collar */}
-      <circle cx="50" cy="71" r="3.5" fill="#D8C49A" stroke="#8A6938" strokeWidth="0.5" />
+      <circle cx="50" cy="72" r="5" fill="#d4af37" stroke="#8a6d1c" strokeWidth="1" filter="drop-shadow(0 1px 3px rgba(0,0,0,0.5))" />
+      {/* Inner runic design */}
+      <path d="M 48 70 L 52 70 M 50 70 L 50 74 M 48 74 L 52 74" stroke="#4a370e" strokeWidth="1" strokeLinecap="round" fill="none" />
     </svg>
   );
 };

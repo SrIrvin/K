@@ -48,7 +48,6 @@ const AudioSettings: React.FC = () => {
     };
   }, [isOpen]);
 
-  // Click handler sound effect for opening panel
   const handleOpenPanel = () => {
     audioService.playSFX('click');
     setIsOpen(true);
@@ -90,72 +89,90 @@ const AudioSettings: React.FC = () => {
             </h2>
             <div className="h-0.5 w-20 mx-auto bg-gradient-to-r from-transparent via-[#8A6938] to-transparent mb-6" />
 
-            <div className="flex flex-col gap-6 text-left mb-8">
-              {/* SFX Control */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-ancient-header text-sm md:text-base tracking-wide text-[#9A8B72]">
+            <div className="flex flex-col gap-5 text-left mb-8">
+              {/* SFX Control Row */}
+              <div className="flex items-center gap-3 w-full bg-[#1e1a14]/60 p-3 rounded-lg border border-[#574d3c]/30">
+                <button
+                  onClick={handleToggleSFXMute}
+                  className={`w-9 h-9 flex items-center justify-center rounded border transition-colors flex-shrink-0 ${
+                    settings.sfxMuted
+                      ? 'border-[#82443a] text-[#82443a] bg-red-950/20'
+                      : 'border-[#8A6938]/60 text-[#D8C49A] bg-[#1e1a14]/40 hover:bg-[#8A6938]/20'
+                  }`}
+                  title={settings.sfxMuted ? 'Activar Efectos' : 'Silenciar Efectos'}
+                >
+                  {settings.sfxMuted ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6L4.5 9H1.5v6h3l4.5 3.75V5.25z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                    </svg>
+                  )}
+                </button>
+                <div className="flex-grow flex flex-col gap-1">
+                  <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
                     Efectos (SFX)
                   </span>
-                  <button
-                    onClick={handleToggleSFXMute}
-                    className={`px-3 py-1 text-xs font-ancient-header rounded border transition-colors ${
-                      settings.sfxMuted
-                        ? 'border-[#82443a] text-[#82443a] bg-red-950/20'
-                        : 'border-[#385B74] text-[#D8C49A] bg-[#385B74]/20'
-                    }`}
-                  >
-                    {settings.sfxMuted ? 'SILENCIADO' : 'ACTIVO'}
-                  </button>
-                </div>
-                <div className="flex items-center gap-4">
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    value={settings.sfxVolume}
-                    disabled={settings.sfxMuted}
-                    onChange={handleSFXVolumeChange}
-                    className="w-full h-1.5 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-[#D8C49A] disabled:opacity-30"
-                  />
-                  <span className="text-xs font-mono w-8 text-right text-[#D8C49A]">
-                    {Math.round(settings.sfxVolume * 100)}%
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={settings.sfxVolume}
+                      disabled={settings.sfxMuted}
+                      onChange={handleSFXVolumeChange}
+                      className="w-full h-1.5 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-[#D8C49A] disabled:opacity-30"
+                    />
+                    <span className="text-[10px] md:text-xs font-mono w-8 text-right text-[#D8C49A] flex-shrink-0">
+                      {settings.sfxMuted ? '0%' : `${Math.round(settings.sfxVolume * 100)}%`}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* BGM Control */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-ancient-header text-sm md:text-base tracking-wide text-[#9A8B72]">
-                    Música de Fondo (BGM)
+              {/* BGM Control Row */}
+              <div className="flex items-center gap-3 w-full bg-[#1e1a14]/60 p-3 rounded-lg border border-[#574d3c]/30">
+                <button
+                  onClick={handleToggleBGMMute}
+                  className={`w-9 h-9 flex items-center justify-center rounded border transition-colors flex-shrink-0 ${
+                    settings.bgmMuted
+                      ? 'border-[#82443a] text-[#82443a] bg-red-950/20'
+                      : 'border-[#8A6938]/60 text-[#D8C49A] bg-[#1e1a14]/40 hover:bg-[#8A6938]/20'
+                  }`}
+                  title={settings.bgmMuted ? 'Activar Música' : 'Silenciar Música'}
+                >
+                  {settings.bgmMuted ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636M9 19V6l12-3v13" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                  )}
+                </button>
+                <div className="flex-grow flex flex-col gap-1">
+                  <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
+                    Música (BGM)
                   </span>
-                  <button
-                    onClick={handleToggleBGMMute}
-                    className={`px-3 py-1 text-xs font-ancient-header rounded border transition-colors ${
-                      settings.bgmMuted
-                        ? 'border-[#82443a] text-[#82443a] bg-red-950/20'
-                        : 'border-[#385B74] text-[#D8C49A] bg-[#385B74]/20'
-                    }`}
-                  >
-                    {settings.bgmMuted ? 'SILENCIADO' : 'ACTIVO'}
-                  </button>
-                </div>
-                <div className="flex items-center gap-4">
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    value={settings.bgmVolume}
-                    disabled={settings.bgmMuted}
-                    onChange={handleBGMVolumeChange}
-                    className="w-full h-1.5 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-[#D8C49A] disabled:opacity-30"
-                  />
-                  <span className="text-xs font-mono w-8 text-right text-[#D8C49A]">
-                    {Math.round(settings.bgmVolume * 100)}%
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={settings.bgmVolume}
+                      disabled={settings.bgmMuted}
+                      onChange={handleBGMVolumeChange}
+                      className="w-full h-1.5 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer accent-[#D8C49A] disabled:opacity-30"
+                    />
+                    <span className="text-[10px] md:text-xs font-mono w-8 text-right text-[#D8C49A] flex-shrink-0">
+                      {settings.bgmMuted ? '0%' : `${Math.round(settings.bgmVolume * 100)}%`}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -492,7 +492,7 @@ export const TutorialUI: React.FC = () => {
         <GoalZone player={{ id: 1, name: 'AI', color: CardColor.Red, damage: step.playerDamage, hand: [], deck: [], discard: [], scored: step.opponentScored }} isOpponent={true} canScoreDirectly={step.expectedAction === 'click_score' && selectedBoardUnitId === 'Clubs9'} />
 
         {/* Board grid altar */}
-        <div className="w-full max-w-lg flex-grow my-1 p-3 bg-[#40382d]/50 border-4 border-[#8A6938] rounded-xl shadow-[0_15px_30px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.1)] relative" style={{ aspectRatio: '4 / 5' }}>
+        <div className="w-full max-w-lg flex-grow my-1 p-2 bg-[#40382d]/50 border-4 border-[#8A6938] rounded-xl shadow-[0_15px_30px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.1)] relative" style={{ aspectRatio: '4 / 5', maxHeight: '42vh' }}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_10%,_rgba(0,0,0,0.65)_90%)] z-0 pointer-events-none rounded-lg" />
           
           <div className="grid grid-cols-4 grid-rows-5 gap-1.5 sm:gap-2.5 w-full h-full relative z-10">

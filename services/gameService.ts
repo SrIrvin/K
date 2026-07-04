@@ -113,6 +113,13 @@ export const getKingValidMoves = (unit: Unit, board: (Unit | null)[][]): { row: 
         continue;
       }
       moves.push({ row: newRow, col: newCol });
+    } else {
+      // Out of bounds: allow scoring touchdown if moving forward from goal row
+      if (unit.color === CardColor.Black && row === 0 && dr === -1 && dc === 0) {
+        moves.push({ row: -1, col: -1 });
+      } else if (unit.color === CardColor.Red && row === BOARD_ROWS - 1 && dr === 1 && dc === 0) {
+        moves.push({ row: -1, col: -1 });
+      }
     }
   }
   return moves;

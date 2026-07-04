@@ -18,7 +18,11 @@ export const GoalZone: React.FC<GoalZoneProps> = ({ player, isOpponent = false, 
 
   const handleDirectScore = () => {
       if (canScoreDirectly && isLocalTurn) {
-          dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
+          if (state.kingMoveState?.isMoving) {
+              dispatch({ type: 'MOVE_UNIT_DURING_KING_EFFECT', payload: { to: { row: -1, col: -1 } } });
+          } else {
+              dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
+          }
       }
   };
 
@@ -31,7 +35,11 @@ export const GoalZone: React.FC<GoalZoneProps> = ({ player, isOpponent = false, 
   const handleDrop = (e: React.DragEvent) => {
       e.preventDefault();
       if (canScoreDirectly && isOpponent && isLocalTurn) {
-          dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
+          if (state.kingMoveState?.isMoving) {
+              dispatch({ type: 'MOVE_UNIT_DURING_KING_EFFECT', payload: { to: { row: -1, col: -1 } } });
+          } else {
+              dispatch({ type: 'MOVE_UNIT', payload: { to: { row: -1, col: -1 } } });
+          }
       }
   };
 

@@ -152,7 +152,22 @@ export const moveUnitDuringKingEffect = (state: GameState, payload: { to: { row:
   let updatedState = mutators.placeUnitOnBoard(state, attacker.position.row, attacker.position.col, null);
 
   let postState: GameState;
-  if (defender) { // Combat
+  if (toRow === -1 && toCol === -1) {
+    // Touchdown during King effect!
+    const currentPlayer = state.players[state.currentPlayerId];
+    const opponentPlayer = state.players[1 - state.currentPlayerId];
+    if (currentPlayer && opponentPlayer) {
+      const newOpponentDamage = opponentPlayer.damage + attacker.currentDamage;
+      const cardRepresentation = mutators.unitToCard(attacker);
+      
+      let scoredState = mutators.updatePlayer(updatedState, opponentPlayer.id, { damage: newOpponentDamage });
+      scoredState = mutators.addCardToScored(scoredState, state.currentPlayerId, cardRepresentation);
+      scoredState = mutators.checkForWinner(scoredState);
+      postState = mutators.addLog(scoredState, `KING TOUCHDOWN! ${attacker.rank} scores ${attacker.currentDamage} damage directly!`);
+    } else {
+      postState = updatedState;
+    }
+  } else if (defender) { // Combat
     postState = handleCombat(updatedState, attacker, defender);
   } else { // Simple move
     const movedUnit = { ...attacker, position: { row: toRow, col: toCol } };

@@ -4,6 +4,51 @@ import { GameCard } from './GameCard';
 import { GoalZone } from './GoalZone';
 import { BOARD_ROWS, BOARD_COLS } from '../utils/constants';
 
+const OrcIrwinAvatar: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#76a143] bg-gradient-to-br from-[#2c3d24] to-[#12190e] shadow-lg animate-pulse shrink-0">
+      {/* Orc green ears */}
+      <path d="M 15 45 C 5 35 5 25 20 30 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
+      <path d="M 85 45 C 95 35 95 25 80 30 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
+      
+      {/* Hair (wild black Mohawk or topknot) */}
+      <path d="M 35 15 C 45 5 55 5 65 15 C 60 25 40 25 35 15 Z" fill="#15171c" />
+      
+      {/* Head shape */}
+      <ellipse cx="50" cy="45" rx="30" ry="25" fill="#5b7f3d" stroke="#2c3a1d" strokeWidth="2" />
+      
+      {/* Eyebrows */}
+      <path d="M 30 35 C 35 30 43 33 45 37" stroke="#15171c" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M 70 35 C 65 30 57 33 55 37" stroke="#15171c" strokeWidth="3" strokeLinecap="round" fill="none" />
+
+      {/* Wise Glowing Orange Eyes */}
+      <circle cx="38" cy="40" r="4" fill="#ff9100" />
+      <circle cx="38" cy="40" r="1.5" fill="#fff" />
+      <circle cx="62" cy="40" r="4" fill="#ff9100" />
+      <circle cx="62" cy="40" r="1.5" fill="#fff" />
+      
+      {/* Nose */}
+      <path d="M 45 47 L 50 43 L 55 47 Z" fill="#3b5220" />
+      
+      {/* Mouth and tusks */}
+      <path d="M 35 55 Q 50 63 65 55" stroke="#1c2510" strokeWidth="2" fill="none" />
+      {/* Left tusk */}
+      <path d="M 38 56 L 41 48 L 44 55 Z" fill="#fdfdfd" stroke="#1c2510" strokeWidth="0.5" />
+      {/* Right tusk */}
+      <path d="M 62 56 L 59 48 L 56 55 Z" fill="#fdfdfd" stroke="#1c2510" strokeWidth="0.5" />
+      
+      {/* Cheeks blush */}
+      <circle cx="28" cy="48" r="2.5" fill="#4a6632" opacity="0.6" />
+      <circle cx="72" cy="48" r="2.5" fill="#4a6632" opacity="0.6" />
+      
+      {/* Leather collar */}
+      <path d="M 30 65 L 50 78 L 70 65 L 50 60 Z" fill="#422919" stroke="#1a100a" strokeWidth="1" />
+      {/* Gold rune medal on collar */}
+      <circle cx="50" cy="71" r="3.5" fill="#D8C49A" stroke="#8A6938" strokeWidth="0.5" />
+    </svg>
+  );
+};
+
 interface TutorialStep {
   title: string;
   text: string;
@@ -412,27 +457,34 @@ export const TutorialUI: React.FC = () => {
       {/* 1. TUTORIAL BUBBLE OVERLAY PANEL (LEFT SIDEBAR ON LARGE SCREENS) */}
       <div className="w-full md:w-[380px] bg-[#1a1510]/95 border-b-2 md:border-b-0 md:border-r-2 border-[#8A6938] flex flex-col justify-between p-4 md:p-6 z-30 shadow-2xl shrink-0 max-h-[40vh] md:max-h-screen overflow-y-auto">
         <div>
-          {/* Ancient Sage Header */}
-          <div className="flex items-center gap-2.5 mb-3 md:mb-4">
-            <div className="w-10 h-10 rounded-full border border-[#D8C49A] flex items-center justify-center bg-[#8A6938]/30 shadow-lg text-lg">
-              🧙‍♂️
-            </div>
+          {/* Irwin Green Orc Header */}
+          <div className="flex items-center gap-3 mb-2">
+            <OrcIrwinAvatar />
             <div>
-              <div className="text-[10px] font-orbitron font-extrabold text-[#D8C49A] uppercase tracking-widest leading-none">MAESTRO DE RUNAS</div>
-              <h1 className="text-sm md:text-base font-ancient-header text-white font-black tracking-wider mt-0.5">GUÍA DE COMBATE</h1>
+              <div className="text-[10px] font-orbitron font-extrabold text-[#76a143] uppercase tracking-widest leading-none flex items-center gap-1.5">
+                🟢 ORCO GUÍA <span className="animate-bounce">★</span>
+              </div>
+              <h1 className="text-sm md:text-base font-ancient-header text-[#E2C799] font-black tracking-wider mt-0.5">IRWIN, EL SABIO</h1>
             </div>
           </div>
 
-          <div className="h-0.5 bg-[#8A6938]/50 my-2" />
+          <div className="h-0.5 bg-gradient-to-r from-[#76a143]/60 via-[#8A6938]/40 to-transparent my-2.5" />
 
-          {/* Step Contents */}
-          <h2 className="text-base md:text-lg font-ancient-header text-[#D8C49A] mt-2 mb-2 tracking-wide font-black">
-            {step.title}
-          </h2>
-          
-          <p className="text-xs md:text-sm text-[#D8C49A]/85 leading-relaxed font-runic-text whitespace-pre-line bg-[#0d0a08]/60 p-3 rounded border border-[#574d3c]/40 shadow-inner">
-            {step.text}
-          </p>
+          {/* Comic Dialogue Balloon */}
+          <div className="relative mt-2 mb-2">
+            {/* Balloon arrow pointing up to the avatar (on desktop) */}
+            <div className="absolute -top-1.5 left-6 w-3 h-3 bg-[#14100d] border-t border-l border-[#8A6938]/80 rotate-45 z-10 hidden md:block" />
+            
+            <div className="relative z-0 bg-gradient-to-b from-[#14100d] to-[#0a0806] border-2 border-[#8A6938]/80 p-3.5 rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.95)]">
+              <h2 className="text-sm md:text-base font-ancient-header text-[#76a143] mb-2 tracking-wide font-black border-b border-[#574d3c]/40 pb-1 flex items-center gap-1.5">
+                💬 {step.title}
+              </h2>
+              
+              <p className="text-xs md:text-sm text-[#D8C49A] leading-relaxed font-runic-text whitespace-pre-line italic">
+                "{step.text}"
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Instructions, Controls and Back Button */}

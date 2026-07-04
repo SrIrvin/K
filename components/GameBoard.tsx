@@ -516,7 +516,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                                   {unit.id === selectedUnitIdOnBoard && canUnitScore && actionsRemaining > 0 && (
                                      <button 
                                        onClick={(e) => { e.stopPropagation(); dispatch({ type: 'SCORE_UNIT' })}}
-                                       className={`absolute -bottom-2.5 z-20 px-3 py-1 text-[9px] sm:text-[10px] font-ancient-header font-bold text-white bg-[#8A6938] rounded-lg border border-[#D8C49A] shadow-[0_4px_8px_rgba(0,0,0,0.8)] hover:bg-[#a57f49] active:translate-y-0.5 transition-all ${showHints ? 'shadow-[0_0_15px_rgba(216,196,154,0.8)] animate-pulse' : ''}`}>
+                                       className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 px-3.5 py-1.5 text-[10px] sm:text-xs font-ancient-header font-bold text-white bg-[#8A6938]/95 border-2 border-[#D8C49A] rounded-lg shadow-[0_6px_15px_rgba(0,0,0,0.95)] hover:bg-[#a57f49] hover:scale-105 active:scale-95 transition-all whitespace-nowrap ${showHints ? 'shadow-[0_0_20px_rgba(216,196,154,0.9)] animate-pulse' : ''}`}>
                                        ANOTAR (1)
                                      </button>
                                   )}

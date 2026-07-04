@@ -39,6 +39,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
         col: number;
     } | null>(null);
     const prevBoardRef = useRef<(Unit | null)[][] | null>(null);
+    const [activeSpellAnim, setActiveSpellAnim] = useState<{
+        type: 'jack_speed' | 'queen_purify';
+        row: number;
+        col: number;
+    } | null>(null);
     
     useEffect(() => {
         if (!prevBoardRef.current) {
@@ -48,6 +53,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
         let moveTimer: NodeJS.Timeout | null = null;
         let combatTimer: NodeJS.Timeout | null = null;
+        let spellTimer: NodeJS.Timeout | null = null;
         
         let movedUnit: Unit | null = null;
         let oldPos: { row: number; col: number } | null = null;
@@ -148,12 +154,59 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                 setCombatAnim(null);
             }, 600);
         }
+
+        // 3. Detect spells (Jack / Queen)
+        let spellAnimType: 'jack_speed' | 'queen_purify' | null = null;
+        let spellRow = -1;
+        let spellCol = -1;
+
+        for (let r = 0; r < board.length; r++) {
+            for (let c = 0; c < board[r].length; c++) {
+                const oldUnit = prevBoardRef.current[r][c];
+                const newUnit = board[r][c];
+                
+                if (oldUnit && newUnit) {
+                    // Jack speed boost: boosterCard was null, now is non-null
+                    if (!oldUnit.boosterCard && newUnit.boosterCard) {
+                        spellAnimType = 'jack_speed';
+                        spellRow = r;
+                        spellCol = c;
+                    }
+                    // Queen purify: healing (currentDamage increased), stacked attackers cleared, or baseDamage increased
+                    else if (
+                        newUnit.baseDamage > oldUnit.baseDamage ||
+                        newUnit.currentDamage > oldUnit.currentDamage ||
+                        oldUnit.stackedAttackers.length > newUnit.stackedAttackers.length
+                    ) {
+                        spellAnimType = 'queen_purify';
+                        spellRow = r;
+                        spellCol = c;
+                    }
+                }
+            }
+            if (spellAnimType && spellRow !== -1) {
+                break;
+            }
+        }
+
+        if (spellAnimType && spellRow !== -1) {
+            setActiveSpellAnim({
+                type: spellAnimType,
+                row: spellRow,
+                col: spellCol
+            });
+            
+            spellTimer = setTimeout(() => {
+                setActiveSpellAnim(null);
+            }, 800);
+        }
     
         prevBoardRef.current = board;
 
         return () => {
             if (moveTimer) clearTimeout(moveTimer);
             if (combatTimer) clearTimeout(combatTimer);
+            if (spellTimer) clearTimeout(spellTimer);
         };
     }, [board]);
 
@@ -405,6 +458,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
   {/* Combat Animation Overlay */}
   {combatAnim && combatAnim.row === rowIndex && combatAnim.col === colIndex && (
     <div className={combatAnim.type === 'destruction' ? 'destruction-burst' : 'bleeding-slash'} />
+  )}
+
+  {/* Spell Animation Overlay */}
+  {activeSpellAnim && activeSpellAnim.row === rowIndex && activeSpellAnim.col === colIndex && (
+    <div className={activeSpellAnim.type === 'jack_speed' ? 'cell-lightning' : 'cell-heart'} />
   )}
 
 

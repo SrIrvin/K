@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Leaderboard Records: Allow any user to read and add game logs
+    match /records/{recordId} {
+      allow read, create: if true;
+      allow update, delete: if false; // Prevent modifying history
+    }
+    
+    // Player Stats: Allow any player to update their statistics (wins/losses) and see rankings
+    match /players_stats/{playerId} {
+      allow read, write: if true;
+    }
+  }
+}

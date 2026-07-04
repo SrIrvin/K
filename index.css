@@ -721,6 +721,12 @@ body {
 /* 👑 Card-Specific Spell Effects */
 
 /* 1. Queen's Healing - Golden Purification Light */
+@keyframes queen-purify-bg {
+  0% { opacity: 0; background-color: rgba(216, 196, 154, 0); }
+  20% { opacity: 0.9; background-color: rgba(216, 196, 154, 0.15); }
+  100% { opacity: 0; background-color: rgba(216, 196, 154, 0); }
+}
+
 @keyframes queen-purify-anim {
   0% { opacity: 0; transform: scaleY(0); }
   30% { opacity: 0.95; transform: scaleY(1); filter: brightness(1.4) drop-shadow(0 0 25px rgba(216, 196, 154, 0.8)); }
@@ -734,6 +740,7 @@ body {
   z-index: 35;
   background: linear-gradient(to bottom, rgba(216, 196, 154, 0.45), transparent 70%);
   pointer-events: none;
+  animation: queen-purify-bg 0.75s ease-out forwards;
 }
 
 .queen-purify-overlay::before {
@@ -751,18 +758,36 @@ body {
 
 /* 2. Jack's Speed - Silver Spark / Electric Flash */
 @keyframes jack-silver-anim {
-  0% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(220, 225, 230, 0.5); }
-  15% { opacity: 0.95; box-shadow: inset 0 0 50px 25px rgba(255, 255, 255, 0.85); filter: brightness(1.5); }
-  30% { opacity: 0.8; }
-  100% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(220, 225, 230, 0); }
+  0% { opacity: 0; background-color: rgba(240, 244, 248, 0); }
+  15% { opacity: 0.95; background-color: rgba(240, 244, 248, 0.25); filter: brightness(1.5); }
+  30% { opacity: 0.85; }
+  100% { opacity: 0; background-color: rgba(240, 244, 248, 0); filter: blur(5px); }
+}
+
+@keyframes jack-sparks-anim {
+  0% { transform: scale(0.5) rotate(-15deg); opacity: 0; }
+  20% { transform: scale(1.15) rotate(5deg); opacity: 0.95; filter: drop-shadow(0 0 15px rgba(255,255,255,0.85)); }
+  100% { transform: scale(1.35) rotate(15deg); opacity: 0; filter: blur(6px); }
 }
 
 .jack-silver-overlay {
   position: absolute;
   inset: 0;
   z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
-  animation: jack-silver-anim 0.6s ease-out forwards;
+  animation: jack-silver-anim 0.65s ease-out forwards;
+}
+
+.jack-silver-overlay::before {
+  content: '⚡'; /* Electric silver lightning bolt */
+  font-size: 8rem;
+  color: #ecf0f1;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 35px rgba(189, 195, 199, 0.8);
+  animation: jack-sparks-anim 0.65s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  pointer-events: none;
 }
 
 /* 3. King's Iron Command - Giant Metallic Iron K */

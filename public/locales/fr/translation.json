@@ -3,6 +3,19 @@
   "subtitle": "Duel de Cartes Stratégique",
   "play_p2": "2 Joueurs Hot-Seat",
   "play_ai": "vs IA",
+  "stone_description_title": "Description de la Pierre",
+  "sages_advice_title": "Conseil du Sage",
+  "close_tablet_btn": "FERMER LA TABLETTE",
+  "card_categories": {
+    "Joker": "Assassin de l'Ombre",
+    "A": "Missile Kamikaze",
+    "K": "Dictateur Fou",
+    "Q": "Guérisseuse Mystique",
+    "J": "Turbo / Propulseur",
+    "heavy": "Unité Lourde",
+    "medium": "Unité Moyenne",
+    "light": "Unité Légère"
+  },
   "card_descriptions": {
     "2": "Une unité légère. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 3.",
     "3": "Une unité légère. Peut être placée sur votre rangée de départ. Son numéro est son Dégât de Base. Vitesse : 3.",
@@ -18,5 +31,21 @@
     "K": "Le Dictateur Fou. Activez pour déplacer chacune de vos unités d'une case orthogonale. Vous devez déplacer chaque unité. Toute unité non déplacée à la fin de l'action est défaussée.",
     "A": "Le Missile Kamikaze. Infligez 1 de dégât direct à votre adversaire. Cette carte est ensuite déplacée dans votre pile de score.",
     "Joker": "L'Assassin de l'Ombre. Éliminez instantanément n'importe quelle unité ennemie du plateau. L'unité est envoyée dans la pile de défausse."
+  },
+  "card_tips": {
+    "2": "Conseil : Utilisez-les pour avancer rapidement vers la zone ennemie ou comme boucliers jetables pour vos unités plus lourdes.",
+    "3": "Conseil : Leur vitesse élevée de 3 cases les rend parfaites pour exploiter les couloirs ennemis non gardés pour un touchdown rapide.",
+    "4": "Conseil : C'est l'unité légère la plus forte. Utilisez sa grande mobilité pour surprendre les adversaires ou défendre contre des unités légères plus faibles.",
+    "5": "Conseil : Un bon équilibre de vitesse et de puissance. Placez-les juste derrière les unités lourdes en tant qu'attaquants de soutien.",
+    "6": "Conseil : Une unité de milieu de gamme très polyvalente. Capable d'absorber les coups des unités légères et de contre-attaquer avec une vitesse décente de 2.",
+    "7": "Conseil : L'unité de milieu de gamme la plus forte. Utilisez-la pour affaiblir les défenses ennemies avant de déployer vos unités lourdes.",
+    "8": "Conseil : Bien que lente (vitesse 1), ses dégâts de base élevés en font un excellent mur défensif ou un bélier lourd.",
+    "9": "Conseil : Parfait pour mener la charge sur la ligne de front. Ses dégâts de base élevés lui permettent de submerger ou d'affaiblir fortement presque n'importe quelle unité.",
+    "10": "Conseil : L'unité la plus destructrice du jeu. Elle est lente, alors soutenez-la avec un Valet (Turbo) pour doubler sa mobilité et surprendre vos adversaires.",
+    "J": "Conseil : Combinez avec une unité lourde pour lui donner une poussée de vitesse surprise de 2, ou avec une unité légère pour voler à travers le plateau en un seul mouvement.",
+    "Q": "Conseil : Ciblez votre unité la plus forte (comme un 10) avec des attaquants empilés pour restaurer sa puissance d'origine et nettoyer le plateau.",
+    "K": "Conseil : Planifiez à l'avance ! Extrêmement puissant pour des avancées de groupe coordonnées, mais ne pas déplacer une unité entraînera son sacrifice immédiat.",
+    "A": "Conseil : Idéal pour porter le coup de grâce lorsque votre adversaire a peu de points de vie et que vos unités sont trop loin de la ligne de but.",
+    "Joker": "Conseil : Votre outil de contrôle ultime. Gardez-le en réserve pour supprimer instantanément l'unité lourde ennemie la plus dangereuse juste avant qu'elle ne marque."
   }
 }

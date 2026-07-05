@@ -1,9 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { audioService } from '../services/audioService';
+import { useTranslation } from 'react-i18next';
+
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'zh', name: '中文' },
+  { code: 'fr', name: 'Français' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'pt', name: 'Português' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'ar', name: 'العربية' },
+  { code: 'nah', name: 'Nāhuatl' }
+];
+
+const getTranslation = (lang: string) => {
+  const translations: Record<string, { title: string; sfx: string; bgm: string; langLabel: string; close: string }> = {
+    es: { title: 'AJUSTES DEL JUEGO', sfx: 'Efectos (SFX)', bgm: 'Música (BGM)', langLabel: 'Idioma', close: 'CERRAR' },
+    en: { title: 'GAME SETTINGS', sfx: 'Effects (SFX)', bgm: 'Music (BGM)', langLabel: 'Language', close: 'CLOSE' },
+    fr: { title: 'PARAMÈTRES DU JEU', sfx: 'Effets (SFX)', bgm: 'Musique (BGM)', langLabel: 'Langue', close: 'FERMER' },
+    it: { title: 'IMPOSTAZIONI GIOCO', sfx: 'Effetti (SFX)', bgm: 'Musica (BGM)', langLabel: 'Lingua', close: 'CHIUDI' },
+    pt: { title: 'AJUSTES DO JOGO', sfx: 'Efeitos (SFX)', bgm: 'Música (BGM)', langLabel: 'Idioma', close: 'FECHAR' },
+    ru: { title: 'НАСТРОЙКИ ИГРЫ', sfx: 'Эффекты (SFX)', bgm: 'Музыка (BGM)', langLabel: 'Язык', close: 'ЗАКРЫТЬ' },
+    zh: { title: '游戏设置', sfx: '音效 (SFX)', bgm: '音乐 (BGM)', langLabel: '语言', close: '关闭' },
+    ar: { title: 'إعدادات اللعبة', sfx: 'المؤثرات (SFX)', bgm: 'الموسيقى (BGM)', langLabel: 'اللغة', close: 'إغلاق' },
+    nah: { title: 'TLAYECTLALILIZTLI', sfx: 'Tepozcacuica (SFX)', bgm: 'Tepozcuica (BGM)', langLabel: 'Tlahtolli', close: 'TZACUA' }
+  };
+  return translations[lang] || translations['en'];
+};
 
 const AudioSettings: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [settings, setSettings] = useState(() => audioService.getSettings());
+  const { i18n } = useTranslation();
+
+  const localTexts = getTranslation(i18n.language);
 
   // Update local state when modifying settings
   const handleToggleSFXMute = () => {
@@ -64,7 +95,7 @@ const AudioSettings: React.FC = () => {
       <button
         onClick={handleOpenPanel}
         className="fixed top-4 right-4 z-40 w-11 h-11 flex items-center justify-center rounded-full bg-gradient-to-br from-[#a49479] to-[#766953] border-2 border-[#574d3c] shadow-lg text-[#1e1a14] hover:from-[#b8a68b] hover:to-[#86785e] active:scale-95 transition-all duration-150"
-        title="Configuración de Sonido"
+        title="Settings"
       >
         {settings.sfxMuted && settings.bgmMuted ? (
           /* Mute SVG */
@@ -85,7 +116,7 @@ const AudioSettings: React.FC = () => {
           {/* Stone carved panel */}
           <div className="relative w-full max-w-sm p-6 md:p-8 stone-modal text-white text-center animate-scaleUp">
             <h2 className="text-2xl font-ancient-header tracking-wider text-[#D8C49A] mb-1">
-              AJUSTES DE AUDIO
+              {localTexts.title}
             </h2>
             <div className="h-0.5 w-20 mx-auto bg-gradient-to-r from-transparent via-[#8A6938] to-transparent mb-6" />
 
@@ -99,7 +130,7 @@ const AudioSettings: React.FC = () => {
                       ? 'border-[#82443a] text-[#82443a] bg-red-950/20'
                       : 'border-[#8A6938]/60 text-[#D8C49A] bg-[#1e1a14]/40 hover:bg-[#8A6938]/20'
                   }`}
-                  title={settings.sfxMuted ? 'Activar Efectos' : 'Silenciar Efectos'}
+                  title={settings.sfxMuted ? 'Unmute' : 'Mute'}
                 >
                   {settings.sfxMuted ? (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -113,7 +144,7 @@ const AudioSettings: React.FC = () => {
                 </button>
                 <div className="flex-grow flex flex-col gap-1">
                   <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
-                    Efectos (SFX)
+                    {localTexts.sfx}
                   </span>
                   <div className="flex items-center gap-3">
                     <input
@@ -142,7 +173,7 @@ const AudioSettings: React.FC = () => {
                       ? 'border-[#82443a] text-[#82443a] bg-red-950/20'
                       : 'border-[#8A6938]/60 text-[#D8C49A] bg-[#1e1a14]/40 hover:bg-[#8A6938]/20'
                   }`}
-                  title={settings.bgmMuted ? 'Activar Música' : 'Silenciar Música'}
+                  title={settings.bgmMuted ? 'Unmute' : 'Mute'}
                 >
                   {settings.bgmMuted ? (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -156,7 +187,7 @@ const AudioSettings: React.FC = () => {
                 </button>
                 <div className="flex-grow flex flex-col gap-1">
                   <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
-                    Música (BGM)
+                    {localTexts.bgm}
                   </span>
                   <div className="flex items-center gap-3">
                     <input
@@ -175,13 +206,39 @@ const AudioSettings: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Language Control Row */}
+              <div className="flex items-center gap-3 w-full bg-[#1e1a14]/60 p-3 rounded-lg border border-[#574d3c]/30">
+                <span className="w-9 h-9 flex items-center justify-center rounded border border-[#8A6938]/60 text-[#D8C49A] bg-[#1e1a14]/40 flex-shrink-0 text-base">
+                  🌐
+                </span>
+                <div className="flex-grow flex flex-col gap-1">
+                  <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
+                    {localTexts.langLabel}
+                  </span>
+                  <select
+                    value={i18n.language}
+                    onChange={(e) => {
+                      audioService.playSFX('click');
+                      i18n.changeLanguage(e.target.value);
+                    }}
+                    className="bg-[#2c241b] border border-[#8A6938] text-[#D8C49A] font-bold text-xs px-2 py-1.5 rounded w-full focus:outline-none focus:ring-1 focus:ring-[#D8C49A] cursor-pointer"
+                  >
+                    {languages.map((lng) => (
+                      <option key={lng.code} value={lng.code}>
+                        {lng.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
             <button
               onClick={handleClosePanel}
               className="stone-button stone-button-red px-8 py-2 text-sm"
             >
-              CERRAR
+              {localTexts.close}
             </button>
           </div>
         </div>

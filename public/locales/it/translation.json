@@ -3,6 +3,19 @@
   "subtitle": "Duello di Carte Strategico",
   "play_p2": "2 Giocatori Hot-Seat",
   "play_ai": "vs IA",
+  "stone_description_title": "Descrizione della Pietra",
+  "sages_advice_title": "Consiglio del Saggio",
+  "close_tablet_btn": "CHIUDI TAVOLETTA",
+  "card_categories": {
+    "Joker": "Assassino dell'Ombra",
+    "A": "Missile Kamikaze",
+    "K": "Dittatore Pazzo",
+    "Q": "Guaritrice Mistica",
+    "J": "Turbo / Spinta",
+    "heavy": "Unità Pesante",
+    "medium": "Unità Media",
+    "light": "Unità Leggera"
+  },
   "card_descriptions": {
     "2": "Un'unità leggera. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 3.",
     "3": "Un'unità leggera. Può essere posizionata sulla tua riga di partenza. Il suo numero è il suo Danno Base. Velocità: 3.",
@@ -18,5 +31,21 @@
     "K": "Il Dittatore Pazzo. Attiva per muovere ciascuna delle tue unità di uno spazio ortogonale. Devi muovere ogni unità. Qualsiasi unità non mossa entro la fine dell'azione viene scartata.",
     "A": "Il Missile Kamikaze. Infliggi 1 danno diretto al tuo avversario. Questa carta viene quindi spostata nella tua pila dei punti.",
     "Joker": "L'Assassino Ombra. Elimina istantaneamente qualsiasi unità nemica dal tabellone. L'unità viene inviata alla pila degli scarti."
+  },
+  "card_tips": {
+    "2": "Suggerimento: Usale per avanzare rapidamente verso la zona nemica o come scudi sacrificabili per le tue unità più pesanti.",
+    "3": "Suggerimento: La loro alta velocità di 3 spazi le rende perfette per sfruttare le corsie nemiche scoperte per un touchdown rapido.",
+    "4": "Suggerimento: Questa è l'unità leggera più forte. Usa la sua alta mobilità per sorprendere gli avversari o difenderti da unità leggere più deboli.",
+    "5": "Suggerimento: Un solido equilibrio di velocità e potenza. Posizionale proprio dietro le unità pesanti come attaccanti di supporto.",
+    "6": "Suggerimento: Un'unità a medio raggio altamente versatile. Capace di assorbire i colpi delle unità leggere e contrattaccare con una velocità discreta di 2.",
+    "7": "Suggerimento: L'unità a medio raggio più forte. Usala per logorare le defenses nemiche prima di schierare le tue unità pesanti.",
+    "8": "Suggerimento: Sebbene lenta (velocità 1), il suo alto danno base la rende un eccellente muro difensivo o un pesante ariete.",
+    "9": "Suggerimento: Perfetto per guidare la carica in prima linea. Il suo alto danno base le consente di sopraffare o indebolire pesantemente quasi ogni unità.",
+    "10": "Suggerimento: L'unità più distruttiva del gioco. È lenta, quindi supportala con un Jack (Turbo) per raddoppiare la sua mobilità e cogliere di sorpresa gli avversari.",
+    "J": "Suggerimento: Combina con un'unità pesante per darle una spinta di velocità a sorpresa di 2, o con un'unità leggera per volare attraverso il tabellone in una singola mossa.",
+    "Q": "Suggerimento: Bersaglia la tua unità più forte (como un 10) con attaccanti impilati per ripristinare il suo potere originale e ripulire il tabellone.",
+    "K": "Suggerimento: Pianifica in anticipo! Estremamente potente per avanzate di gruppo coordinate, ma la mancata mossa di qualsiasi unità comporterà il suo sacrificio immediato.",
+    "A": "Suggerimento: Ideale per infliggere il colpo finale quando il tuo avversario ha poca salute e le tue unità sono troppo lontane dalla linea di meta.",
+    "Joker": "Suggerimento: Il tuo strumento di controllo definitivo. Tienilo di riserva per eliminare istantaneamente l'unità pesante nemica più pericolosa subito prima che segni."
   }
 }

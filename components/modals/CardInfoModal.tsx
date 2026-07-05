@@ -17,17 +17,13 @@ export const CardInfoModal: React.FC = () => {
 
     // Helper to get card sub-category translated name
     const getCardCategory = (rank: Rank): string => {
-        const isEs = i18n.language === 'es';
-        if (rank === 'Joker') return isEs ? 'Asesino de las Sombras' : 'Shadow Assassin';
-        if (rank === 'A') return isEs ? 'Misil Kamikaze' : 'Kamikaze Missile';
-        if (rank === 'K') return isEs ? 'Dictador Loco' : 'Mad Dictator';
-        if (rank === 'Q') return isEs ? 'Sanadora Mística' : 'Mystic Healer';
-        if (rank === 'J') return isEs ? 'Turbo / Impulsor' : 'Turbo / Booster';
-        
+        if (['Joker', 'A', 'K', 'Q', 'J'].includes(rank)) {
+            return t(`card_categories.${rank}`);
+        }
         const num = parseInt(rank);
-        if (num >= 8) return isEs ? 'Unidad Pesada' : 'Heavy Unit';
-        if (num >= 5) return isEs ? 'Unidad Mediana' : 'Medium Unit';
-        return isEs ? 'Unidad Ligera' : 'Light Unit';
+        if (num >= 8) return t('card_categories.heavy');
+        if (num >= 5) return t('card_categories.medium');
+        return t('card_categories.light');
     };
 
     return (
@@ -76,7 +72,7 @@ export const CardInfoModal: React.FC = () => {
                         {/* Description Box */}
                         <div className="bg-[#2A2A2A]/50 border border-[#574d3c]/40 p-3 sm:p-4 rounded-lg relative shadow-inner">
                             <h4 className="text-xs font-bold text-[#9A8B72] uppercase tracking-wider mb-1 font-orbitron">
-                                {i18n.language === 'es' ? 'Descripción de la Piedra' : 'Stone Description'}
+                                {t('stone_description_title')}
                             </h4>
                             <p className="text-sm text-gray-300 leading-relaxed">
                                 {t(`card_descriptions.${card.rank}`)}
@@ -88,7 +84,7 @@ export const CardInfoModal: React.FC = () => {
                             <div className="flex items-center space-x-1.5 mb-1.5">
                                 <span className="text-xs">💡</span>
                                 <h4 className="text-xs font-extrabold text-[#D8C49A] uppercase tracking-wider font-orbitron">
-                                    {i18n.language === 'es' ? 'Consejo del Sabio' : 'Sage\'s Advice'}
+                                    {t('sages_advice_title')}
                                 </h4>
                             </div>
                             <p className="text-sm text-[#D8C49A] italic leading-relaxed">
@@ -104,7 +100,7 @@ export const CardInfoModal: React.FC = () => {
                         onClick={handleClose} 
                         className="px-5 py-2 bg-gradient-to-r from-[#6e532a] to-[#8A6938] hover:from-[#8A6938] hover:to-[#a57f49] text-white font-bold font-orbitron text-xs tracking-wider rounded-lg border border-[#D8C49A]/30 shadow-md active:translate-y-0.5 transition-all duration-200"
                     >
-                        {i18n.language === 'es' ? 'CERRAR TABLA' : 'CLOSE TABLET'}
+                        {t('close_tablet_btn')}
                     </button>
                 </div>
             </div>

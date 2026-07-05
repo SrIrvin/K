@@ -3,6 +3,19 @@
   "subtitle": "Strategic Card Duel",
   "play_p2": "2-Player Hot-Seat",
   "play_ai": "vs AI Opponent",
+  "stone_description_title": "Stone Description",
+  "sages_advice_title": "Sage's Advice",
+  "close_tablet_btn": "CLOSE TABLET",
+  "card_categories": {
+    "Joker": "Shadow Assassin",
+    "A": "Kamikaze Missile",
+    "K": "Mad Dictator",
+    "Q": "Mystic Healer",
+    "J": "Turbo / Booster",
+    "heavy": "Heavy Unit",
+    "medium": "Medium Unit",
+    "light": "Light Unit"
+  },
   "card_descriptions": {
     "2": "A Light Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 3.",
     "3": "A Light Unit. Can be placed on your starting row. Its number is its Base Damage. Speed: 3.",

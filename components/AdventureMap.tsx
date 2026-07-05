@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { audioService } from '../services/audioService';
 import { Action, Suit, Card, Unit, CardColor, Rank, GameState } from '../types';
+import { useTranslation } from 'react-i18next';
+import { storyTranslations } from '../services/storyTranslations';
 
 interface LevelData {
   level: number;
@@ -134,8 +136,26 @@ interface AdventureMapProps {
 }
 
 export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, state }) => {
+  const { i18n } = useTranslation();
+  const activeTranslation = storyTranslations[i18n.language] || storyTranslations['en'];
   const [unlockedLevel, setUnlockedLevel] = useState<number>(1);
   const [selectedLevel, setSelectedLevel] = useState<LevelData | null>(null);
+
+  const translatedLevels = levelsData.map(lvl => {
+    const lvlTrans = activeTranslation.levels[lvl.name] || storyTranslations['en'].levels[lvl.name];
+    return {
+      ...lvl,
+      displayName: lvlTrans?.displayName || lvl.name,
+      subtitle: lvlTrans?.subtitle || lvl.subtitle,
+      description: lvlTrans?.description || lvl.description,
+      modifiers: lvlTrans?.modifiers || lvl.modifiers,
+      aiDifficulty: lvlTrans?.aiDifficulty || lvl.aiDifficulty,
+    };
+  });
+
+  const selectedLevelResolved = selectedLevel
+    ? translatedLevels.find(lvl => lvl.level === selectedLevel.level) || null
+    : null;
 
   useEffect(() => {
     // Load progress from localStorage
@@ -171,7 +191,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
   };
 
   const handleResetProgress = () => {
-    if (window.confirm('¿Seguro que deseas reiniciar tu aventura? Perderás todo tu progreso actual.')) {
+    if (window.confirm(activeTranslation.ui.resetConfirm)) {
       audioService.playSFX('click');
       localStorage.setItem('k_unlocked_story_level', '1');
       setUnlockedLevel(1);

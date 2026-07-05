@@ -150,8 +150,8 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
         </select>
       </div>
 
-      {/* Main Content Card Container (Carved Stone Slab) */}
-      <div className="relative z-20 flex flex-col items-center p-8 md:p-12 stone-modal max-w-lg w-full text-center">
+      {/* Main Content Card Container (Ancient Scroll Parchment style) */}
+      <div className="relative z-20 flex flex-col items-center p-8 md:p-12 bg-[#181410]/95 border-2 border-[#574d3c]/80 rounded-2xl max-w-lg w-full text-center shadow-[inset_0_0_40px_rgba(0,0,0,0.9),0_15px_35px_rgba(0,0,0,0.7)]">
         {/* Title Symbol with ancient blue glow */}
         <div className="mb-4">
           <h1 className="text-6xl md:text-8xl font-ancient-header tracking-wider text-[#D8C49A] animate-pulse">

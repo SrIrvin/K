@@ -6,6 +6,184 @@ import {
   subscribeToAuthChanges 
 } from '../services/firebaseService';
 import { audioService } from '../services/audioService';
+import { useTranslation } from 'react-i18next';
+
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'zh', name: '中文' },
+  { code: 'fr', name: 'Français' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'pt', name: 'Português' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'ar', name: 'العربية' },
+  { code: 'nah', name: 'Nāhuatl' }
+];
+
+const menuTranslations: Record<string, Record<string, string>> = {
+  es: {
+    subtitle: "DUELO ESTRATÉGICO",
+    tagline: "Las runas del pasado despiertan en el tablero. Solo uno de los guerreros sobrevivirá al juicio de piedra.",
+    nicknameLabel: "Tu Nombre de Héroe (Nickname)",
+    nicknamePlaceholder: "Escribe tu apodo...",
+    googleConnect: "Conectar con Google",
+    logout: "Cerrar Sesión",
+    campaign: "Campaña",
+    playAi: "Desafiar a la IA",
+    aiDifficulty: "Dificultad IA:",
+    easy: "Aprendiz (Fácil)",
+    hard: "Táctico (Difícil)",
+    onlineLobby: "Salas",
+    playP2: "Duelo Local",
+    tutorial: "Tutorial",
+    footer: "A.D. MMXXVI • ARTEFACTO SAGRADO",
+    defaultHero: "Héroe"
+  },
+  en: {
+    subtitle: "STRATEGIC CARD DUEL",
+    tagline: "The runes of the past awaken on the board. Only one warrior will survive the trial of stone.",
+    nicknameLabel: "Your Hero Name (Nickname)",
+    nicknamePlaceholder: "Write your nickname...",
+    googleConnect: "Connect with Google",
+    logout: "Log Out",
+    campaign: "Campaign",
+    playAi: "Challenge the AI",
+    aiDifficulty: "AI Difficulty:",
+    easy: "Apprentice (Easy)",
+    hard: "Tactician (Hard)",
+    onlineLobby: "Lobbies",
+    playP2: "Local Duel",
+    tutorial: "Tutorial",
+    footer: "A.D. MMXXVI • SACRED ARTIFACT",
+    defaultHero: "Hero"
+  },
+  zh: {
+    subtitle: "战略卡牌对决",
+    tagline: "过去的符文在棋盘上苏醒。只有一位战士能从石之审判中幸存。",
+    nicknameLabel: "你的英雄名字（昵称）",
+    nicknamePlaceholder: "写下你的昵称...",
+    googleConnect: "使用 Google 连接",
+    logout: "登出",
+    campaign: "战役模式",
+    playAi: "挑战 AI",
+    aiDifficulty: "AI 难度：",
+    easy: "学徒（简单）",
+    hard: "战术家（困难）",
+    onlineLobby: "大厅",
+    playP2: "本地对决",
+    tutorial: "新手教程",
+    footer: "公元 MMXXVI • 神圣神器",
+    defaultHero: "英雄"
+  },
+  fr: {
+    subtitle: "DUEL DE CARTES STRATÉGIQUE",
+    tagline: "Les runes du passé s'éveillent sur le plateau. Un seul guerrier survivra à l'épreuve de pierre.",
+    nicknameLabel: "Votre nom de héros (Pseudo)",
+    nicknamePlaceholder: "Écrivez votre pseudo...",
+    googleConnect: "Se connecter avec Google",
+    logout: "Se déconnecter",
+    campaign: "Campagne",
+    playAi: "Défier l'IA",
+    aiDifficulty: "Difficulté IA :",
+    easy: "Apprenti (Facile)",
+    hard: "Tacticien (Difficile)",
+    onlineLobby: "Salons",
+    playP2: "Duel Local",
+    tutorial: "Tutoriel",
+    footer: "A.D. MMXXVI • ARTEFACT SACRÉ",
+    defaultHero: "Héros"
+  },
+  it: {
+    subtitle: "DUELLO DI CARTE STRATEGICO",
+    tagline: "Le rune del passato si risvegliano sulla tavola. Solo un guerriero sopravvivrà alla prova di pietra.",
+    nicknameLabel: "Nome del tuo eroe (Soprannome)",
+    nicknamePlaceholder: "Scrivi il tuo soprannome...",
+    googleConnect: "Connettiti con Google",
+    logout: "Disconnettersi",
+    campaign: "Campagna",
+    playAi: "Sfida l'IA",
+    aiDifficulty: "Difficoltà IA:",
+    easy: "Apprendista (Facile)",
+    hard: "Tattico (Difficile)",
+    onlineLobby: "Stanze",
+    playP2: "Duello Locale",
+    tutorial: "Tutorial",
+    footer: "A.D. MMXXVI • ARTEFATTO SACRO",
+    defaultHero: "Eroe"
+  },
+  pt: {
+    subtitle: "DUELO DE CARTAS ESTRATÉGICO",
+    tagline: "As runas do passado despertam no tabuleiro. Apenas um guerreiro sobreviverá ao julgamento de pedra.",
+    nicknameLabel: "Seu Nome de Herói (Apelido)",
+    nicknamePlaceholder: "Escreva seu apelido...",
+    googleConnect: "Conectar com Google",
+    logout: "Encerrar Sessão",
+    campaign: "Campanha",
+    playAi: "Desafiar a IA",
+    aiDifficulty: "Dificuldade da IA:",
+    easy: "Aprendiz (Fácil)",
+    hard: "Tático (Difícil)",
+    onlineLobby: "Salas",
+    playP2: "Duelo Local",
+    tutorial: "Tutorial",
+    footer: "A.D. MMXXVI • ARTEFATO SAGRADO",
+    defaultHero: "Herói"
+  },
+  ru: {
+    subtitle: "СТРАТЕГИЧЕСКАЯ КАРТОЧНАЯ ДУЭЛЬ",
+    tagline: "Руны прошлого пробуждаются на доске. Только один воин выживет в каменном испытании.",
+    nicknameLabel: "Имя героя (Никнейм)",
+    nicknamePlaceholder: "Введите никнейм...",
+    googleConnect: "Войти через Google",
+    logout: "Выйти",
+    campaign: "Кампания",
+    playAi: "Бросить вызов ИИ",
+    aiDifficulty: "Сложность ИИ:",
+    easy: "Ученик (Легко)",
+    hard: "Тактик (Сложно)",
+    onlineLobby: "Лобби",
+    playP2: "Локальный дуэль",
+    tutorial: "Обучение",
+    footer: "A.D. MMXXVI • СВЯЩЕННЫЙ АРТЕФАКТ",
+    defaultHero: "Герой"
+  },
+  ar: {
+    subtitle: "مبارزة البطاقات الاستراتيجية",
+    tagline: "تستيقظ رونية الماضي على اللوحة. محارب واحد فقط سينجو من محاكمة الحجر.",
+    nicknameLabel: "اسم بطلك (اللقب)",
+    nicknamePlaceholder: "اكتب لقبك...",
+    googleConnect: "الاتصال بـ Google",
+    logout: "تسجيل الخروج",
+    campaign: "الحملة",
+    playAi: "تحدي الذكاء الاصطناعي",
+    aiDifficulty: "صعوبة الذكاء الاصطناعي:",
+    easy: "مبتدئ (سهل)",
+    hard: "تكتيكي (صعب)",
+    onlineLobby: "الغرف",
+    playP2: "مبارزة محلية",
+    tutorial: "البرنامج التعليمي",
+    footer: "عام ٢٠٢٦ ميلادي • أثر مقدس",
+    defaultHero: "بطل"
+  },
+  nah: {
+    subtitle: "TLAMACHILIZTLAHTOLLI TEPALCATL",
+    tagline: "In machiyotl tlein achtopa ehuac ihzatihqueh ipan tlapechtli. Zan ce yaotl ehuaz itech tetlixoxouhqui.",
+    nicknameLabel: "Motocah Yaotl (Apodo)",
+    nicknamePlaceholder: "Tlahcuiloh motonal...",
+    googleConnect: "Tlaneltilia ica Google",
+    logout: "Tzacuaz nehnemiliztli",
+    campaign: "Yaotlacuilolli",
+    playAi: "Tlatehuia Ixcahualli (IA)",
+    aiDifficulty: "Chicoahualiztli IA:",
+    easy: "Momachtiani (Yamanqui)",
+    hard: "Tlamachtiloni (Ohuih)",
+    onlineLobby: "Calpolli",
+    playP2: "Nican Yaotl",
+    tutorial: "Tlamachtiliztli",
+    footer: "A.D. MMXXVI • YOLTOXTLI SACRADO",
+    defaultHero: "Yaotl"
+  }
+};
 
 interface MainMenuProps {
   onOnlineMode: () => void;
@@ -14,9 +192,11 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const { dispatch } = useContext(GameContext);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const { i18n } = useTranslation();
+  const tMenu = menuTranslations[i18n.language] || menuTranslations['en'];
   
   const [playerName, setPlayerName] = useState(() => {
-    return localStorage.getItem('k_player_name') || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
+    return localStorage.getItem('k_player_name') || `${tMenu.defaultHero || 'Hero'}_${Math.floor(1000 + Math.random() * 9000)}`;
   });
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'hard'>('easy');
 
@@ -62,7 +242,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   };
 
   const startGame = (gameType: 'ai' | 'p2') => {
-    const finalName = playerName.trim() || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
+    const finalName = playerName.trim() || `${tMenu.defaultHero || 'Hero'}_${Math.floor(1000 + Math.random() * 9000)}`;
     handleNameChange(finalName);
     dispatch({ 
       type: 'START_GAME', 
@@ -102,6 +282,25 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
       <div className="rune-overlay" />
       <div className="dust-container">{dustParticles}</div>
 
+      {/* Language Selector in Top-Left Corner */}
+      <div className="fixed top-4 left-4 z-40 flex items-center gap-1.5 bg-[#1e1a14]/80 border border-[#8A6938]/60 px-3 py-1.5 rounded-full shadow-lg">
+        <span className="text-[#D8C49A] text-xs">🌐</span>
+        <select
+          value={i18n.language}
+          onChange={(e) => {
+            audioService.playSFX('click');
+            i18n.changeLanguage(e.target.value);
+          }}
+          className="bg-transparent border-none text-[#D8C49A] font-bold text-xs focus:outline-none cursor-pointer"
+        >
+          {languages.map((lng) => (
+            <option key={lng.code} value={lng.code} className="bg-[#2c241b] text-[#D8C49A]">
+              {lng.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Main Content Card Container (Carved Stone Slab) */}
       <div className="relative z-20 flex flex-col items-center p-8 md:p-12 stone-modal max-w-lg w-full text-center">
         {/* Title Symbol with ancient blue glow */}
@@ -111,18 +310,18 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
           </h1>
           <div className="h-0.5 w-24 mx-auto my-2 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent" />
           <h2 className="text-xl md:text-2xl font-ancient-header tracking-widest text-[#9A8B72] mt-1">
-            DUELO ESTRATÉGICO
+            {tMenu.subtitle}
           </h2>
         </div>
 
         <p className="text-sm md:text-base text-[#D8C49A]/80 font-runic-text mb-6 max-w-xs leading-relaxed italic">
-          "Las runas del pasado despiertan en el tablero. Solo uno de los guerreros sobrevivirá al juicio de piedra."
+          "{tMenu.tagline}"
         </p>
 
         {/* Hero Name / Nickname Input & Google Sign-in */}
         <div className="w-full max-w-xs mb-8 bg-[#120f0b]/75 border border-[#574d3c]/70 p-3.5 rounded-lg flex flex-col gap-2.5 text-center shadow-inner relative z-30">
           <label className="text-[10px] font-orbitron font-bold text-[#D8C49A] uppercase tracking-widest">
-            Tu Nombre de Héroe (Nickname)
+            {tMenu.nicknameLabel}
           </label>
           <input
             type="text"
@@ -131,7 +330,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             maxLength={18}
             disabled={currentUser && !currentUser.isAnonymous}
             className="bg-[#2c241b] border border-[#8A6938] text-[#D8C49A] font-bold text-xs px-3 py-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-[#D8C49A] text-center tracking-wider disabled:opacity-75 disabled:cursor-not-allowed"
-            placeholder="Escribe tu apodo..."
+            placeholder={tMenu.nicknamePlaceholder}
           />
           
           <div className="h-px bg-[#574d3c]/40 my-1 w-full" />
@@ -157,7 +356,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                 onClick={handleSignOut}
                 className="bg-[#8A6938]/30 hover:bg-red-950/80 border border-[#8A6938]/50 hover:border-red-700 text-[#D8C49A] hover:text-red-200 text-[8px] font-bold py-1 px-2.5 rounded transition-all shrink-0"
               >
-                Cerrar Sesión
+                {tMenu.logout}
               </button>
             </div>
           ) : (
@@ -183,7 +382,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                   fill="#EA4335"
                 />
               </svg>
-              Conectar con Google
+              {tMenu.googleConnect}
             </button>
           )}
         </div>
@@ -197,7 +396,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             }}
             className="stone-button w-full py-3.5 text-sm font-bold text-[#E6C687] bg-gradient-to-r from-[#4d321c] to-[#2c1d10] border-[#D8C49A] hover:from-[#5a3a20] hover:to-[#382414] shadow-[0_0_15px_rgba(216,196,154,0.15)] flex items-center justify-center gap-2"
           >
-            Campaña
+            {tMenu.campaign}
           </button>
 
           {/* AI Section with Difficulty Selection */}
@@ -206,10 +405,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
               onClick={() => startGame('ai')} 
               className="stone-button w-full py-3 text-sm"
             >
-              Desafiar a la IA
+              {tMenu.playAi}
             </button>
             <div className="flex items-center justify-between w-full px-1 text-[10px] text-[#9A8B72] font-orbitron">
-              <span className="tracking-wide">Dificultad IA:</span>
+              <span className="tracking-wide">{tMenu.aiDifficulty}</span>
               <div className="flex gap-1.5">
                 <button
                   onClick={() => setAiDifficulty('easy')}
@@ -219,7 +418,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                       : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
                   }`}
                 >
-                  Aprendiz (Fácil)
+                  {tMenu.easy}
                 </button>
                 <button
                   onClick={() => setAiDifficulty('hard')}
@@ -229,7 +428,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                       : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
                   }`}
                 >
-                  Táctico (Difícil)
+                  {tMenu.hard}
                 </button>
               </div>
             </div>
@@ -239,28 +438,28 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             onClick={onOnlineMode} 
             className="stone-button stone-button-blue w-full py-3 text-sm"
           >
-            Salas
+            {tMenu.onlineLobby}
           </button>
 
           <button 
             onClick={() => startGame('p2')} 
             className="stone-button w-full py-3 text-sm"
           >
-            Duelo Local
+            {tMenu.playP2}
           </button>
 
           <button 
             onClick={() => dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' })} 
             className="stone-button w-full py-3 text-sm"
           >
-            Tutorial
+            {tMenu.tutorial}
           </button>
         </div>
       </div>
 
       {/* Footer / Copyright in runic style & Contact */}
       <div className="absolute bottom-4 z-20 flex flex-col items-center gap-1 text-[9px] md:text-xs tracking-widest text-[#9A8B72] font-ancient-header opacity-75">
-        <div>A.D. MMXXVI • ARTEFACTO SAGRADO</div>
+        <div>{tMenu.footer}</div>
         <a 
           href="https://linkedin.com/in/sr-irvin/" 
           target="_blank" 

@@ -268,13 +268,9 @@ const GameUI: React.FC = () => {
       });
     }, []);
 
-    if (!currentPlayer || !opponentPlayer) {
-      return <div className="h-screen w-screen flex items-center justify-center bg-[#2A2A2A] text-[#D8C49A] font-ancient-header text-xl">Invocando el altar...</div>;
-    }
-
-    // Split hand cards for better visual spacing
-    const specialCards = currentPlayer.hand.filter(c => ['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank));
-    const unitCards = currentPlayer.hand.filter(c => !['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)).sort((a,b) => parseInt(a.rank) - parseInt(b.rank));
+    // Split hand cards for better visual spacing safely
+    const specialCards = currentPlayer ? currentPlayer.hand.filter(c => ['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)) : [];
+    const unitCards = currentPlayer ? currentPlayer.hand.filter(c => !['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)).sort((a,b) => parseInt(a.rank) - parseInt(b.rank)) : [];
 
     const groupedSpecialCards = useMemo(() => {
       const groups: Record<string, Card[]> = {};
@@ -352,6 +348,10 @@ const GameUI: React.FC = () => {
             '--drift-x': driftX
         } as React.CSSProperties;
     }, [players, state.winTarget]);
+
+    if (!currentPlayer || !opponentPlayer) {
+      return <div className="h-screen w-screen flex items-center justify-center bg-[#2A2A2A] text-[#D8C49A] font-ancient-header text-xl">Invocando el altar...</div>;
+    }
 
     return (
         <div 

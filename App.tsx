@@ -6,6 +6,7 @@ import OnlineLobby from './components/OnlineLobby';
 import ErrorBoundary from './components/ErrorBoundary';
 import AudioSettings from './components/AudioSettings';
 import { TutorialUI } from './components/TutorialUI';
+import { AdventureMap } from './components/AdventureMap';
 import { 
   addPeerListener, 
   removePeerListener, 
@@ -73,6 +74,13 @@ function AppContent() {
               dispatch({ type: 'SET_GAME_MODE', payload: 'menu' });
             }}
             onGameJoined={handleGameJoined}
+          />
+        );
+      case 'adventure_map':
+        return (
+          <AdventureMap 
+            onBack={() => dispatch({ type: 'SET_GAME_MODE', payload: 'menu' })} 
+            dispatch={dispatch}
           />
         );
       case 'playing':

@@ -127,6 +127,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // Update stats for global ranking for all nicknames
             updatePlayerStats(winnerPlayer.name, true);
             updatePlayerStats(loserPlayer.name, false);
+
+            // Handle adventure level progression
+            if (nextState.gameType === 'adventure' && nextState.winner.id === 0) {
+              const currentLevel = nextState.storyLevel || 1;
+              const nextLevel = currentLevel + 1;
+              const savedUnlocked = parseInt(localStorage.getItem('k_unlocked_story_level') || '1', 10);
+              if (nextLevel > savedUnlocked) {
+                localStorage.setItem('k_unlocked_story_level', String(nextLevel));
+                console.log(`[Adventure] Unlocked level ${nextLevel}`);
+              }
+            }
           }
         } catch (err) {
           console.warn('[Firebase] Failed to save game record or stats:', err);

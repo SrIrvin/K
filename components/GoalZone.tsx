@@ -14,7 +14,7 @@ export const GoalZone: React.FC<GoalZoneProps> = ({ player, isOpponent = false, 
   
   const isLocalTurn = state.gameType === 'online'
       ? state.localPlayerId === state.currentPlayerId
-      : (state.gameType === 'ai' ? state.currentPlayerId === 0 : true);
+      : ((state.gameType === 'ai' || state.gameType === 'adventure') ? state.currentPlayerId === 0 : true);
 
   const handleDirectScore = () => {
       if (canScoreDirectly && isLocalTurn) {

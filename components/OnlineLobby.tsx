@@ -273,6 +273,10 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
         setConnecting(false);
         setActiveRoomId(null);
         setErrorMsg(t('lobby.create_error', 'Error al crear la sala. Prueba de nuevo o revisa tu conexión.'));
+      },
+      // On Open/Ready
+      () => {
+        setConnecting(false);
       }
     );
 

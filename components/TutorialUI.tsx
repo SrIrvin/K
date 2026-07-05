@@ -516,7 +516,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
             <button
               onClick={() => {
                 audioService.playSFX('click');
-                onBack();
+                window.location.href = '/?path=menu&page=menu';
               }}
               className="stone-button py-1 px-3 text-[10px] mb-3 text-[#D8C49A] border-[#8A6938]/60 hover:text-white uppercase font-orbitron tracking-wider flex items-center gap-1"
             >
@@ -590,11 +590,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
               <button 
                 onClick={() => {
                   audioService.playSFX('click');
-                  if (onBack) {
-                    onBack();
-                  } else {
-                    window.location.reload();
-                  }
+                  window.location.href = '/?path=menu&page=menu';
                 }}
                 className="stone-button stone-button-blue py-2 text-xs flex-1 font-bold animate-bounce"
               >

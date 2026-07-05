@@ -275,7 +275,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
 
     const isLocalTurn = state.gameType === 'online'
         ? state.localPlayerId === state.currentPlayerId
-        : (state.gameType === 'ai' ? state.currentPlayerId === 0 : true);
+        : ((state.gameType === 'ai' || state.gameType === 'adventure') ? state.currentPlayerId === 0 : true);
 
     const handleCellInteraction = (row: number, col: number) => {
         if (!isLocalTurn) return;

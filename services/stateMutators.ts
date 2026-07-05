@@ -118,11 +118,13 @@ export const checkForWinner = (state: GameState): GameState => {
   
   if (!player1 || !player2) return state;
 
-  // Rule: A player wins when their opponent accumulates 21 or more points of damage.
-  if (player2.damage >= WIN_DAMAGE) {
+  const target = state.winTarget || WIN_DAMAGE;
+
+  // Rule: A player wins when their opponent accumulates target or more points of damage.
+  if (player2.damage >= target) {
     return { ...state, winner: player1, gameMode: 'game_over' };
   }
-  if (player1.damage >= WIN_DAMAGE) {
+  if (player1.damage >= target) {
     return { ...state, winner: player2, gameMode: 'game_over' };
   }
   

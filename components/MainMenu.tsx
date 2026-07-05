@@ -5,6 +5,7 @@ import {
   logoutUser, 
   subscribeToAuthChanges 
 } from '../services/firebaseService';
+import { audioService } from '../services/audioService';
 
 interface MainMenuProps {
   onOnlineMode: () => void;
@@ -189,6 +190,16 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
 
         {/* Buttons carved in stone */}
         <div className="flex flex-col gap-4 w-full max-w-xs">
+          <button 
+            onClick={() => {
+              audioService.playSFX('click');
+              dispatch({ type: 'SET_GAME_MODE', payload: 'adventure_map' });
+            }}
+            className="stone-button w-full py-3.5 text-sm font-bold text-[#E6C687] bg-gradient-to-r from-[#4d321c] to-[#2c1d10] border-[#D8C49A] hover:from-[#5a3a20] hover:to-[#382414] shadow-[0_0_15px_rgba(216,196,154,0.15)] flex items-center justify-center gap-2"
+          >
+            Campaña
+          </button>
+
           {/* AI Section with Difficulty Selection */}
           <div className="bg-[#1c1812]/90 border border-[#8A6938]/30 rounded-lg p-2.5 flex flex-col gap-2.5 items-center shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
             <button 

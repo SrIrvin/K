@@ -25,6 +25,9 @@ export const gameReducer = (state: GameState, action: Action): GameState => {
     case 'START_GAME':
       return logic.startGame(initialState, action.payload);
 
+    case 'START_ADVENTURE_LEVEL':
+      return logic.startAdventureLevel(initialState, action.payload);
+
     case 'BEGIN_NEW_TURN':
       return logic.beginNewTurn(state);
 
@@ -59,7 +62,10 @@ export const gameReducer = (state: GameState, action: Action): GameState => {
       return logic.drawCard(state);
     
     case 'RESET_TO_MENU': {
-      return initialState;
+      return {
+        ...initialState,
+        gameMode: state.gameType === 'adventure' ? 'adventure_map' : 'menu'
+      };
     }
 
     case 'SET_ONLINE_GAME': {

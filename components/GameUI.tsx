@@ -114,7 +114,7 @@ const GameUI: React.FC = () => {
         if (state.gameType === 'online') {
             return state.localPlayerId ?? 0;
         }
-        if (state.gameType === 'ai') {
+        if (state.gameType === 'ai' || state.gameType === 'adventure') {
             return 0; // Human is always Player 0
         }
         // In local P2, active player changes dynamically with turn
@@ -124,6 +124,20 @@ const GameUI: React.FC = () => {
     const currentPlayer = useMemo(() => players?.[localPlayerIdResolved], [players, localPlayerIdResolved]);
     const opponentPlayer = useMemo(() => players?.[1 - localPlayerIdResolved], [players, localPlayerIdResolved]);
 
+    const guardianQuoteResolved = useMemo(() => {
+        if (state.gameType !== 'adventure' || !state.storyLevel) return undefined;
+        const guardianQuotes = [
+          "¿Eso fue un ataque? Pensé que estabas acomodando las cartas.",
+          "El sol siempre vuelve a levantarse... ¿podrás hacer lo mismo?",
+          "Si llegaste hasta aquí... al menos moriste haciendo ejercicio.",
+          "Toda partida termina igual... solo cambia cuánto tardas en aceptarlo.",
+          "La sangre de los valientes siempre tiene mejor sabor.",
+          "La estrategia puede aprenderse... pero la sabiduría debe ganarse.",
+          "Yo inventé las reglas... ahora intenta vencerme con ellas."
+        ];
+        return guardianQuotes[state.storyLevel - 1];
+    }, [state.gameType, state.storyLevel]);
+
 
     
     const isPlacingCard = !!selectedCardIdInHand && !kingMoveState?.isMoving;
@@ -132,7 +146,7 @@ const GameUI: React.FC = () => {
         if (state.gameType === 'online') {
             return state.localPlayerId === state.currentPlayerId;
         }
-        if (state.gameType === 'ai') {
+        if (state.gameType === 'ai' || state.gameType === 'adventure') {
             return state.currentPlayerId === 0;
         }
         return true;
@@ -144,7 +158,7 @@ const GameUI: React.FC = () => {
         setShowHints(false);
 
         // Do not highlight hints if game is over or if it's the AI's turn
-        if (gameMode !== 'playing' || (state.gameType === 'ai' && currentPlayerId === 1)) {
+        if (gameMode !== 'playing' || ((state.gameType === 'ai' || state.gameType === 'adventure') && currentPlayerId === 1)) {
             return;
         }
 
@@ -171,8 +185,8 @@ const GameUI: React.FC = () => {
 
     // AI thinking effect trigger
     useEffect(() => {
-        // Only run when game is playing, type is AI, and it is the AI's turn (Player 1)
-        if (gameMode !== 'playing' || state.gameType !== 'ai' || currentPlayerId !== 1 || winner) {
+        // Only run when game is playing, type is AI or adventure, and it is the AI's turn (Player 1)
+        if (gameMode !== 'playing' || (state.gameType !== 'ai' && state.gameType !== 'adventure') || currentPlayerId !== 1 || winner) {
             return;
         }
 
@@ -343,7 +357,9 @@ const dustParticles = useMemo(() => {
                         <PlayerPillar 
                           player={opponentPlayer} 
                           isOpponent={true} 
-                          title={state.gameType === 'ai' ? "Fuerza AI" : "Rival"} 
+                          title={(state.gameType === 'ai' || state.gameType === 'adventure') ? "Fuerza AI" : "Rival"} 
+                          winTarget={state.winTarget}
+                          guardianQuote={guardianQuoteResolved}
                         />
                     </div>
 
@@ -746,6 +762,7 @@ const dustParticles = useMemo(() => {
                           <PlayerPillar 
                             player={currentPlayer} 
                             title="Tu Guardián" 
+                            winTarget={state.winTarget}
                           />
                         </div>
 
@@ -779,7 +796,7 @@ const dustParticles = useMemo(() => {
                             ) : (
                               <div className="w-full bg-[#2A2A2A]/20 p-3 rounded-lg border border-[#574d3c]/40 text-center mb-3">
                                 <p className="text-xs text-[#9A8B72] italic uppercase tracking-wider animate-pulse">
-                                  {state.gameType === 'online' ? 'Esperando al rival...' : state.gameType === 'ai' ? 'La IA está decidiendo...' : 'Esperando al rival...'}
+                                  {(state.gameType === 'online') ? 'Esperando al rival...' : (state.gameType === 'ai' || state.gameType === 'adventure') ? 'La IA está decidiendo...' : 'Esperando al rival...'}
                                 </p>
                               </div>
                             )}
@@ -820,6 +837,20 @@ const dustParticles = useMemo(() => {
                                 )}
                               </div>
                             </div>
+
+                            {/* Exit / Forfeit Button */}
+                            <button 
+                              onClick={() => {
+                                audioService.playSFX('click');
+                                if (window.confirm("¿Seguro que deseas retirarte y salir de esta batalla?")) {
+                                  dispatch({ type: 'RESET_TO_MENU' });
+                                }
+                              }}
+                              className="stone-button stone-button-red w-full py-2 mt-4 text-[10px] font-orbitron font-bold tracking-wider hover:bg-red-950/80 border-red-700/60"
+                              style={{ borderBottomWidth: '4px' }}
+                            >
+                              🏳️ Rendirse / Salir
+                            </button>
                         </div>
                     </div>
 
@@ -849,31 +880,36 @@ const dustParticles = useMemo(() => {
             {activeEffect === 'ace_arrow' && <div className="ace-arrow-projectile" />}
 
             {/* Game Over Modal overlay (Runic celebration) */}
-            {gameMode === 'game_over' && winner && (
+            {gameMode === 'game_over' && winner && (() => {
+              const isHumanWinner = winner.id === localPlayerIdResolved;
+              return (
                 <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-50 p-4">
-                  <div className="stone-modal p-8 text-center border-4 border-[#8A6938] max-w-md w-full shadow-[0_0_50px_rgba(216,196,154,0.4)] relative">
+                  <div className={`stone-modal p-8 text-center border-4 ${isHumanWinner ? 'border-[#8A6938]' : 'border-red-900'} max-w-md w-full shadow-[0_0_50px_rgba(216,196,154,0.4)] relative`}>
                     {/* Glowing golden light animation effect */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#8A6938]/10 to-transparent animate-pulse pointer-events-none rounded-lg" />
+                    <div className={`absolute inset-0 bg-gradient-to-t from-transparent ${isHumanWinner ? 'via-[#8A6938]/10' : 'via-red-950/20'} to-transparent animate-pulse pointer-events-none rounded-lg`} />
                     
-                    <h2 className="text-3xl md:text-5xl font-ancient-header text-[#D8C49A] mb-4 tracking-widest animate-bounce">
-                      ¡JUICIO FINAL!
+                    <h2 className={`text-3xl md:text-5xl font-ancient-header ${isHumanWinner ? 'text-[#D8C49A]' : 'text-red-500'} mb-4 tracking-widest animate-bounce`}>
+                      {isHumanWinner ? '¡VICTORIA!' : '¡DERROTA!'}
                     </h2>
-                    <div className="h-1 w-24 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent mx-auto mb-6" />
+                    <div className={`h-1 w-24 bg-gradient-to-r from-transparent ${isHumanWinner ? 'via-[#8A6938]' : 'via-red-800'} to-transparent mx-auto mb-6`} />
                     
-                    <p className="text-lg text-[#9A8B72] tracking-wider mb-2">Victoria del Protector</p>
-                    <p className="text-2xl md:text-3xl font-extrabold font-ancient-header text-[#D8C49A] mb-8 drop-shadow-md">
+                    <p className="text-lg text-[#9A8B72] tracking-wider mb-2">
+                      {isHumanWinner ? 'Has superado el Juicio de Piedra' : 'Has caído ante las fuerzas enemigas'}
+                    </p>
+                    <p className="text-xl font-bold font-ancient-header text-[#D8C49A] mb-8 drop-shadow-md">
                       {winner.name}
                     </p>
                     
                     <button 
                       onClick={() => dispatch({type: 'RESET_TO_MENU'})} 
-                      className="stone-button text-base py-3 px-8 shadow-2xl"
+                      className="stone-button text-base py-3 px-8 shadow-2xl bg-gradient-to-r from-[#D8C49A] to-[#a49479] text-[#1e1a14] font-bold"
                     >
-                      Volver al Templo (Menú)
+                      {state.gameType === 'adventure' ? 'Volver al Mapa de Aventura' : 'Volver al Templo (Menú)'}
                     </button>
                   </div>
                 </div>
-            )}
+              );
+            })()}
 
             {/* Switch Turn device passing modal (Local 2 player) */}
             {gameMode === 'switch_turn' && (

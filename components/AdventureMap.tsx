@@ -16,7 +16,7 @@ interface LevelData {
 const levelsData: LevelData[] = [
   {
     level: 1,
-    name: 'PiscinaDeLaMuerte',
+    name: 'Piscina De La Muerte',
     subtitle: 'El Mercenario Burlón',
     description: 'Un mercenario impredecible que disfruta humillar a sus rivales antes de derrotarlos. Nunca pierde la oportunidad de lanzar una broma o una provocación en medio del combate.\n\n"¿Eso fue un ataque? Pensé que estabas acomodando las cartas."',
     modifiers: [
@@ -230,7 +230,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
           onClick={handleResetProgress}
           className="bg-red-950/20 hover:bg-red-950/70 border border-red-900/50 text-red-300 text-[9px] font-orbitron uppercase py-1.5 px-3 rounded transition-all"
         >
-          ⚙️ Reiniciar
+          Reiniciar
         </button>
       </div>
 
@@ -395,7 +395,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
                   onClick={handleStartBattle}
                   className="stone-button w-full py-3 text-sm text-[#1e1a14] font-bold bg-gradient-to-r from-[#D8C49A] to-[#a49479] hover:from-white hover:to-[#D8C49A] shadow-[0_4px_12px_rgba(216,196,154,0.25)] flex items-center justify-center gap-2"
                 >
-                  ⚔️ INICIAR DESAFÍO
+                  INICIAR DESAFÍO
                 </button>
               </div>
 

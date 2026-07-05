@@ -132,7 +132,7 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
                   title={`${unit.stackedAttackers.length} stacked attacker(s)`} 
                   className="text-[8px] font-bold bg-[#82443A] text-white px-1.5 py-0.2 rounded-full border border-[#D8C49A]/20"
                 >
-                  ⚔️ {unit.stackedAttackers.length}
+                  {unit.stackedAttackers.length}
                 </span>
               )}
             </div>

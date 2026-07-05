@@ -337,17 +337,18 @@ body {
 
 .dust-particle {
   position: absolute;
-  background-color: var(--color-sand);
+  background-color: var(--particle-color, var(--color-sand));
   border-radius: 50%;
   opacity: 0.15;
+  box-shadow: 0 0 8px var(--particle-color, var(--color-sand));
   animation: float-dust 25s infinite linear;
 }
 
 @keyframes float-dust {
-  0% { transform: translateY(105vh) translateX(0) rotate(0deg); opacity: 0; }
+  0% { transform: translateY(var(--drift-start, 105vh)) translateX(0) rotate(0deg); opacity: 0; }
   10% { opacity: 0.15; }
   90% { opacity: 0.15; }
-  100% { transform: translateY(-5vh) translateX(50px) rotate(360deg); opacity: 0; }
+  100% { transform: translateY(var(--drift-end, -5vh)) translateX(var(--drift-x, 50px)) rotate(360deg); opacity: 0; }
 }
 
 /* Card representation styling inside hands */
@@ -959,3 +960,73 @@ body {
   pointer-events: none;
   user-select: none;
 }
+
+/* --- LOW PERFORMANCE / LOW GRAPHICS MODE --- */
+.low-graphics {
+  background: #110e0a !important;
+}
+
+.low-graphics .dust-container,
+.low-graphics .rune-overlay,
+.low-graphics .archaeological-vignette,
+.low-graphics .king-phase-bg-overlay,
+.low-graphics .king-watermark,
+.low-graphics .dust-particle,
+.low-graphics .shake-effect,
+.low-graphics .screenshake,
+.low-graphics .bloodslash,
+.low-graphics .necroticripple,
+.low-graphics .goldflash,
+.low-graphics .goldexpand,
+.low-graphics .mysticglow {
+  display: none !important;
+  animation: none !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+.low-graphics * {
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* --- SMARTPHONE RESPONSIVE MODE OPTIMIZATIONS --- */
+.smartphone-mode .stone-modal {
+  padding: 1rem !important;
+  max-width: 95vw !important;
+}
+
+.smartphone-mode h2 {
+  font-size: 1.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.smartphone-mode .stone-button {
+  padding: 0.4rem 1rem !important;
+  font-size: 11px !important;
+}
+
+.smartphone-mode .grid {
+  gap: 4px !important;
+}
+
+.smartphone-mode .stone-cell-cracked,
+.smartphone-mode .stone-cell-valid,
+.smartphone-mode .stone-cell-target {
+  border-width: 1px !important;
+}
+
+.smartphone-mode .fixed.top-4 {
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+}
+
+.smartphone-mode .p-1.sm\:p-2 {
+  padding: 2px !important;
+}
+

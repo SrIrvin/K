@@ -13,9 +13,31 @@ import {
   cleanupPeer,
   setIncomingActionFlag 
 } from './services/peerService';
+import { 
+  getInitialGraphicsSetting, 
+  applyGraphicsSettings, 
+  applySmartphoneMode 
+} from './utils/graphicsSettings';
 
 function AppContent() {
   const { state, dispatch } = useContext(GameContext);
+
+  // Initialize graphics quality and smartphone mode
+  useEffect(() => {
+    const initGraphicsAndMobile = () => {
+      const initialGraphics = getInitialGraphicsSetting();
+      applyGraphicsSettings(initialGraphics);
+      applySmartphoneMode();
+    };
+
+    initGraphicsAndMobile();
+
+    // Re-check smartphone mode on window resize
+    window.addEventListener('resize', applySmartphoneMode);
+    return () => {
+      window.removeEventListener('resize', applySmartphoneMode);
+    };
+  }, []);
 
   useEffect(() => {
     const handleSocketMessage = (data: any) => {

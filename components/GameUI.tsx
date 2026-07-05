@@ -242,15 +242,13 @@ const GameUI: React.FC = () => {
       return getValidMoves(selectedUnit, board, currentPlayerId);
     }, [selectedUnit, board, currentPlayerId, kingMoveState]);
 
-    // Generate 15 dust particles for background animation
-const dustParticles = useMemo(() => {
+    // Generate 30 dust particles for background animation
+    const dustParticles = useMemo(() => {
       return Array.from({ length: 30 }).map((_, i) => {
         const size = Math.random() * 4 + 1.5;
         const left = Math.random() * 100;
         const delay = Math.random() * 25;
         const duration = Math.random() * 10 + 15;
-        const colors = ['#D8C49A', '#ab3e30', '#8e24aa', '#8A6938'];
-        const color = colors[Math.floor(Math.random() * colors.length)];
         return (
           <div
             key={i}
@@ -259,8 +257,8 @@ const dustParticles = useMemo(() => {
               width: `${size}px`,
               height: `${size}px`,
               left: `${left}%`,
-              backgroundColor: color,
-              boxShadow: `0 0 8px ${color}`,
+              backgroundColor: 'var(--particle-color, #706f6c)',
+              boxShadow: '0 0 8px var(--particle-color, #706f6c)',
               opacity: Math.random() * 0.35 + 0.15,
               animationDelay: `${delay}s`,
               animationDuration: `${duration}s`,
@@ -312,6 +310,49 @@ const dustParticles = useMemo(() => {
         }
     };
 
+    const particleStyles = useMemo(() => {
+        if (!players || players.length < 2) return {};
+        const p0Damage = players[0]?.damage || 0;
+        const p1Damage = players[1]?.damage || 0;
+        const totalDamage = p0Damage + p1Damage;
+        const winTargetValue = state.winTarget || 20;
+
+        // Progress ratio (0 to 1) based on match progression
+        const progress = Math.min(1, totalDamage / (winTargetValue * 1.5));
+
+        // Interpolate color from grey ash (#7a7a7a) to deep red (#ab3e30)
+        const r = Math.round(122 + (171 - 122) * progress);
+        const g = Math.round(122 + (62 - 122) * progress);
+        const b = Math.round(122 + (48 - 122) * progress);
+        const particleColor = `rgb(${r}, ${g}, ${b})`;
+
+        // Drift direction: towards the player with less health (higher damage)
+        // Player 0 is bottom (105vh to -5vh is UP, so to go towards Player 0, drift down: -5vh to 105vh)
+        // Player 1 is top (-5vh to 105vh is DOWN, so to go towards Player 1, drift up: 105vh to -5vh)
+        let driftStart = '105vh';
+        let driftEnd = '-5vh';
+        let driftX = '50px';
+
+        if (p0Damage > p1Damage) {
+            // Player 0 has less health (more damage), so particles drift DOWN
+            driftStart = '-5vh';
+            driftEnd = '105vh';
+            driftX = '-50px';
+        } else if (p1Damage > p0Damage) {
+            // Player 1 has less health (more damage), so particles drift UP
+            driftStart = '105vh';
+            driftEnd = '-5vh';
+            driftX = '50px';
+        }
+
+        return {
+            '--particle-color': particleColor,
+            '--drift-start': driftStart,
+            '--drift-end': driftEnd,
+            '--drift-x': driftX
+        } as React.CSSProperties;
+    }, [players, state.winTarget]);
+
     return (
         <div 
           className="ancient-bg flex h-screen w-screen overflow-hidden text-white relative" 
@@ -320,7 +361,7 @@ const dustParticles = useMemo(() => {
             {/* Visual Overlays */}
             <div className="archaeological-vignette" />
             <div className="rune-overlay" />
-            <div className="dust-container">{dustParticles}</div>
+            <div className="dust-container" style={particleStyles}>{dustParticles}</div>
 
             {/* King's Command Phase Atmospheric Overlays */}
             {state.kingMoveState?.isMoving && (

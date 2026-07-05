@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { audioService } from '../services/audioService';
 import { useTranslation } from 'react-i18next';
+import { getInitialGraphicsSetting, applyGraphicsSettings } from '../utils/graphicsSettings';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -18,6 +19,15 @@ const AudioSettings: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [settings, setSettings] = useState(() => audioService.getSettings());
   const { t, i18n } = useTranslation();
+  const [fancyGraphics, setFancyGraphics] = useState(() => getInitialGraphicsSetting());
+
+  const handleToggleFancyGraphics = () => {
+    audioService.playSFX('click');
+    const newValue = !fancyGraphics;
+    setFancyGraphics(newValue);
+    localStorage.setItem('k_fancy_graphics', String(newValue));
+    applyGraphicsSettings(newValue);
+  };
 
   // Update local state when modifying settings
   const handleToggleSFXMute = () => {
@@ -206,6 +216,32 @@ const AudioSettings: React.FC = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* Graphic Quality Control Row */}
+              <div className="flex items-center gap-3 w-full bg-[#1e1a14]/60 p-3 rounded-lg border border-[#574d3c]/30">
+                <button
+                  onClick={handleToggleFancyGraphics}
+                  className={`w-9 h-9 flex items-center justify-center rounded border transition-colors flex-shrink-0 ${
+                    !fancyGraphics
+                      ? 'border-[#82443a] text-[#82443a] bg-red-950/20'
+                      : 'border-[#8A6938]/60 text-[#D8C49A] bg-[#1e1a14]/40 hover:bg-[#8A6938]/20'
+                  }`}
+                  title={fancyGraphics ? 'Switch to performance mode' : 'Switch to fancy graphics'}
+                >
+                  {fancyGraphics ? '✨' : '⚡'}
+                </button>
+                <div className="flex-grow flex flex-col gap-1">
+                  <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
+                    {t('audio.fancy_graphics')}
+                  </span>
+                  <button
+                    onClick={handleToggleFancyGraphics}
+                    className="text-left bg-[#2c241b] border border-[#8A6938] text-[#D8C49A] font-bold text-xs px-2 py-1.5 rounded w-full focus:outline-none focus:ring-1 focus:ring-[#D8C49A] cursor-pointer hover:bg-[#3d3228]"
+                  >
+                    {fancyGraphics ? t('audio.fancy_graphics_on') : t('audio.fancy_graphics_off')}
+                  </button>
                 </div>
               </div>
             </div>

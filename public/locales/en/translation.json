@@ -71,6 +71,9 @@
     "sfx": "Effects (SFX)",
     "bgm": "Music (BGM)",
     "lang_label": "Language",
+    "fancy_graphics": "Graphic Quality",
+    "fancy_graphics_on": "High Quality (With effects)",
+    "fancy_graphics_off": "Low Performance Mode (Fast)",
     "close": "CLOSE"
   },
   "game_ui": {

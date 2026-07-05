@@ -20,180 +20,29 @@ const languages = [
   { code: 'nah', name: 'Nāhuatl' }
 ];
 
-const menuTranslations: Record<string, Record<string, string>> = {
-  es: {
-    subtitle: "DUELO ESTRATÉGICO",
-    tagline: "Las runas del pasado despiertan en el tablero. Solo uno de los guerreros sobrevivirá al juicio de piedra.",
-    nicknameLabel: "Tu Nombre de Héroe (Nickname)",
-    nicknamePlaceholder: "Escribe tu apodo...",
-    googleConnect: "Conectar con Google",
-    logout: "Cerrar Sesión",
-    campaign: "Campaña",
-    playAi: "Desafiar a la IA",
-    aiDifficulty: "Dificultad IA:",
-    easy: "Aprendiz (Fácil)",
-    hard: "Táctico (Difícil)",
-    onlineLobby: "Salas",
-    playP2: "Duelo Local",
-    tutorial: "Tutorial",
-    footer: "A.D. MMXXVI • ARTEFACTO SAGRADO",
-    defaultHero: "Héroe"
-  },
-  en: {
-    subtitle: "STRATEGIC CARD DUEL",
-    tagline: "The runes of the past awaken on the board. Only one warrior will survive the trial of stone.",
-    nicknameLabel: "Your Hero Name (Nickname)",
-    nicknamePlaceholder: "Write your nickname...",
-    googleConnect: "Connect with Google",
-    logout: "Log Out",
-    campaign: "Campaign",
-    playAi: "Challenge the AI",
-    aiDifficulty: "AI Difficulty:",
-    easy: "Apprentice (Easy)",
-    hard: "Tactician (Hard)",
-    onlineLobby: "Lobbies",
-    playP2: "Local Duel",
-    tutorial: "Tutorial",
-    footer: "A.D. MMXXVI • SACRED ARTIFACT",
-    defaultHero: "Hero"
-  },
-  zh: {
-    subtitle: "战略卡牌对决",
-    tagline: "过去的符文在棋盘上苏醒。只有一位战士能从石之审判中幸存。",
-    nicknameLabel: "你的英雄名字（昵称）",
-    nicknamePlaceholder: "写下你的昵称...",
-    googleConnect: "使用 Google 连接",
-    logout: "登出",
-    campaign: "战役模式",
-    playAi: "挑战 AI",
-    aiDifficulty: "AI 难度：",
-    easy: "学徒（简单）",
-    hard: "战术家（困难）",
-    onlineLobby: "大厅",
-    playP2: "本地对决",
-    tutorial: "新手教程",
-    footer: "公元 MMXXVI • 神圣神器",
-    defaultHero: "英雄"
-  },
-  fr: {
-    subtitle: "DUEL DE CARTES STRATÉGIQUE",
-    tagline: "Les runes du passé s'éveillent sur le plateau. Un seul guerrier survivra à l'épreuve de pierre.",
-    nicknameLabel: "Votre nom de héros (Pseudo)",
-    nicknamePlaceholder: "Écrivez votre pseudo...",
-    googleConnect: "Se connecter avec Google",
-    logout: "Se déconnecter",
-    campaign: "Campagne",
-    playAi: "Défier l'IA",
-    aiDifficulty: "Difficulté IA :",
-    easy: "Apprenti (Facile)",
-    hard: "Tacticien (Difficile)",
-    onlineLobby: "Salons",
-    playP2: "Duel Local",
-    tutorial: "Tutoriel",
-    footer: "A.D. MMXXVI • ARTEFACT SACRÉ",
-    defaultHero: "Héros"
-  },
-  it: {
-    subtitle: "DUELLO DI CARTE STRATEGICO",
-    tagline: "Le rune del passato si risvegliano sulla tavola. Solo un guerriero sopravvivrà alla prova di pietra.",
-    nicknameLabel: "Nome del tuo eroe (Soprannome)",
-    nicknamePlaceholder: "Scrivi il tuo soprannome...",
-    googleConnect: "Connettiti con Google",
-    logout: "Disconnettersi",
-    campaign: "Campagna",
-    playAi: "Sfida l'IA",
-    aiDifficulty: "Difficoltà IA:",
-    easy: "Apprendista (Facile)",
-    hard: "Tattico (Difficile)",
-    onlineLobby: "Stanze",
-    playP2: "Duello Locale",
-    tutorial: "Tutorial",
-    footer: "A.D. MMXXVI • ARTEFATTO SACRO",
-    defaultHero: "Eroe"
-  },
-  pt: {
-    subtitle: "DUELO DE CARTAS ESTRATÉGICO",
-    tagline: "As runas do passado despertam no tabuleiro. Apenas um guerreiro sobreviverá ao julgamento de pedra.",
-    nicknameLabel: "Seu Nome de Herói (Apelido)",
-    nicknamePlaceholder: "Escreva seu apelido...",
-    googleConnect: "Conectar com Google",
-    logout: "Encerrar Sessão",
-    campaign: "Campanha",
-    playAi: "Desafiar a IA",
-    aiDifficulty: "Dificuldade da IA:",
-    easy: "Aprendiz (Fácil)",
-    hard: "Tático (Difícil)",
-    onlineLobby: "Salas",
-    playP2: "Duelo Local",
-    tutorial: "Tutorial",
-    footer: "A.D. MMXXVI • ARTEFATO SAGRADO",
-    defaultHero: "Herói"
-  },
-  ru: {
-    subtitle: "СТРАТЕГИЧЕСКАЯ КАРТОЧНАЯ ДУЭЛЬ",
-    tagline: "Руны прошлого пробуждаются на доске. Только один воин выживет в каменном испытании.",
-    nicknameLabel: "Имя героя (Никнейм)",
-    nicknamePlaceholder: "Введите никнейм...",
-    googleConnect: "Войти через Google",
-    logout: "Выйти",
-    campaign: "Кампания",
-    playAi: "Бросить вызов ИИ",
-    aiDifficulty: "Сложность ИИ:",
-    easy: "Ученик (Легко)",
-    hard: "Тактик (Сложно)",
-    onlineLobby: "Лобби",
-    playP2: "Локальный дуэль",
-    tutorial: "Обучение",
-    footer: "A.D. MMXXVI • СВЯЩЕННЫЙ АРТЕФАКТ",
-    defaultHero: "Герой"
-  },
-  ar: {
-    subtitle: "مبارزة البطاقات الاستراتيجية",
-    tagline: "تستيقظ رونية الماضي على اللوحة. محارب واحد فقط سينجو من محاكمة الحجر.",
-    nicknameLabel: "اسم بطلك (اللقب)",
-    nicknamePlaceholder: "اكتب لقبك...",
-    googleConnect: "الاتصال بـ Google",
-    logout: "تسجيل الخروج",
-    campaign: "الحملة",
-    playAi: "تحدي الذكاء الاصطناعي",
-    aiDifficulty: "صعوبة الذكاء الاصطناعي:",
-    easy: "مبتدئ (سهل)",
-    hard: "تكتيكي (صعب)",
-    onlineLobby: "الغرف",
-    playP2: "مبارزة محلية",
-    tutorial: "البرنامج التعليمي",
-    footer: "عام ٢٠٢٦ ميلادي • أثر مقدس",
-    defaultHero: "بطل"
-  },
-  nah: {
-    subtitle: "TLAMACHILIZTLAHTOLLI TEPALCATL",
-    tagline: "In machiyotl tlein achtopa ehuac ihzatihqueh ipan tlapechtli. Zan ce yaotl ehuaz itech tetlixoxouhqui.",
-    nicknameLabel: "Motocah Yaotl (Apodo)",
-    nicknamePlaceholder: "Tlahcuiloh motonal...",
-    googleConnect: "Tlaneltilia ica Google",
-    logout: "Tzacuaz nehnemiliztli",
-    campaign: "Yaotlacuilolli",
-    playAi: "Tlatehuia Ixcahualli (IA)",
-    aiDifficulty: "Chicoahualiztli IA:",
-    easy: "Momachtiani (Yamanqui)",
-    hard: "Tlamachtiloni (Ohuih)",
-    onlineLobby: "Calpolli",
-    playP2: "Nican Yaotl",
-    tutorial: "Tlamachtiliztli",
-    footer: "A.D. MMXXVI • YOLTOXTLI SACRADO",
-    defaultHero: "Yaotl"
-  }
-};
-
-interface MainMenuProps {
-  onOnlineMode: () => void;
-}
-
 const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const { dispatch } = useContext(GameContext);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const { i18n } = useTranslation();
-  const tMenu = menuTranslations[i18n.language] || menuTranslations['en'];
+  const { t, i18n } = useTranslation();
+  
+  const tMenu = {
+    subtitle: t('menu.subtitle'),
+    tagline: t('menu.tagline'),
+    nicknameLabel: t('menu.nickname_label'),
+    nicknamePlaceholder: t('menu.nickname_placeholder'),
+    googleConnect: t('menu.google_connect'),
+    logout: t('menu.logout'),
+    campaign: t('menu.campaign'),
+    playAi: t('menu.play_ai'),
+    aiDifficulty: t('menu.ai_difficulty'),
+    easy: t('menu.easy'),
+    hard: t('menu.hard'),
+    onlineLobby: t('menu.online_lobby'),
+    playP2: t('menu.play_p2'),
+    tutorial: t('menu.tutorial'),
+    footer: t('menu.footer'),
+    defaultHero: t('menu.default_hero')
+  };
   
   const [playerName, setPlayerName] = useState(() => {
     return localStorage.getItem('k_player_name') || `${tMenu.defaultHero || 'Hero'}_${Math.floor(1000 + Math.random() * 9000)}`;

@@ -47,5 +47,46 @@
     "K": "Dica: Planeje com antecedência! Extremamente poderoso para avanços coordenados de grupo, mas falhar em mover qualquer unidade resultará em seu sacrifício imediato.",
     "A": "Dica: Ideal para desferir o golpe final quando seu oponente estiver com pouca vida e suas unidades estiverem muito longe da linha de chegada.",
     "Joker": "Dica: Sua ferramenta definitiva de controle. Mantenha em reserva para deletar instantaneamente a unidade pesada inimiga mais perigosa logo antes de marcarem."
+  },
+  "menu": {
+    "subtitle": "DUELO DE CARTAS ESTRATÉGICO",
+    "tagline": "As runas do passado despertam no tabuleiro. Apenas um guerreiro sobreviverá ao julgamento de pedra.",
+    "nickname_label": "Seu Nome de Herói (Apelido)",
+    "nickname_placeholder": "Escreva seu apelido...",
+    "google_connect": "Conectar com Google",
+    "logout": "Encerrar Sessão",
+    "campaign": "Campanha",
+    "play_ai": "Desafiar a IA",
+    "ai_difficulty": "Dificuldade da IA:",
+    "easy": "Aprendiz (Fácil)",
+    "hard": "Tático (Difícil)",
+    "online_lobby": "Salas",
+    "play_p2": "Duelo Local",
+    "tutorial": "Tutorial",
+    "footer": "A.D. MMXXVI • ARTEFATO SAGRADO",
+    "default_hero": "Herói"
+  },
+  "audio": {
+    "title": "AJUSTES DO JOGO",
+    "sfx": "Efeitos (SFX)",
+    "bgm": "Música (BGM)",
+    "lang_label": "Idioma",
+    "close": "FECHAR"
+  },
+  "game_ui": {
+    "end_turn": "Fim Turno",
+    "finish_turn": "Terminar Turno",
+    "next_turn_of": "Próximo Turno de",
+    "take_tablet": "Pegar Tablet (Iniciar Turno)",
+    "pass_tablet": "ENTREGAR TABLET",
+    "victory": "VITÓRIA!",
+    "defeat": "DERROTA!",
+    "victory_sub": "Você superou o Julgamento de Pedra",
+    "defeat_sub": "Você caiu diante das forças inimigas",
+    "surrender_quit": "🏳️ Render-se / Sair",
+    "back_to_map": "Voltar para o Mapa",
+    "back_to_menu": "Voltar para o Templo (Menu)",
+    "chronicle": "📜 CRÔNICA DO DUELO 📜",
+    "no_logs": "As pedras sagradas ainda não registram combates..."
   }
 }

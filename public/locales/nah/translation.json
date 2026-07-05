@@ -47,5 +47,46 @@
     "K": "Tlanechicolli: Cualtzin ic tiquiyacana nochi friendly units, yece tla ahmo quinihnia mopolozque.",
     "A": "Tlanechicolli: Cualtzin ic ticmaca final blow tla enemy player quipia low health.",
     "Joker": "Tlanechicolli: In tlen hueli quipoloa enemy units niman. Xicpia ic ticpoloz enemy's 10 unit."
+  },
+  "menu": {
+    "subtitle": "TLAMACHILIZTLAHTOLLI TEPALCATL",
+    "tagline": "In machiyotl tlein achtopa ehuac ihzatihqueh ipan tlapechtli. Zan ce yaotl ehuaz itech tetlixoxouhqui.",
+    "nickname_label": "Motocah Yaotl (Apodo)",
+    "nickname_placeholder": "Tlahcuiloh motonal...",
+    "google_connect": "Tlaneltilia ica Google",
+    "logout": "Tzacuaz nehnemiliztli",
+    "campaign": "Yaotlacuilolli",
+    "play_ai": "Tlatehuia Ixcahualli (IA)",
+    "ai_difficulty": "Chicoahualiztli IA:",
+    "easy": "Momachtiani (Yamanqui)",
+    "hard": "Tlamachtiloni (Ohuih)",
+    "online_lobby": "Calpolli",
+    "play_p2": "Nican Yaotl",
+    "tutorial": "Tlamachtiliztli",
+    "footer": "A.D. MMXXVI • YOLTOXTLI SACRADO",
+    "default_hero": "Yaotl"
+  },
+  "audio": {
+    "title": "TLAYECTLALILIZTLI",
+    "sfx": "Tepozcacuica (SFX)",
+    "bgm": "Tepozcuica (BGM)",
+    "lang_label": "Tlahtolli",
+    "close": "TZACUA"
+  },
+  "game_ui": {
+    "end_turn": "Fin Turno",
+    "finish_turn": "Tzacuaz Turno",
+    "next_turn_of": "Niman Turno",
+    "take_tablet": "Ana Amatl (Pehuaz Turno)",
+    "pass_tablet": "TEMACA AMATL",
+    "victory": "¡VIC-TLACUILOLI!",
+    "defeat": "¡POLOLI!",
+    "victory_sub": "Tictlan tetlixoxouhqui trial",
+    "defeat_sub": "Tipoloque canahpa enemy units",
+    "surrender_quit": "🏳️ Surrender / Quit",
+    "back_to_map": "Niman Aventura Map",
+    "back_to_menu": "Niman Templo (Menu)",
+    "chronicle": "📜 YAOTLACUILOLI CRÓNICA 📜",
+    "no_logs": "Tetl ahmo quipia yaotl log..."
   }
 }

@@ -14,27 +14,10 @@ const languages = [
   { code: 'nah', name: 'Nāhuatl' }
 ];
 
-const getTranslation = (lang: string) => {
-  const translations: Record<string, { title: string; sfx: string; bgm: string; langLabel: string; close: string }> = {
-    es: { title: 'AJUSTES DEL JUEGO', sfx: 'Efectos (SFX)', bgm: 'Música (BGM)', langLabel: 'Idioma', close: 'CERRAR' },
-    en: { title: 'GAME SETTINGS', sfx: 'Effects (SFX)', bgm: 'Music (BGM)', langLabel: 'Language', close: 'CLOSE' },
-    fr: { title: 'PARAMÈTRES DU JEU', sfx: 'Effets (SFX)', bgm: 'Musique (BGM)', langLabel: 'Langue', close: 'FERMER' },
-    it: { title: 'IMPOSTAZIONI GIOCO', sfx: 'Effetti (SFX)', bgm: 'Musica (BGM)', langLabel: 'Lingua', close: 'CHIUDI' },
-    pt: { title: 'AJUSTES DO JOGO', sfx: 'Efeitos (SFX)', bgm: 'Música (BGM)', langLabel: 'Idioma', close: 'FECHAR' },
-    ru: { title: 'НАСТРОЙКИ ИГРЫ', sfx: 'Эффекты (SFX)', bgm: 'Музыка (BGM)', langLabel: 'Язык', close: 'ЗАКРЫТЬ' },
-    zh: { title: '游戏设置', sfx: '音效 (SFX)', bgm: '音乐 (BGM)', langLabel: '语言', close: '关闭' },
-    ar: { title: 'إعدادات اللعبة', sfx: 'المؤثرات (SFX)', bgm: 'الموسيقى (BGM)', langLabel: 'اللغة', close: 'إغلاق' },
-    nah: { title: 'TLAYECTLALILIZTLI', sfx: 'Tepozcacuica (SFX)', bgm: 'Tepozcuica (BGM)', langLabel: 'Tlahtolli', close: 'TZACUA' }
-  };
-  return translations[lang] || translations['en'];
-};
-
 const AudioSettings: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [settings, setSettings] = useState(() => audioService.getSettings());
-  const { i18n } = useTranslation();
-
-  const localTexts = getTranslation(i18n.language);
+  const { t, i18n } = useTranslation();
 
   // Update local state when modifying settings
   const handleToggleSFXMute = () => {
@@ -109,7 +92,7 @@ const AudioSettings: React.FC = () => {
           {/* Stone carved panel */}
           <div className="relative w-full max-w-sm p-6 md:p-8 stone-modal text-white text-center animate-scaleUp">
             <h2 className="text-2xl font-ancient-header tracking-wider text-[#D8C49A] mb-1">
-              {localTexts.title}
+              {t('audio.title')}
             </h2>
             <div className="h-0.5 w-20 mx-auto bg-gradient-to-r from-transparent via-[#8A6938] to-transparent mb-6" />
 
@@ -137,7 +120,7 @@ const AudioSettings: React.FC = () => {
                 </button>
                 <div className="flex-grow flex flex-col gap-1">
                   <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
-                    {localTexts.sfx}
+                    {t('audio.sfx')}
                   </span>
                   <div className="flex items-center gap-3">
                     <input
@@ -180,7 +163,7 @@ const AudioSettings: React.FC = () => {
                 </button>
                 <div className="flex-grow flex flex-col gap-1">
                   <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
-                    {localTexts.bgm}
+                    {t('audio.bgm')}
                   </span>
                   <div className="flex items-center gap-3">
                     <input
@@ -207,7 +190,7 @@ const AudioSettings: React.FC = () => {
                 </span>
                 <div className="flex-grow flex flex-col gap-1">
                   <span className="font-ancient-header text-[10px] md:text-xs tracking-wider text-[#9A8B72] uppercase">
-                    {localTexts.langLabel}
+                    {t('audio.lang_label')}
                   </span>
                   <select
                     value={i18n.language}
@@ -231,7 +214,7 @@ const AudioSettings: React.FC = () => {
               onClick={handleClosePanel}
               className="stone-button stone-button-red px-8 py-2 text-sm"
             >
-              {localTexts.close}
+              {t('audio.close')}
             </button>
           </div>
         </div>

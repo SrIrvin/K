@@ -47,5 +47,46 @@
     "K": "Consejo: ¡Planifica bien! Es devastadora para avanzar en masa o presionar un touchdown, pero debes mover cada unidad o serán eliminadas.",
     "A": "Consejo: Excelente para dar el golpe de gracia cuando al oponente le queden pocos puntos de vida y tus unidades no puedan cruzar el tablero.",
     "Joker": "Consejo: El recurso definitivo de control. Consérvala para neutralizar instantáneamente la unidad pesada enemiga más peligrosa que esté a punto de anotar."
+  },
+  "menu": {
+    "subtitle": "DUELO ESTRATÉGICO",
+    "tagline": "Las runas del pasado despiertan en el tablero. Solo uno de los guerreros sobrevivirá al juicio de piedra.",
+    "nickname_label": "Tu Nombre de Héroe (Nickname)",
+    "nickname_placeholder": "Escribe tu apodo...",
+    "google_connect": "Conectar con Google",
+    "logout": "Cerrar Sesión",
+    "campaign": "Campaña",
+    "play_ai": "Desafiar a la IA",
+    "ai_difficulty": "Dificultad IA:",
+    "easy": "Aprendiz (Fácil)",
+    "hard": "Táctico (Difícil)",
+    "online_lobby": "Salas",
+    "play_p2": "Duelo Local",
+    "tutorial": "Tutorial",
+    "footer": "A.D. MMXXVI • ARTEFACTO SAGRADO",
+    "default_hero": "Héroe"
+  },
+  "audio": {
+    "title": "AJUSTES DEL JUEGO",
+    "sfx": "Efectos (SFX)",
+    "bgm": "Música (BGM)",
+    "lang_label": "Idioma",
+    "close": "CERRAR"
+  },
+  "game_ui": {
+    "end_turn": "Fin Turno",
+    "finish_turn": "Terminar Turno",
+    "next_turn_of": "Siguiente Turno de",
+    "take_tablet": "Tomar Tablilla (Iniciar Turno)",
+    "pass_tablet": "ENTREGAR TABLILLA",
+    "victory": "¡VICTORIA!",
+    "defeat": "¡DERROTA!",
+    "victory_sub": "Has superado el Juicio de Piedra",
+    "defeat_sub": "Has caído ante las fuerzas enemigas",
+    "surrender_quit": "🏳️ Rendirse / Salir",
+    "back_to_map": "Volver al Mapa de Aventura",
+    "back_to_menu": "Volver al Templo (Menú)",
+    "chronicle": "📜 CRÓNICA DEL DUELO 📜",
+    "no_logs": "Las piedras sagradas aún no registran combates..."
   }
 }

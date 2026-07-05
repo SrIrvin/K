@@ -47,5 +47,46 @@
     "K": "提示：提前规划！对协调的协同推进行动极其强大，但若未能移动每一个单位将导致它们立刻被献祭。",
     "A": "提示：当对手生命值较低，而你的单位距离得分线太远时，是给予终结一击的完美选择。",
     "Joker": "提示：终极的控制手段。留在手中，在对手最危险的重型单位即将得分的最后一刻将其秒杀。"
+  },
+  "menu": {
+    "subtitle": "战略卡牌对决",
+    "tagline": "过去的符文在棋盘上苏醒。只有一位战士能从石之审判中幸存。",
+    "nickname_label": "你的英雄名字（昵称）",
+    "nickname_placeholder": "写下你的昵称...",
+    "google_connect": "使用 Google 连接",
+    "logout": "登出",
+    "campaign": "战役模式",
+    "play_ai": "挑战 AI",
+    "ai_difficulty": "AI 难度：",
+    "easy": "学徒（简单）",
+    "hard": "战术家（困难）",
+    "online_lobby": "大厅",
+    "play_p2": "本地对决",
+    "tutorial": "新手教程",
+    "footer": "公元 MMXXVI • 神圣神器",
+    "default_hero": "英雄"
+  },
+  "audio": {
+    "title": "游戏设置",
+    "sfx": "音效 (SFX)",
+    "bgm": "音乐 (BGM)",
+    "lang_label": "语言",
+    "close": "关闭"
+  },
+  "game_ui": {
+    "end_turn": "结束回合",
+    "finish_turn": "结束回合",
+    "next_turn_of": "下一回合玩家：",
+    "take_tablet": "接下石板 (开始回合)",
+    "pass_tablet": "传递石板",
+    "victory": "胜利！",
+    "defeat": "失败！",
+    "victory_sub": "你已通过了石之审判",
+    "defeat_sub": "你已被敌方击败",
+    "surrender_quit": "🏳️ 投降 / 退出",
+    "back_to_map": "返回战役地图",
+    "back_to_menu": "返回大厅 (菜单)",
+    "chronicle": "📜 决斗编年史 📜",
+    "no_logs": "神圣的石碑尚未记录任何战斗..."
   }
 }

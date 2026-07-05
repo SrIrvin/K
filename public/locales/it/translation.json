@@ -47,5 +47,46 @@
     "K": "Suggerimento: Pianifica in anticipo! Estremamente potente per avanzate di gruppo coordinate, ma la mancata mossa di qualsiasi unità comporterà il suo sacrificio immediato.",
     "A": "Suggerimento: Ideale per infliggere il colpo finale quando il tuo avversario ha poca salute e le tue unità sono troppo lontane dalla linea di meta.",
     "Joker": "Suggerimento: Il tuo strumento di controllo definitivo. Tienilo di riserva per eliminare istantaneamente l'unità pesante nemica più pericolosa subito prima che segni."
+  },
+  "menu": {
+    "subtitle": "DUELLO DI CARTE STRATEGICO",
+    "tagline": "Le rune del passato si risvegliano sulla tavola. Solo un guerriero sopravvivrà alla prova di pietra.",
+    "nickname_label": "Nome del tuo eroe (Soprannome)",
+    "nickname_placeholder": "Scrivi il tuo soprannome...",
+    "google_connect": "Connettiti con Google",
+    "logout": "Disconnettersi",
+    "campaign": "Campagna",
+    "play_ai": "Sfida l'IA",
+    "ai_difficulty": "Difficoltà IA:",
+    "easy": "Apprendista (Facile)",
+    "hard": "Tattico (Difficile)",
+    "online_lobby": "Stanze",
+    "play_p2": "Duello Locale",
+    "tutorial": "Tutorial",
+    "footer": "A.D. MMXXVI • ARTEFATTO SACRO",
+    "default_hero": "Eroe"
+  },
+  "audio": {
+    "title": "IMPOSTAZIONI GIOCO",
+    "sfx": "Effetti (SFX)",
+    "bgm": "Musica (BGM)",
+    "lang_label": "Lingua",
+    "close": "CHIUDI"
+  },
+  "game_ui": {
+    "end_turn": "Fine Turno",
+    "finish_turn": "Termina Turno",
+    "next_turn_of": "Turno Successivo di",
+    "take_tablet": "Prendi la Tavoletta (Inizia Turno)",
+    "pass_tablet": "CONSEGNA TAVOLETTA",
+    "victory": "VITTORIA!",
+    "defeat": "SCONFITTA!",
+    "victory_sub": "Hai superato la Prova di Pietra",
+    "defeat_sub": "Sei caduto davanti alle forze nemiche",
+    "surrender_quit": "🏳️ Arrenditi / Esci",
+    "back_to_map": "Torna alla Mappa",
+    "back_to_menu": "Torna al Tempio (Menu)",
+    "chronicle": "📜 CRONACA DEL DUELLO 📜",
+    "no_logs": "Le pietre sacre non registrano ancora battaglie..."
   }
 }

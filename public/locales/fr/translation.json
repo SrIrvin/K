@@ -47,5 +47,46 @@
     "K": "Conseil : Planifiez à l'avance ! Extrêmement puissant pour des avancées de groupe coordonnées, mais ne pas déplacer une unité entraînera son sacrifice immédiat.",
     "A": "Conseil : Idéal pour porter le coup de grâce lorsque votre adversaire a peu de points de vie et que vos unités sont trop loin de la ligne de but.",
     "Joker": "Conseil : Votre outil de contrôle ultime. Gardez-le en réserve pour supprimer instantanément l'unité lourde ennemie la plus dangereuse juste avant qu'elle ne marque."
+  },
+  "menu": {
+    "subtitle": "DUEL DE CARTES STRATÉGIQUE",
+    "tagline": "Les runes du passé s'éveillent sur le plateau. Un seul guerrier survivra à l'épreuve de pierre.",
+    "nickname_label": "Votre nom de héros (Pseudo)",
+    "nickname_placeholder": "Écrivez votre pseudo...",
+    "google_connect": "Se connecter avec Google",
+    "logout": "Se déconnecter",
+    "campaign": "Campagne",
+    "play_ai": "Défier l'IA",
+    "ai_difficulty": "Difficulté IA :",
+    "easy": "Apprenti (Facile)",
+    "hard": "Tacticien (Difficile)",
+    "online_lobby": "Salons",
+    "play_p2": "Duel Local",
+    "tutorial": "Tutoriel",
+    "footer": "A.D. MMXXVI • ARTEFACT SACRÉ",
+    "default_hero": "Héros"
+  },
+  "audio": {
+    "title": "PARAMÈTRES DU JEU",
+    "sfx": "Effets (SFX)",
+    "bgm": "Musique (BGM)",
+    "lang_label": "Langue",
+    "close": "FERMER"
+  },
+  "game_ui": {
+    "end_turn": "Fin Tour",
+    "finish_turn": "Terminer le Tour",
+    "next_turn_of": "Tour Suivant de",
+    "take_tablet": "Prendre la Tablette (Démarrer)",
+    "pass_tablet": "PASSER LA TABLETTE",
+    "victory": "VICTOIRE !",
+    "defeat": "DÉFAITE !",
+    "victory_sub": "Vous avez surmonté l'Épreuve de Pierre",
+    "defeat_sub": "Vous êtes tombé face aux forces ennemies",
+    "surrender_quit": "🏳️ Se Rendre / Quitter",
+    "back_to_map": "Retour à la Carte",
+    "back_to_menu": "Retour au Temple (Menu)",
+    "chronicle": "📜 CHRONIQUE DU DUEL 📜",
+    "no_logs": "Les pierres sacrées n'enregistrent pas encore de combats..."
   }
 }

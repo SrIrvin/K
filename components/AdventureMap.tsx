@@ -236,21 +236,21 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
           }}
           className="stone-button py-1.5 px-4 text-xs font-bold text-[#D8C49A] hover:text-white"
         >
-          Menú Principal
+          {activeTranslation.ui.backBtn}
         </button>
         <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-ancient-header tracking-wider text-[#D8C49A] mb-0.5">
-            MODO AVENTURA
+            {activeTranslation.ui.title}
           </h1>
           <p className="text-[10px] md:text-xs font-orbitron uppercase text-[#9A8B72] tracking-widest">
-            El camino del comandante K
+            {activeTranslation.ui.subtitle}
           </p>
         </div>
         <button
           onClick={handleResetProgress}
           className="bg-red-950/20 hover:bg-red-950/70 border border-red-900/50 text-red-300 text-[9px] font-orbitron uppercase py-1.5 px-3 rounded transition-all"
         >
-          Reiniciar
+          {activeTranslation.ui.resetBtn}
         </button>
       </div>
 
@@ -277,7 +277,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
             </svg>
 
             {/* Portals mapping */}
-            {levelsData.map((lvl) => {
+            {translatedLevels.map((lvl) => {
               const isUnlocked = lvl.level <= unlockedLevel;
               const isCompleted = lvl.level < unlockedLevel;
               const isActive = lvl.level === unlockedLevel;
@@ -341,7 +341,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
 
                   {/* Level Tooltip label */}
                   <div className="mt-1 px-1.5 py-0.5 rounded bg-black/80 border border-[#574d3c]/40 text-[8px] md:text-[9px] text-[#D8C49A] tracking-wider text-center max-w-[85px] pointer-events-none shadow-md whitespace-nowrap">
-                    P{lvl.level}: {lvl.name}
+                    P{lvl.level}: {lvl.displayName}
                   </div>
                 </div>
               );
@@ -352,32 +352,32 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
         {/* Selected Portal Detail panel */}
         <div className="w-full md:w-80 bg-[#120f0b]/90 border border-[#574d3c]/80 rounded-xl p-5 md:p-6 flex flex-col justify-between shadow-[0_10px_25px_rgba(0,0,0,0.6)] relative overflow-hidden">
           
-          {selectedLevel ? (
+          {selectedLevelResolved ? (
             <div className="flex flex-col h-full justify-between">
               
               {/* Level summary */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-orbitron font-bold text-cyan-400 tracking-widest uppercase">
-                    Portal de Batalla {selectedLevel.level}
+                    {activeTranslation.ui.portalLabel} {selectedLevelResolved.level}
                   </span>
                   <span className="text-[9px] font-mono text-[#9A8B72]">
-                    Meta: {selectedLevel.winTarget} pts
+                    {activeTranslation.ui.targetLabel}: {selectedLevelResolved.winTarget} pts
                   </span>
                 </div>
                 
                 <h2 className="text-xl md:text-2xl font-ancient-header text-[#D8C49A] leading-tight">
-                  {selectedLevel.name}
+                  {selectedLevelResolved.displayName}
                 </h2>
                 <p className="text-[11px] text-[#9A8B72] italic font-runic-text mb-2 text-center">
-                  "{selectedLevel.subtitle}"
+                  "{selectedLevelResolved.subtitle}"
                 </p>
                 
                 {/* Guardian Portrait */}
                 <div className="w-full flex justify-center mb-3">
                   <img 
                     src={`/images/history/${selectedLevel.name}.png`} 
-                    alt={selectedLevel.subtitle} 
+                    alt={selectedLevelResolved.subtitle} 
                     className="w-24 h-24 rounded-lg border-2 border-[#8A6938] object-cover shadow-[0_4px_10px_rgba(0,0,0,0.5)] bg-[#120f0b] animate-fade-in"
                   />
                 </div>
@@ -385,16 +385,16 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
                 <div className="h-px bg-gradient-to-r from-transparent via-[#8A6938]/60 to-transparent my-2" />
                 
                 <p className="text-xs text-[#D8C49A]/80 leading-relaxed mb-4">
-                  {selectedLevel.description}
+                  {selectedLevelResolved.description}
                 </p>
 
                 {/* Modifiers List */}
                 <div className="bg-[#1c1712]/90 border border-[#8A6938]/30 rounded-lg p-3 shadow-inner">
                   <h3 className="text-[9px] font-orbitron font-bold text-[#E6C687] uppercase tracking-widest mb-1.5">
-                    Modificadores del Portal
+                    {activeTranslation.ui.modifiersTitle}
                   </h3>
                   <ul className="flex flex-col gap-1 text-[10px] text-[#D8C49A]/95 list-none pl-0">
-                    {selectedLevel.modifiers.map((mod, index) => (
+                    {selectedLevelResolved.modifiers.map((mod, index) => (
                       <li key={index} className="flex gap-1.5 items-start">
                         <span className="text-amber-500/80 shrink-0">✦</span>
                         <span>{mod}</span>
@@ -407,15 +407,15 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
               {/* Action Button */}
               <div className="mt-6 flex flex-col gap-2.5">
                 <div className="flex justify-between text-[10px] font-orbitron text-[#9A8B72] px-1 uppercase tracking-wider">
-                  <span>IA: {selectedLevel.aiDifficulty}</span>
-                  <span>Turno: IA inicia</span>
+                  <span>IA: {selectedLevelResolved.aiDifficulty}</span>
+                  <span>{activeTranslation.ui.turnLabel}</span>
                 </div>
                 
                 <button
                   onClick={handleStartBattle}
                   className="stone-button w-full py-3 text-sm text-[#1e1a14] font-bold bg-gradient-to-r from-[#D8C49A] to-[#a49479] hover:from-white hover:to-[#D8C49A] shadow-[0_4px_12px_rgba(216,196,154,0.25)] flex items-center justify-center gap-2"
                 >
-                  INICIAR DESAFÍO
+                  {activeTranslation.ui.startBtn}
                 </button>
               </div>
 
@@ -424,7 +424,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
             <div className="flex flex-col items-center justify-center h-full text-center py-12">
               <span className="text-3xl mb-3 text-[#9A8B72]/40">🌀</span>
               <p className="text-xs text-[#9A8B72]">
-                Selecciona un portal de batalla en el mapa para revelar sus secretos.
+                {activeTranslation.ui.noSelection}
               </p>
             </div>
           )}
@@ -435,7 +435,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
 
       {/* Footer Info */}
       <div className="relative z-20 text-[9px] md:text-xs text-[#9A8B72] font-ancient-header tracking-widest text-center opacity-65 mb-1">
-        🔥 COMANDANTE K: DEBES COMPLETAR LOS 7 NIVELES PARA DERROTAR A LOS ANTIGUOS DIOSES 🔥
+        {activeTranslation.ui.footer}
       </div>
     </div>
   );

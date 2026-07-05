@@ -1,20 +1,44 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GameContext } from '../../context/GameContext';
-import { Player } from '@/types';
 
-interface SwitchTurnModalProps {
-    opponentPlayer: Player | undefined;
-}
+export const SwitchTurnModal: React.FC = () => {
+    const { state, dispatch } = useContext(GameContext);
+    const { t } = useTranslation();
+    const { players, currentPlayerId } = state;
 
-export const SwitchTurnModal: React.FC<SwitchTurnModalProps> = ({ opponentPlayer }) => {
-    const { dispatch } = useContext(GameContext);
+    const localPlayerIdResolved = useMemo(() => {
+        if (state.gameType === 'online') {
+            return state.localPlayerId ?? 0;
+        }
+        if (state.gameType === 'ai' || state.gameType === 'adventure') {
+            return 0; // Human is always Player 0
+        }
+        // In local P2, active player changes dynamically with turn
+        return currentPlayerId;
+    }, [state.gameType, state.localPlayerId, currentPlayerId]);
+
+    const opponentPlayer = useMemo(() => players?.[1 - localPlayerIdResolved], [players, localPlayerIdResolved]);
 
     return (
-        <div className="absolute inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 p-6 md:p-12 rounded-lg text-center shadow-2xl border border-yellow-500">
-                <h2 className="text-2xl md:text-4xl font-orbitron text-yellow-400 mb-4">Pass the Device!</h2>
-                <p className="text-lg md:text-2xl mb-6 md:mb-8">It's now <span className="font-bold">{opponentPlayer?.name}</span>'s turn.</p>
-                <button onClick={() => dispatch({type: 'BEGIN_NEW_TURN'})} className="px-6 py-3 md:px-8 md:py-4 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors text-base md:text-xl">Start Turn</button>
+        <div className="absolute inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
+            <div className="stone-modal p-8 text-center max-w-sm w-full border-4 border-[#8A6938] shadow-2xl">
+                <h2 className="text-2xl md:text-3xl font-ancient-header text-[#D8C49A] mb-3 tracking-widest">
+                    {t('game_ui.pass_tablet')}
+                </h2>
+                <div className="h-0.5 w-16 bg-[#8A6938] mx-auto mb-4" />
+                
+                <p className="text-sm text-[#9A8B72] uppercase tracking-wider mb-2">{t('game_ui.next_turn_of')}</p>
+                <p className="text-xl md:text-2xl font-bold font-ancient-header text-[#D8C49A] mb-8">
+                    {opponentPlayer?.name}
+                </p>
+                
+                <button 
+                    onClick={() => dispatch({type: 'BEGIN_NEW_TURN'})} 
+                    className="stone-button stone-button-blue text-sm py-3 px-8 w-full shadow-lg"
+                >
+                    {t('game_ui.take_tablet')}
+                </button>
             </div>
         </div>
     );

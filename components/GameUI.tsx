@@ -31,6 +31,9 @@ const CARD_DESCRIPTIONS: Record<Rank, string> = {
 
 
 import { CardInfoModal } from './modals/CardInfoModal';
+import { GameOverModal } from './modals/GameOverModal';
+import { SwitchTurnModal } from './modals/SwitchTurnModal';
+import { LogChroniclesModal } from './modals/LogChroniclesModal';
 
 
 const GameUI: React.FC = () => {
@@ -923,96 +926,13 @@ const GameUI: React.FC = () => {
             {activeEffect === 'ace_arrow' && <div className="ace-arrow-projectile" />}
 
             {/* Game Over Modal overlay (Runic celebration) */}
-            {gameMode === 'game_over' && winner && (() => {
-              const isHumanWinner = winner.id === localPlayerIdResolved;
-              return (
-                <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-50 p-4">
-                  <div className={`stone-modal p-8 text-center border-4 ${isHumanWinner ? 'border-[#8A6938]' : 'border-red-900'} max-w-md w-full shadow-[0_0_50px_rgba(216,196,154,0.4)] relative`}>
-                    {/* Glowing golden light animation effect */}
-                    <div className={`absolute inset-0 bg-gradient-to-t from-transparent ${isHumanWinner ? 'via-[#8A6938]/10' : 'via-red-950/20'} to-transparent animate-pulse pointer-events-none rounded-lg`} />
-                    
-                    <h2 className={`text-3xl md:text-5xl font-ancient-header ${isHumanWinner ? 'text-[#D8C49A]' : 'text-red-500'} mb-4 tracking-widest animate-bounce`}>
-                      {isHumanWinner ? t('game_ui.victory') : t('game_ui.defeat')}
-                    </h2>
-                    <div className={`h-1 w-24 bg-gradient-to-r from-transparent ${isHumanWinner ? 'via-[#8A6938]' : 'via-red-800'} to-transparent mx-auto mb-6`} />
-                    
-                    <p className="text-lg text-[#9A8B72] tracking-wider mb-2">
-                      {isHumanWinner ? t('game_ui.victory_sub') : t('game_ui.defeat_sub')}
-                    </p>
-                    <p className="text-xl font-bold font-ancient-header text-[#D8C49A] mb-8 drop-shadow-md">
-                      {winner.name}
-                    </p>
-                    
-                    <button 
-                      onClick={() => dispatch({type: 'RESET_TO_MENU'})} 
-                      className="stone-button text-base py-3 px-8 shadow-2xl bg-gradient-to-r from-[#D8C49A] to-[#a49479] text-[#1e1a14] font-bold"
-                    >
-                      {state.gameType === 'adventure' ? t('game_ui.back_to_map') : t('game_ui.back_to_menu')}
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
+            {gameMode === 'game_over' && winner && <GameOverModal winner={winner} />}
 
             {/* Switch Turn device passing modal (Local 2 player) */}
-            {gameMode === 'switch_turn' && (
-              <div className="absolute inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
-                <div className="stone-modal p-8 text-center max-w-sm w-full border-4 border-[#8A6938] shadow-2xl">
-                  <h2 className="text-2xl md:text-3xl font-ancient-header text-[#D8C49A] mb-3 tracking-widest">
-                    {t('game_ui.pass_tablet')}
-                  </h2>
-                  <div className="h-0.5 w-16 bg-[#8A6938] mx-auto mb-4" />
-                  
-                  <p className="text-sm text-[#9A8B72] uppercase tracking-wider mb-2">{t('game_ui.next_turn_of')}</p>
-                  <p className="text-xl md:text-2xl font-bold font-ancient-header text-[#D8C49A] mb-8">
-                    {opponentPlayer?.name}
-                  </p>
-                  
-                  <button 
-                    onClick={() => dispatch({type: 'BEGIN_NEW_TURN'})} 
-                    className="stone-button stone-button-blue text-sm py-3 px-8 w-full shadow-lg"
-                  >
-                    {t('game_ui.take_tablet')}
-                  </button>
-                </div>
-              </div>
-            )}
+            {gameMode === 'switch_turn' && <SwitchTurnModal />}
 
             {/* Expanded Game Log Modal overlay (Runic parchment / Stone scroll) */}
-            {isLogExpanded && (
-              <div className="absolute inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                <div className="stone-modal p-6 md:p-8 text-center border-4 border-[#8A6938] max-w-lg w-full shadow-[0_0_40px_rgba(216,196,154,0.35)] flex flex-col max-h-[80vh]">
-                  <h2 className="text-xl md:text-2xl font-ancient-header text-[#D8C49A] mb-1 tracking-widest">
-                    {t('game_ui.chronicle')}
-                  </h2>
-                  <div className="h-0.5 w-24 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent mx-auto mb-4" />
-                  
-                  {/* Scrollable log list */}
-                  <div className="flex-grow overflow-y-auto bg-[#120f0b]/90 border border-[#574d3c] rounded p-4 text-left font-mono text-xs sm:text-sm text-[#9A8B72] shadow-inner mb-6 space-y-2.5">
-                    {state.log.length === 0 ? (
-                      <div className="italic text-center text-[#9A8B72]/50 mt-10">{t('game_ui.no_logs')}</div>
-                    ) : (
-                      [...state.log].reverse().map((l, index) => (
-                        <div key={index} className="border-b border-[#574d3c]/15 pb-1.5 flex gap-2">
-                          <span className="text-[#8A6938] font-bold select-none">&gt;</span>
-                          <span className="leading-relaxed">{l}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      audioService.playSFX('click');
-                      setIsLogExpanded(false);
-                    }} 
-                    className="stone-button stone-button-red py-2 px-8 shadow-md mx-auto"
-                  >
-                    {t('game_ui.return_to_duel', 'REGRESAR AL DUELO')}
-                  </button>
-                </div>
-              </div>
-            )}
+            <LogChroniclesModal isOpen={isLogExpanded} onClose={() => setIsLogExpanded(false)} log={state.log} />
         </div>
     );
 }

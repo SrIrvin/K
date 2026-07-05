@@ -79,10 +79,6 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     const params = new URLSearchParams(window.location.search);
     const roomFromUrl = params.get('room');
     if (roomFromUrl) {
-      // Clear parameter from URL silently
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-      
       // Auto-join with a slight timeout to ensure peer / firebase is fully ready
       setStatusText(t('lobby.joining_invite', 'Cruzando portal de invitación {{room}}...', { room: roomFromUrl }));
       setTimeout(() => {
@@ -90,6 +86,25 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
       }, 600);
     }
   }, []);
+
+  // Synchronize activeRoomId to the URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get('room');
+    if (activeRoomId) {
+      if (roomFromUrl !== activeRoomId) {
+        params.set('page', 'lobby');
+        params.set('room', activeRoomId);
+        window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
+      }
+    } else {
+      if (params.has('room')) {
+        params.delete('room');
+        params.set('page', 'lobby');
+        window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
+      }
+    }
+  }, [activeRoomId]);
 
   // Auto-host portal room if hostedPortalLevel is set on mount
   useEffect(() => {

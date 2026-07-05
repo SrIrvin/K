@@ -45,14 +45,77 @@ function AppContent() {
     };
   }, [dispatch]);
 
-  // Redirect to Online Lobby if invite room is in the URL query parameters
+  // Initialize state from URL on mount (Deep Linking)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const roomFromUrl = params.get('room');
-    if (roomFromUrl) {
-      dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' });
+    const page = params.get('page');
+    const room = params.get('room');
+    
+    let targetMode = 'menu';
+    if (room || page === 'lobby' || page === 'online_lobby') {
+      targetMode = 'online_lobby';
+    } else if (page === 'adventure' || page === 'adventure_map') {
+      targetMode = 'adventure_map';
+    } else if (page === 'tutorial') {
+      targetMode = 'tutorial';
+    } else if (page === 'game' || page === 'playing') {
+      targetMode = 'playing';
+    }
+
+    if (targetMode !== 'menu') {
+      dispatch({ type: 'SET_GAME_MODE', payload: targetMode as any });
     }
   }, [dispatch]);
+
+  // Synchronize state.gameMode with the URL (Bidirectional Sync)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const currentPage = params.get('page');
+    const currentRoom = params.get('room');
+    
+    let expectedPage = 'menu';
+    if (state.gameMode === 'online_lobby') expectedPage = 'lobby';
+    else if (state.gameMode === 'adventure_map') expectedPage = 'adventure';
+    else if (state.gameMode === 'tutorial') expectedPage = 'tutorial';
+    else if (['playing', 'switch_turn', 'game_over'].includes(state.gameMode)) expectedPage = 'game';
+
+    if (currentPage !== expectedPage) {
+      const newParams = new URLSearchParams();
+      newParams.set('page', expectedPage);
+      if (state.gameMode === 'online_lobby' && currentRoom) {
+        newParams.set('room', currentRoom);
+      }
+      const newSearch = newParams.toString();
+      window.history.pushState(null, '', `${window.location.pathname}?${newSearch}`);
+    }
+  }, [state.gameMode]);
+
+  // Listen to browser Back/Forward navigation (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const page = params.get('page');
+      const room = params.get('room');
+      
+      let targetMode = 'menu';
+      if (room || page === 'lobby' || page === 'online_lobby') {
+        targetMode = 'online_lobby';
+      } else if (page === 'adventure' || page === 'adventure_map') {
+        targetMode = 'adventure_map';
+      } else if (page === 'tutorial') {
+        targetMode = 'tutorial';
+      } else if (page === 'game' || page === 'playing') {
+        targetMode = 'playing';
+      }
+      
+      if (state.gameMode !== targetMode) {
+        dispatch({ type: 'SET_GAME_MODE', payload: targetMode as any });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [state.gameMode, dispatch]);
 
   const handleGameJoined = (roomId: string, localPlayerId: number) => {
     // Handled automatically inside peerService

@@ -26,6 +26,16 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
 
+    // Auto-zoom 70% in portrait mobile (vertical phone resolution)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const isPortraitMobile = window.innerWidth < 768 && window.innerHeight > window.innerWidth;
+            if (isPortraitMobile) {
+                setZoom(0.7);
+            }
+        }
+    }, []);
+
     const [combatAnim, setCombatAnim] = useState<{
         type: 'bleeding' | 'destruction';
         row: number;

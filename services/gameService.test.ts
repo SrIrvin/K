@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createDeck, createUnitFromCard, getKingValidMoves } from './gameService';
+import { createDeck, createUnitFromCard, getKingValidMoves, getValidMoves } from './gameService';
 import { CardColor, Suit, Card } from '../types';
 import { BOARD_ROWS, BOARD_COLS } from '../utils/constants';
 
@@ -77,6 +77,102 @@ describe('gameService tests', () => {
       expect(moves).toContainEqual({ row: 3, col: 2 });
       expect(moves).toContainEqual({ row: 2, col: 1 });
       expect(moves).toContainEqual({ row: 2, col: 3 });
+    });
+  });
+
+  describe('getValidMoves', () => {
+    it('should return empty list when unit is already on the goal row', () => {
+      const card: Card = { id: 'Heart5', rank: '5', suit: Suit.Hearts, color: CardColor.Red };
+      const unit = {
+        ...card,
+        baseDamage: 5,
+        currentDamage: 5,
+        speed: 2,
+        position: { row: 4, col: 2 }, // Red's goal row (Player 1) is 4
+        hasMoved: false,
+        boosterCard: null,
+        stackedAttackers: []
+      };
+
+      const board = Array(BOARD_ROWS).fill(null).map(() => Array(BOARD_COLS).fill(null));
+      const moves = getValidMoves(unit, board, 1); // Player 1 (Red) goal row is row 4
+      expect(moves).toHaveLength(0);
+    });
+
+    it('should restrict movement if blocked by a friendly unit', () => {
+      const card: Card = { id: 'Club8', rank: '8', suit: Suit.Clubs, color: CardColor.Black };
+      const unit = {
+        ...card,
+        baseDamage: 8,
+        currentDamage: 8,
+        speed: 1,
+        position: { row: 2, col: 2 },
+        hasMoved: false,
+        boosterCard: null,
+        stackedAttackers: []
+      };
+
+      const board = Array(BOARD_ROWS).fill(null).map(() => Array(BOARD_COLS).fill(null));
+      // Place a friendly unit directly above the moving unit
+      board[1][2] = {
+        id: 'Club5',
+        rank: '5',
+        suit: Suit.Clubs,
+        color: CardColor.Black,
+        baseDamage: 5,
+        currentDamage: 5,
+        speed: 2,
+        position: { row: 1, col: 2 },
+        hasMoved: false,
+        boosterCard: null,
+        stackedAttackers: []
+      };
+
+      const moves = getValidMoves(unit, board, 0); // Player 0 (Black)
+      // Since speed is 1, it should normally have 4 directions, but up {row: 1, col: 2} is blocked by friendly unit
+      expect(moves).toHaveLength(3);
+      expect(moves).not.toContainEqual({ row: 1, col: 2 });
+      expect(moves).toContainEqual({ row: 3, col: 2 });
+      expect(moves).toContainEqual({ row: 2, col: 1 });
+      expect(moves).toContainEqual({ row: 2, col: 3 });
+    });
+
+    it('should allow landing on an enemy unit for combat, but not passing through it', () => {
+      const card: Card = { id: 'Club8', rank: '8', suit: Suit.Clubs, color: CardColor.Black };
+      const unit = {
+        ...card,
+        baseDamage: 8,
+        currentDamage: 8,
+        speed: 2,
+        position: { row: 2, col: 2 },
+        hasMoved: false,
+        boosterCard: null,
+        stackedAttackers: []
+      };
+
+      const board = Array(BOARD_ROWS).fill(null).map(() => Array(BOARD_COLS).fill(null));
+      // Place an enemy unit directly to the right (row: 2, col: 3)
+      board[2][3] = {
+        id: 'Heart5',
+        rank: '5',
+        suit: Suit.Hearts,
+        color: CardColor.Red,
+        baseDamage: 5,
+        currentDamage: 5,
+        speed: 2,
+        position: { row: 2, col: 3 },
+        hasMoved: false,
+        boosterCard: null,
+        stackedAttackers: []
+      };
+
+      const moves = getValidMoves(unit, board, 0); // Player 0 (Black)
+      
+      // We can land on the enemy at { row: 2, col: 3 } (combat)
+      expect(moves).toContainEqual({ row: 2, col: 3 });
+      
+      // But we cannot pass through it to reach { row: 2, col: 4 } (which requires 2 steps through the enemy)
+      expect(moves).not.toContainEqual({ row: 2, col: 4 });
     });
   });
 });

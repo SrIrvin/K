@@ -197,7 +197,11 @@ function AppContent() {
               cleanupPeer();
               const wasPortal = !!state.hostedPortalLevel;
               dispatch({ type: 'SET_HOSTED_PORTAL_LEVEL', payload: { level: null } });
-              dispatch({ type: 'SET_GAME_MODE', payload: wasPortal ? 'adventure_map' : 'menu' });
+              if (wasPortal) {
+                window.location.href = '/?path=adventure&page=adventure';
+              } else {
+                window.location.href = '/?path=menu&page=menu';
+              }
             }}
             onGameJoined={handleGameJoined}
           />

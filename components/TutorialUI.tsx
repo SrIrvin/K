@@ -3,6 +3,7 @@ import { Unit, Card, CardColor, Suit } from '../types';
 import { GameCard } from './GameCard';
 import { GoalZone } from './GoalZone';
 import { BOARD_ROWS, BOARD_COLS } from '../utils/constants';
+import { audioService } from '../services/audioService';
 
 const OrcIrwinAvatar: React.FC = () => {
   const [imgError, setImgError] = useState(false);
@@ -115,7 +116,11 @@ interface TutorialStep {
   actionPrompt: string;
 }
 
-export const TutorialUI: React.FC = () => {
+interface TutorialUIProps {
+  onBack?: () => void;
+}
+
+export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [selectedHandCardId, setSelectedHandCardId] = useState<string | null>(null);
   const [selectedBoardUnitId, setSelectedUnitId] = useState<string | null>(null);
@@ -507,6 +512,17 @@ export const TutorialUI: React.FC = () => {
       {/* 1. TUTORIAL BUBBLE OVERLAY PANEL (LEFT SIDEBAR ON LARGE SCREENS) */}
       <div className="w-full md:w-[380px] bg-[#1a1510]/95 border-b-2 md:border-b-0 md:border-r-2 border-[#8A6938] flex flex-col justify-between p-4 md:p-6 z-30 shadow-2xl shrink-0 max-h-[40vh] md:max-h-screen overflow-y-auto">
         <div>
+          {onBack && (
+            <button
+              onClick={() => {
+                audioService.playSFX('click');
+                onBack();
+              }}
+              className="stone-button py-1 px-3 text-[10px] mb-3 text-[#D8C49A] border-[#8A6938]/60 hover:text-white uppercase font-orbitron tracking-wider flex items-center gap-1"
+            >
+              ⬅ Regresar al Menú
+            </button>
+          )}
           {/* Irwin Green Orc Header */}
           <div className="flex items-center gap-3 mb-2">
             <OrcIrwinAvatar />
@@ -572,7 +588,14 @@ export const TutorialUI: React.FC = () => {
 
             {step.expectedAction === 'click_finish' && (
               <button 
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  audioService.playSFX('click');
+                  if (onBack) {
+                    onBack();
+                  } else {
+                    window.location.reload();
+                  }
+                }}
                 className="stone-button stone-button-blue py-2 text-xs flex-1 font-bold animate-bounce"
               >
                 Finalizar Tutorial 🎉

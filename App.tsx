@@ -213,7 +213,7 @@ function AppContent() {
       case 'game_over':
         return <GameUI />;
       case 'tutorial':
-        return <TutorialUI />;
+        return <TutorialUI onBack={() => dispatch({ type: 'SET_GAME_MODE', payload: 'menu' })} />;
       default:
         return (
           <MainMenu 

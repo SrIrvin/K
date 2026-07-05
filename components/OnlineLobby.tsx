@@ -93,6 +93,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     const roomFromUrl = params.get('room');
     if (activeRoomId) {
       if (roomFromUrl !== activeRoomId) {
+        params.set('path', 'lobby');
         params.set('page', 'lobby');
         params.set('room', activeRoomId);
         window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
@@ -100,6 +101,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     } else {
       if (params.has('room')) {
         params.delete('room');
+        params.set('path', 'lobby');
         params.set('page', 'lobby');
         window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
       }

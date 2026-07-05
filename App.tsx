@@ -19,25 +19,25 @@ import {
   applySmartphoneMode 
 } from './utils/graphicsSettings';
 
-// Helper to map URL page and room parameters to internal game mode
-const getGameModeFromUrl = (page: string | null, room: string | null): 'menu' | 'online_lobby' | 'adventure_map' | 'tutorial' | 'playing' => {
-  if (room || page === 'lobby' || page === 'online_lobby') {
+// Helper to map URL page/path and room parameters to internal game mode
+const getGameModeFromUrl = (pageOrPath: string | null, room: string | null): 'menu' | 'online_lobby' | 'adventure_map' | 'tutorial' | 'playing' => {
+  if (room || pageOrPath === 'lobby' || pageOrPath === 'online_lobby') {
     return 'online_lobby';
   }
-  if (page === 'adventure' || page === 'adventure_map') {
+  if (pageOrPath === 'adventure' || pageOrPath === 'adventure_map') {
     return 'adventure_map';
   }
-  if (page === 'tutorial') {
+  if (pageOrPath === 'tutorial') {
     return 'tutorial';
   }
-  if (page === 'game' || page === 'playing') {
+  if (pageOrPath === 'game' || pageOrPath === 'playing') {
     return 'playing';
   }
   return 'menu';
 };
 
-// Helper to map internal game mode to external URL page value
-const getUrlPageFromGameMode = (gameMode: string): string => {
+// Helper to map internal game mode to external URL path value
+const getUrlPathFromGameMode = (gameMode: string): string => {
   if (gameMode === 'online_lobby') return 'lobby';
   if (gameMode === 'adventure_map') return 'adventure';
   if (gameMode === 'tutorial') return 'tutorial';
@@ -123,10 +123,10 @@ function AppContent() {
   // Initialize state from URL on mount (Deep Linking)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const page = params.get('page');
+    const pageOrPath = params.get('path') || params.get('page');
     const room = params.get('room');
     
-    const targetMode = getGameModeFromUrl(page, room);
+    const targetMode = getGameModeFromUrl(pageOrPath, room);
 
     if (targetMode !== 'menu') {
       dispatch({ type: 'SET_GAME_MODE', payload: targetMode as any });
@@ -137,14 +137,15 @@ function AppContent() {
   // Synchronize state.gameMode with the URL (Bidirectional Sync)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const currentPage = params.get('page');
+    const currentPath = params.get('path') || params.get('page');
     const currentRoom = params.get('room');
     
-    const expectedPage = getUrlPageFromGameMode(state.gameMode);
+    const expectedPath = getUrlPathFromGameMode(state.gameMode);
 
-    if (currentPage !== expectedPage) {
+    if (currentPath !== expectedPath) {
       const newParams = new URLSearchParams();
-      newParams.set('page', expectedPage);
+      newParams.set('path', expectedPath);
+      newParams.set('page', expectedPath); // Maintain backward compatibility
       if (state.gameMode === 'online_lobby' && currentRoom) {
         newParams.set('room', currentRoom);
       }
@@ -163,10 +164,10 @@ function AppContent() {
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
-      const page = params.get('page');
+      const pageOrPath = params.get('path') || params.get('page');
       const room = params.get('room');
       
-      const targetMode = getGameModeFromUrl(page, room);
+      const targetMode = getGameModeFromUrl(pageOrPath, room);
       
       if (gameModeRef.current !== targetMode) {
         dispatch({ type: 'SET_GAME_MODE', payload: targetMode as any });

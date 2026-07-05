@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { audioService } from '../services/audioService';
-import { Action, Suit, Card, Unit, CardColor, Rank } from '../types';
+import { Action, Suit, Card, Unit, CardColor, Rank, GameState } from '../types';
+import { subscribeToLobbyRooms, LobbyRoom } from '../services/firebaseService';
 
 interface LevelData {
   level: number;
@@ -130,11 +131,21 @@ const levelsData: LevelData[] = [
 interface AdventureMapProps {
   onBack: () => void;
   dispatch: React.Dispatch<Action>;
+  state: GameState;
 }
 
-export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch }) => {
+export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, state }) => {
   const [unlockedLevel, setUnlockedLevel] = useState<number>(1);
   const [selectedLevel, setSelectedLevel] = useState<LevelData | null>(null);
+  const [activeRooms, setActiveRooms] = useState<LobbyRoom[]>([]);
+
+  useEffect(() => {
+    // Subscribe to active rooms to check for portal challengers
+    const unsubscribe = subscribeToLobbyRooms((rooms) => {
+      setActiveRooms(rooms);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     // Load progress from localStorage
@@ -167,6 +178,20 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch }) 
         playerName: playerName
       }
     });
+  };
+
+  const handleHostOnlinePortal = () => {
+    if (!selectedLevel) return;
+    audioService.playSFX('click');
+    dispatch({ type: 'SET_HOSTED_PORTAL_LEVEL', payload: { level: selectedLevel.level } });
+    dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' });
+  };
+
+  const handleJoinOnlinePortal = (roomCode: string) => {
+    if (!selectedLevel) return;
+    audioService.playSFX('click');
+    dispatch({ type: 'SET_AUTO_JOIN_ROOM_CODE', payload: { code: roomCode } });
+    dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' });
   };
 
   const handleResetProgress = () => {
@@ -315,10 +340,18 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch }) 
                     {isActive && (
                       <div className="absolute inset-0 rounded-full border border-cyan-400 animate-ping opacity-60 pointer-events-none" />
                     )}
+
+                    {/* Glowing emerald pulse for active online challengers */}
+                    {activeRooms.some(r => r.isPortal && r.level === lvl.level && r.status === 'waiting') && (
+                      <div className="absolute -inset-1 rounded-full border-2 border-emerald-500 animate-pulse pointer-events-none shadow-[0_0_12px_rgba(52,211,153,0.6)]" />
+                    )}
                   </div>
 
                   {/* Level Tooltip label */}
-                  <div className="mt-1 px-1.5 py-0.5 rounded bg-black/80 border border-[#574d3c]/40 text-[8px] md:text-[9px] text-[#D8C49A] tracking-wider text-center max-w-[85px] pointer-events-none shadow-md whitespace-nowrap">
+                  <div className="mt-1 px-1.5 py-0.5 rounded bg-black/80 border border-[#574d3c]/40 text-[8px] md:text-[9px] text-[#D8C49A] tracking-wider text-center max-w-[85px] pointer-events-none shadow-md whitespace-nowrap flex items-center justify-center gap-1">
+                    {activeRooms.some(r => r.isPortal && r.level === lvl.level && r.status === 'waiting') && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse shadow-[0_0_5px_#34d399]" />
+                    )}
                     P{lvl.level}: {lvl.name}
                   </div>
                 </div>
@@ -393,8 +426,30 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch }) 
                   onClick={handleStartBattle}
                   className="stone-button w-full py-3 text-sm text-[#1e1a14] font-bold bg-gradient-to-r from-[#D8C49A] to-[#a49479] hover:from-white hover:to-[#D8C49A] shadow-[0_4px_12px_rgba(216,196,154,0.25)] flex items-center justify-center gap-2"
                 >
-                  ⚔️ INICIAR DESAFÍO
+                  ⚔️ INICIAR DESAFÍO IA
                 </button>
+
+                {(() => {
+                  const onlineChallengerRoom = activeRooms.find(r => r.isPortal && r.level === selectedLevel.level && r.status === 'waiting');
+                  if (onlineChallengerRoom) {
+                    return (
+                      <button
+                        onClick={() => handleJoinOnlinePortal(onlineChallengerRoom.id)}
+                        className="stone-button w-full py-2.5 text-xs text-[#1e1a14] font-bold bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 shadow-[0_0_15px_rgba(52,211,153,0.4)] flex items-center justify-center gap-2 animate-bounce mt-1"
+                      >
+                        ⚔️ RETAR EN PORTAL ONLINE ({onlineChallengerRoom.host.name})
+                      </button>
+                    );
+                  }
+                  return (
+                    <button
+                      onClick={handleHostOnlinePortal}
+                      className="stone-button w-full py-2.5 text-xs text-[#dcd1bc] font-bold bg-[#385B74]/50 border border-[#385B74]/80 hover:bg-[#385B74]/90 hover:text-white flex items-center justify-center gap-2 mt-1 shadow-inner"
+                    >
+                      🌐 ABRIR PORTAL EN LÍNEA
+                    </button>
+                  );
+                })()}
               </div>
 
             </div>

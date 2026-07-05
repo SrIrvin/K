@@ -76,6 +76,20 @@ export const gameReducer = (state: GameState, action: Action): GameState => {
       };
     }
 
+    case 'SET_HOSTED_PORTAL_LEVEL': {
+      return {
+        ...state,
+        hostedPortalLevel: action.payload.level
+      };
+    }
+
+    case 'SET_AUTO_JOIN_ROOM_CODE': {
+      return {
+        ...state,
+        autoJoinRoomCode: action.payload.code
+      };
+    }
+
     case 'SET_FULL_STATE': {
       return {
         ...action.payload,

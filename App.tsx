@@ -71,7 +71,9 @@ function AppContent() {
           <OnlineLobby 
             onBack={() => {
               cleanupPeer();
-              dispatch({ type: 'SET_GAME_MODE', payload: 'menu' });
+              const wasPortal = !!state.hostedPortalLevel;
+              dispatch({ type: 'SET_HOSTED_PORTAL_LEVEL', payload: { level: null } });
+              dispatch({ type: 'SET_GAME_MODE', payload: wasPortal ? 'adventure_map' : 'menu' });
             }}
             onGameJoined={handleGameJoined}
           />
@@ -81,6 +83,7 @@ function AppContent() {
           <AdventureMap 
             onBack={() => dispatch({ type: 'SET_GAME_MODE', payload: 'menu' })} 
             dispatch={dispatch}
+            state={state}
           />
         );
       case 'playing':

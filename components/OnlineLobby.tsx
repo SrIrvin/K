@@ -10,7 +10,7 @@ import {
   localPlayerId,
   connection
 } from '../services/peerService';
-import { startGame } from '../services/actions/gameSetup';
+import { startGame, startAdventureLevel } from '../services/actions/gameSetup';
 import { GameState } from '../types';
 import { 
   loginAsGuest, 
@@ -89,6 +89,25 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     }
   }, []);
 
+  // Auto-host portal room if hostedPortalLevel is set on mount
+  useEffect(() => {
+    if (state.hostedPortalLevel && !activeRoomId && !connecting) {
+      handleCreateRoom();
+    }
+  }, [state.hostedPortalLevel]);
+
+  // Auto-join portal room if autoJoinRoomCode is set on mount
+  useEffect(() => {
+    if (state.autoJoinRoomCode) {
+      const code = state.autoJoinRoomCode;
+      dispatch({ type: 'SET_AUTO_JOIN_ROOM_CODE', payload: { code: null } });
+      setStatusText(`Cruzando portal en línea ${code}...`);
+      setTimeout(() => {
+        handleJoinRoomByCode(code);
+      }, 600);
+    }
+  }, [state.autoJoinRoomCode]);
+
   // Subscribe to RTDB active rooms and load leaderboard/ranking
   useEffect(() => {
     if (activeRoomId || connecting) return;
@@ -140,7 +159,9 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
 
             // Initialize the game state and send it to the guest
             setTimeout(() => {
-              const freshState = startGame(state, { gameType: 'p2' });
+              const freshState = state.hostedPortalLevel
+                ? startAdventureLevel(state, { level: state.hostedPortalLevel, playerName: playerName })
+                : startGame(state, { gameType: 'p2' });
               const onlineState: GameState = {
                 ...freshState,
                 gameType: 'online',
@@ -237,7 +258,12 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     );
 
     // Register room in Firebase RTDB
-    createLobbyRoom(code, `${playerName}'s Portal`, code).catch(err => {
+    const isPortalRoom = !!state.hostedPortalLevel;
+    const resolvedRoomName = isPortalRoom 
+      ? `Portal ${state.hostedPortalLevel}: ${playerName}`
+      : `${playerName}'s Portal`;
+
+    createLobbyRoom(code, resolvedRoomName, playerName, code, isPortalRoom, state.hostedPortalLevel || undefined).catch(err => {
       console.error('[Firebase] Failed to register lobby room:', err);
     });
   };
@@ -457,7 +483,12 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                       className="bg-[#120f0b]/90 border border-[#574d3c]/60 p-2 rounded flex items-center justify-between hover:border-[#8A6938] transition-colors"
                     >
                       <div className="flex flex-col text-left">
-                        <span className="text-[11px] font-bold text-[#D8C49A]">
+                        <span className="text-[11px] font-bold text-[#D8C49A] flex items-center gap-1.5">
+                          {room.isPortal && (
+                            <span className="bg-cyan-950/80 border border-cyan-600/50 text-cyan-400 text-[8px] font-orbitron px-1 rounded font-extrabold animate-pulse uppercase">
+                              Portal {room.level}
+                            </span>
+                          )}
                           {room.name}
                         </span>
                         <span className="text-[9px] text-[#9A8B72] font-mono">

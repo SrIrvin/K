@@ -61,6 +61,8 @@ export interface GameState {
   aiDifficulty?: 'easy' | 'hard';
   storyLevel?: number;
   winTarget?: number;
+  hostedPortalLevel?: number | null;
+  autoJoinRoomCode?: string | null;
   kingMoveState: {
     isMoving: boolean;
     unitsToMove: string[];
@@ -75,6 +77,8 @@ export type MoveDirection = 'up' | 'down' | 'left' | 'right';
 export type Action =
   | { type: 'START_GAME'; payload: { gameType: 'ai' | 'p2'; playerName?: string; aiDifficulty?: 'easy' | 'hard' } }
   | { type: 'START_ADVENTURE_LEVEL'; payload: { level: number; playerName?: string } }
+  | { type: 'SET_HOSTED_PORTAL_LEVEL'; payload: { level: number | null } }
+  | { type: 'SET_AUTO_JOIN_ROOM_CODE'; payload: { code: string | null } }
   | { type: 'START_TUTORIAL' }
   | { type: 'SET_ONLINE_GAME'; payload: { localPlayerId: number } }
   | { type: 'SET_FULL_STATE'; payload: GameState }

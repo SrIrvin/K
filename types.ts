@@ -29,6 +29,7 @@ export interface Unit extends Card {
   position: { row: number; col: number };
   hasMoved: boolean;
   boosterCard: Card | null; // For Jack's effect
+  boosterCards?: Card[]; // Support stacking multiple Jacks
   stackedAttackers: Card[]; // For new combat rules
 }
 

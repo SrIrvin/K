@@ -166,8 +166,10 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                 const newUnit = board[r][c];
                 
                 if (oldUnit && newUnit) {
-                    // Jack speed boost: boosterCard was null, now is non-null
-                    if (!oldUnit.boosterCard && newUnit.boosterCard) {
+                    // Jack speed boost: boosterCard was null, now is non-null OR boosterCards length increased
+                    const oldBoosterCount = oldUnit.boosterCards ? oldUnit.boosterCards.length : (oldUnit.boosterCard ? 1 : 0);
+                    const newBoosterCount = newUnit.boosterCards ? newUnit.boosterCards.length : (newUnit.boosterCard ? 1 : 0);
+                    if (newBoosterCount > oldBoosterCount) {
                         spellAnimType = 'jack_speed';
                         spellRow = r;
                         spellCol = c;

@@ -96,7 +96,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   });
 
   return (
-    <div className="ancient-bg flex flex-col items-center justify-center min-h-screen md:h-screen text-white p-4 relative overflow-y-auto md:overflow-hidden">
+    <div className="ancient-bg flex flex-col items-center justify-center h-screen text-white p-4 relative overflow-y-auto md:overflow-hidden">
       {/* Visual Overlay layers */}
       <div className="archaeological-vignette" />
       <div className="rune-overlay" />
@@ -239,21 +239,21 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             onClick={onOnlineMode} 
             className="stone-button stone-button-blue w-full py-3 text-sm"
           >
-            Duelo en Línea (Salas)
+            Salas
           </button>
 
           <button 
             onClick={() => startGame('p2')} 
             className="stone-button w-full py-3 text-sm"
           >
-            Duelo Local (Cara a Cara)
+            Duelo Local
           </button>
 
           <button 
             onClick={() => dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' })} 
             className="stone-button w-full py-3 text-sm"
           >
-            ✨ Aprender a Jugar (Tutorial)
+            Tutorial
           </button>
         </div>
       </div>

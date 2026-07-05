@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GameContext } from '../context/GameContext';
 import { Card, Unit, Player, CardColor, Suit, Rank } from '../types';
 import { getValidMoves, getKingValidMoves } from '../services/gameService';
@@ -30,9 +31,13 @@ const CARD_DESCRIPTIONS: Record<Rank, string> = {
 
 
 import { CardInfoModal } from './modals/CardInfoModal';
+import { GameOverModal } from './modals/GameOverModal';
+import { SwitchTurnModal } from './modals/SwitchTurnModal';
+import { LogChroniclesModal } from './modals/LogChroniclesModal';
 
 
 const GameUI: React.FC = () => {
+    const { t } = useTranslation();
     const { state, dispatch } = useContext(GameContext);
     const { players, currentPlayerId, board, selectedUnitIdOnBoard, gameMode, winner, selectedCardIdInHand, kingMoveState, actionsRemaining } = state;
     
@@ -240,15 +245,13 @@ const GameUI: React.FC = () => {
       return getValidMoves(selectedUnit, board, currentPlayerId);
     }, [selectedUnit, board, currentPlayerId, kingMoveState]);
 
-    // Generate 15 dust particles for background animation
-const dustParticles = useMemo(() => {
+    // Generate 30 dust particles for background animation
+    const dustParticles = useMemo(() => {
       return Array.from({ length: 30 }).map((_, i) => {
         const size = Math.random() * 4 + 1.5;
         const left = Math.random() * 100;
         const delay = Math.random() * 25;
         const duration = Math.random() * 10 + 15;
-        const colors = ['#D8C49A', '#ab3e30', '#8e24aa', '#8A6938'];
-        const color = colors[Math.floor(Math.random() * colors.length)];
         return (
           <div
             key={i}
@@ -257,8 +260,8 @@ const dustParticles = useMemo(() => {
               width: `${size}px`,
               height: `${size}px`,
               left: `${left}%`,
-              backgroundColor: color,
-              boxShadow: `0 0 8px ${color}`,
+              backgroundColor: 'var(--particle-color, #706f6c)',
+              boxShadow: '0 0 8px var(--particle-color, #706f6c)',
               opacity: Math.random() * 0.35 + 0.15,
               animationDelay: `${delay}s`,
               animationDuration: `${duration}s`,
@@ -268,13 +271,9 @@ const dustParticles = useMemo(() => {
       });
     }, []);
 
-    if (!currentPlayer || !opponentPlayer) {
-      return <div className="h-screen w-screen flex items-center justify-center bg-[#2A2A2A] text-[#D8C49A] font-ancient-header text-xl">Invocando el altar...</div>;
-    }
-
-    // Split hand cards for better visual spacing
-    const specialCards = currentPlayer.hand.filter(c => ['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank));
-    const unitCards = currentPlayer.hand.filter(c => !['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)).sort((a,b) => parseInt(a.rank) - parseInt(b.rank));
+    // Split hand cards for better visual spacing safely
+    const specialCards = currentPlayer ? currentPlayer.hand.filter(c => ['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)) : [];
+    const unitCards = currentPlayer ? currentPlayer.hand.filter(c => !['J', 'Q', 'K', 'A', 'Joker'].includes(c.rank)).sort((a,b) => parseInt(a.rank) - parseInt(b.rank)) : [];
 
     const groupedSpecialCards = useMemo(() => {
       const groups: Record<string, Card[]> = {};
@@ -310,6 +309,53 @@ const dustParticles = useMemo(() => {
         }
     };
 
+    const particleStyles = useMemo(() => {
+        if (!players || players.length < 2) return {};
+        const p0Damage = players[0]?.damage || 0;
+        const p1Damage = players[1]?.damage || 0;
+        const totalDamage = p0Damage + p1Damage;
+        const winTargetValue = state.winTarget || 20;
+
+        // Progress ratio (0 to 1) based on match progression
+        const progress = Math.min(1, totalDamage / (winTargetValue * 1.5));
+
+        // Interpolate color from grey ash (#7a7a7a) to deep red (#ab3e30)
+        const r = Math.round(122 + (171 - 122) * progress);
+        const g = Math.round(122 + (62 - 122) * progress);
+        const b = Math.round(122 + (48 - 122) * progress);
+        const particleColor = `rgb(${r}, ${g}, ${b})`;
+
+        // Drift direction: towards the player with less health (higher damage)
+        // Player 0 is bottom (105vh to -5vh is UP, so to go towards Player 0, drift down: -5vh to 105vh)
+        // Player 1 is top (-5vh to 105vh is DOWN, so to go towards Player 1, drift up: 105vh to -5vh)
+        let driftStart = '105vh';
+        let driftEnd = '-5vh';
+        let driftX = '50px';
+
+        if (p0Damage > p1Damage) {
+            // Player 0 has less health (more damage), so particles drift DOWN
+            driftStart = '-5vh';
+            driftEnd = '105vh';
+            driftX = '-50px';
+        } else if (p1Damage > p0Damage) {
+            // Player 1 has less health (more damage), so particles drift UP
+            driftStart = '105vh';
+            driftEnd = '-5vh';
+            driftX = '50px';
+        }
+
+        return {
+            '--particle-color': particleColor,
+            '--drift-start': driftStart,
+            '--drift-end': driftEnd,
+            '--drift-x': driftX
+        } as React.CSSProperties;
+    }, [players, state.winTarget]);
+
+    if (!currentPlayer || !opponentPlayer) {
+      return <div className="h-screen w-screen flex items-center justify-center bg-[#2A2A2A] text-[#D8C49A] font-ancient-header text-xl">Invocando el altar...</div>;
+    }
+
     return (
         <div 
           className="ancient-bg flex h-screen w-screen overflow-hidden text-white relative" 
@@ -318,7 +364,7 @@ const dustParticles = useMemo(() => {
             {/* Visual Overlays */}
             <div className="archaeological-vignette" />
             <div className="rune-overlay" />
-            <div className="dust-container">{dustParticles}</div>
+            <div className="dust-container" style={particleStyles}>{dustParticles}</div>
 
             {/* King's Command Phase Atmospheric Overlays */}
             {state.kingMoveState?.isMoving && (
@@ -730,7 +776,7 @@ const dustParticles = useMemo(() => {
                                                           showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''
                                                         }`}
                                                       >
-                                                        Fin Turno
+                                                        {t('game_ui.end_turn')}
                                                       </button>
                                                   </>
                                               ) : (
@@ -790,7 +836,7 @@ const dustParticles = useMemo(() => {
                                   disabled={kingMoveState?.isMoving} 
                                   className={`stone-button stone-button-red w-full py-2.5 text-xs ${showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''}`}
                                 >
-                                  Terminar Turno
+                                  {t('game_ui.finish_turn')}
                                 </button>
                               </div>
                             ) : (
@@ -842,14 +888,14 @@ const dustParticles = useMemo(() => {
                             <button 
                               onClick={() => {
                                 audioService.playSFX('click');
-                                if (window.confirm("¿Seguro que deseas retirarte y salir de esta batalla?")) {
+                                if (window.confirm(t('game_ui.confirm_quit', "¿Seguro que deseas retirarte y salir de esta batalla?"))) {
                                   dispatch({ type: 'RESET_TO_MENU' });
                                 }
                               }}
                               className="stone-button stone-button-red w-full py-2 mt-4 text-[10px] font-orbitron font-bold tracking-wider hover:bg-red-950/80 border-red-700/60"
                               style={{ borderBottomWidth: '4px' }}
                             >
-                              🏳️ Rendirse / Salir
+                              {t('game_ui.surrender_quit')}
                             </button>
                         </div>
                     </div>
@@ -880,96 +926,13 @@ const dustParticles = useMemo(() => {
             {activeEffect === 'ace_arrow' && <div className="ace-arrow-projectile" />}
 
             {/* Game Over Modal overlay (Runic celebration) */}
-            {gameMode === 'game_over' && winner && (() => {
-              const isHumanWinner = winner.id === localPlayerIdResolved;
-              return (
-                <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-50 p-4">
-                  <div className={`stone-modal p-8 text-center border-4 ${isHumanWinner ? 'border-[#8A6938]' : 'border-red-900'} max-w-md w-full shadow-[0_0_50px_rgba(216,196,154,0.4)] relative`}>
-                    {/* Glowing golden light animation effect */}
-                    <div className={`absolute inset-0 bg-gradient-to-t from-transparent ${isHumanWinner ? 'via-[#8A6938]/10' : 'via-red-950/20'} to-transparent animate-pulse pointer-events-none rounded-lg`} />
-                    
-                    <h2 className={`text-3xl md:text-5xl font-ancient-header ${isHumanWinner ? 'text-[#D8C49A]' : 'text-red-500'} mb-4 tracking-widest animate-bounce`}>
-                      {isHumanWinner ? '¡VICTORIA!' : '¡DERROTA!'}
-                    </h2>
-                    <div className={`h-1 w-24 bg-gradient-to-r from-transparent ${isHumanWinner ? 'via-[#8A6938]' : 'via-red-800'} to-transparent mx-auto mb-6`} />
-                    
-                    <p className="text-lg text-[#9A8B72] tracking-wider mb-2">
-                      {isHumanWinner ? 'Has superado el Juicio de Piedra' : 'Has caído ante las fuerzas enemigas'}
-                    </p>
-                    <p className="text-xl font-bold font-ancient-header text-[#D8C49A] mb-8 drop-shadow-md">
-                      {winner.name}
-                    </p>
-                    
-                    <button 
-                      onClick={() => dispatch({type: 'RESET_TO_MENU'})} 
-                      className="stone-button text-base py-3 px-8 shadow-2xl bg-gradient-to-r from-[#D8C49A] to-[#a49479] text-[#1e1a14] font-bold"
-                    >
-                      {state.gameType === 'adventure' ? 'Volver al Mapa de Aventura' : 'Volver al Templo (Menú)'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
+            {gameMode === 'game_over' && winner && <GameOverModal winner={winner} />}
 
             {/* Switch Turn device passing modal (Local 2 player) */}
-            {gameMode === 'switch_turn' && (
-              <div className="absolute inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
-                <div className="stone-modal p-8 text-center max-w-sm w-full border-4 border-[#8A6938] shadow-2xl">
-                  <h2 className="text-2xl md:text-3xl font-ancient-header text-[#D8C49A] mb-3 tracking-widest">
-                    ENTREGAR TABLILLA
-                  </h2>
-                  <div className="h-0.5 w-16 bg-[#8A6938] mx-auto mb-4" />
-                  
-                  <p className="text-sm text-[#9A8B72] uppercase tracking-wider mb-2">Siguiente Turno de</p>
-                  <p className="text-xl md:text-2xl font-bold font-ancient-header text-[#D8C49A] mb-8">
-                    {opponentPlayer?.name}
-                  </p>
-                  
-                  <button 
-                    onClick={() => dispatch({type: 'BEGIN_NEW_TURN'})} 
-                    className="stone-button stone-button-blue text-sm py-3 px-8 w-full shadow-lg"
-                  >
-                    Tomar Tablilla (Iniciar Turno)
-                  </button>
-                </div>
-              </div>
-            )}
+            {gameMode === 'switch_turn' && <SwitchTurnModal />}
 
             {/* Expanded Game Log Modal overlay (Runic parchment / Stone scroll) */}
-            {isLogExpanded && (
-              <div className="absolute inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                <div className="stone-modal p-6 md:p-8 text-center border-4 border-[#8A6938] max-w-lg w-full shadow-[0_0_40px_rgba(216,196,154,0.35)] flex flex-col max-h-[80vh]">
-                  <h2 className="text-xl md:text-2xl font-ancient-header text-[#D8C49A] mb-1 tracking-widest">
-                    📜 CRÓNICA DEL DUELO 📜
-                  </h2>
-                  <div className="h-0.5 w-24 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent mx-auto mb-4" />
-                  
-                  {/* Scrollable log list */}
-                  <div className="flex-grow overflow-y-auto bg-[#120f0b]/90 border border-[#574d3c] rounded p-4 text-left font-mono text-xs sm:text-sm text-[#9A8B72] shadow-inner mb-6 space-y-2.5">
-                    {state.log.length === 0 ? (
-                      <div className="italic text-center text-[#9A8B72]/50 mt-10">Las piedras sagradas aún no registran combates...</div>
-                    ) : (
-                      [...state.log].reverse().map((l, index) => (
-                        <div key={index} className="border-b border-[#574d3c]/15 pb-1.5 flex gap-2">
-                          <span className="text-[#8A6938] font-bold select-none">&gt;</span>
-                          <span className="leading-relaxed">{l}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      audioService.playSFX('click');
-                      setIsLogExpanded(false);
-                    }} 
-                    className="stone-button stone-button-red py-2 px-8 shadow-md mx-auto"
-                  >
-                    REGRESAR AL DUELO
-                  </button>
-                </div>
-              </div>
-            )}
+            <LogChroniclesModal isOpen={isLogExpanded} onClose={() => setIsLogExpanded(false)} log={state.log} />
         </div>
     );
 }

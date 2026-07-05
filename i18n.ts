@@ -9,8 +9,14 @@ i18n
   .use(initReactI18next)
   .init({
     supportedLngs: ['en', 'es', 'zh', 'fr', 'it', 'pt', 'ru', 'ar', 'nah'],
+    nonExplicitSupportedLngs: true,
+    load: 'languageOnly',
     debug: true,
     fallbackLng: 'en',
+    detection: {
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      caches: ['localStorage'],
+    },
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },

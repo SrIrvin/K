@@ -3,6 +3,7 @@ import { Unit, Card, CardColor, Suit } from '../types';
 import { GameCard } from './GameCard';
 import { GoalZone } from './GoalZone';
 import { BOARD_ROWS, BOARD_COLS } from '../utils/constants';
+import { audioService } from '../services/audioService';
 
 const OrcIrwinAvatar: React.FC = () => {
   const [imgError, setImgError] = useState(false);
@@ -115,7 +116,11 @@ interface TutorialStep {
   actionPrompt: string;
 }
 
-export const TutorialUI: React.FC = () => {
+interface TutorialUIProps {
+  onBack?: () => void;
+}
+
+export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [selectedHandCardId, setSelectedHandCardId] = useState<string | null>(null);
   const [selectedBoardUnitId, setSelectedUnitId] = useState<string | null>(null);
@@ -124,7 +129,7 @@ export const TutorialUI: React.FC = () => {
   // Mocks and initializers for different steps
   const tutorialSteps: TutorialStep[] = useMemo(() => [
     {
-      title: "⚔️ ¡Bienvenido a 克 (Duelo de Cartas)!",
+      title: "¡Bienvenido a 克 (Duelo de Cartas)!",
       text: "Saludos, estratega. Este es el tablero sagrado de 克 (K), una cuadrícula de 4x5 donde pondrás a prueba tu astucia táctica.\n\nEl objetivo de la batalla es llevar tus cartas desde tu zona de salida hasta la Zona Meta del rival (la fila superior). El primer jugador en infligir 21 puntos de daño acumulado al oponente ganará la partida.",
       expectedAction: 'click_next',
       playerDamage: 0,
@@ -137,7 +142,7 @@ export const TutorialUI: React.FC = () => {
       setupBoard: () => Array(BOARD_ROWS).fill(null).map(() => Array(BOARD_COLS).fill(null)),
     },
     {
-      title: "🔮 Invocación de Unidades",
+      title: "Invocación de Unidades",
       text: "Tus unidades (cartas numéricas del 2 al 10) se juegan desde tu mano en tu 'Zona de Salida' (la fila iluminada en bronce más cercana a ti, fila 5).\n\nPara este paso, tienes un 2 de Tréboles (Unidad Ligera) en tu mano. Haz clic en ella en tu mano, y luego haz clic en cualquiera de las casillas iluminadas de tu fila de salida para invocarla.",
       expectedAction: 'place_card',
       playerDamage: 0,
@@ -154,7 +159,7 @@ export const TutorialUI: React.FC = () => {
       setupBoard: () => Array(BOARD_ROWS).fill(null).map(() => Array(BOARD_COLS).fill(null)),
     },
     {
-      title: "🏃 Velocidad y Desplazamiento",
+      title: "Velocidad y Desplazamiento",
       text: "¡Excelente invocación! Cada unidad tiene una Velocidad máxima que determina cuántas casillas puede moverse por acción:\n- Unidades Ligeras (2, 3, 4): Velocidad 3 casillas.\n- Unidades Medias (5, 6, 7): Velocidad 2 casillas.\n- Unidades Pesadas (8, 9, 10): Velocidad 1 casilla.\n\nSelecciona tu 2 de Tréboles en el tablero y muévelo hacia adelante. Al tener velocidad 3, puede avanzar de 1 a 3 celdas ortogonalmente.",
       expectedAction: 'move_unit',
       playerDamage: 0,
@@ -178,7 +183,7 @@ export const TutorialUI: React.FC = () => {
       }
     },
     {
-      title: "💥 Combate: Caso A (Aniquilación)",
+      title: "Combate: Caso A (Aniquilación)",
       text: "El combate ocurre cuando mueves una unidad a una celda ocupada por un enemigo.\n\nEl Caso A ocurre cuando el Atacante tiene un daño_base mayor al Defensor. La fuerza del choque destruye instantáneamente AMBAS unidades y las manda a la pila de descarte.\n\nTienes un 8 de Espadas (Atacante - Daño 8). El rival tiene un 5 de Corazones (Defensor - Daño 5). Ataca al 5 enemigo con tu 8 para aniquilarlo.",
       expectedAction: 'move_unit',
       playerDamage: 0,
@@ -205,7 +210,7 @@ export const TutorialUI: React.FC = () => {
       }
     },
     {
-      title: "🛡️ Combate: Caso B (Daño de Apilamiento)",
+      title: "Combate: Caso B (Daño de Apilamiento)",
       text: "El Caso B ocurre si tu daño_base es MENOR o IGUAL al del defensor. El atacante NO es destruido; en su lugar, se apila físicamente sobre el defensor.\n\nLa unidad defensora sobrevive, pero su daño actual se reduce por el valor de tu atacante. Sin embargo, conserva su velocidad original de su rango.\n\nTienes un 3 de Picas. Ataca al 10 de Diamantes enemigo para reducir su daño de 10 a 7.",
       expectedAction: 'move_unit',
       playerDamage: 0,
@@ -232,7 +237,7 @@ export const TutorialUI: React.FC = () => {
       }
     },
     {
-      title: "🏈 ¡Touchdown! Anotar Puntos",
+      title: "¡Touchdown! Anotar Puntos",
       text: "Si logras que una unidad propia alcance la fila superior (Zona Meta del rival, más allá de la última fila), podrás registrar un Touchdown. Tu oponente sumará el daño actual de tu unidad como daño directo.\n\nTienes un 9 de Tréboles en el borde superior listo para anotar. Haz clic sobre él para abrir el menú de acción, y luego presiona el gran botón de ANOTAR para infligirle 9 de daño.",
       expectedAction: 'click_score',
       playerDamage: 0,
@@ -253,7 +258,7 @@ export const TutorialUI: React.FC = () => {
       }
     },
     {
-      title: "⚡ Habilidades Especiales: Jota (J)",
+      title: "Habilidades Especiales: Jota (J)",
       text: "Las cartas de figuras son hechizos mágicos. La Jota (J - El Turbo) te permite darle temporalmente +1 de velocidad a cualquier unidad en el tablero.\n\nSelecciona la Jota en tu mano, haz clic en tu 7 de Tréboles para colocar la Jota a su lomo, y luego muévelo a gran distancia.",
       expectedAction: 'play_spell',
       playerDamage: 0,
@@ -275,7 +280,7 @@ export const TutorialUI: React.FC = () => {
       }
     },
     {
-      title: "❤️ Habilidades Especiales: Reina (Q)",
+      title: "Habilidades Especiales: Reina (Q)",
       text: "La Reina (Q - La Curandera) purifica tus unidades: restaura la salud actual de una unidad aliada dañada a su daño base máximo y elimina todas las cartas enemigas que lleve apiladas encima mandándolas al descarte.\n\nTienes un 10 de Diamantes en el tablero que fue atacado por un 6, reduciendo su daño actual a 4. Juega la Reina para restaurar su salud a 10.",
       expectedAction: 'play_spell',
       playerDamage: 0,
@@ -297,7 +302,7 @@ export const TutorialUI: React.FC = () => {
       }
     },
     {
-      title: "👑 ¡Felicidades, Maestro de las Runas!",
+      title: "¡Felicidades, Maestro de las Runas!",
       text: "¡Increíble trabajo! Has completado el entrenamiento básico. Ya dominas todas las mecánicas fundamentales del juego:\n- Invocación de unidades y velocidades de movimiento.\n- Los dos casos de combate (destrucción mutua y apilamiento).\n- Touchdown en la zona meta para acumular puntos.\n- Uso estratégico de cartas de habilidades como la Jota y la Reina.\n\nAhora estás listo para enfrentarte al destino. ¡Que comience el duelo real!",
       expectedAction: 'click_finish',
       playerDamage: 0,
@@ -507,6 +512,17 @@ export const TutorialUI: React.FC = () => {
       {/* 1. TUTORIAL BUBBLE OVERLAY PANEL (LEFT SIDEBAR ON LARGE SCREENS) */}
       <div className="w-full md:w-[380px] bg-[#1a1510]/95 border-b-2 md:border-b-0 md:border-r-2 border-[#8A6938] flex flex-col justify-between p-4 md:p-6 z-30 shadow-2xl shrink-0 max-h-[40vh] md:max-h-screen overflow-y-auto">
         <div>
+          {onBack && (
+            <button
+              onClick={() => {
+                audioService.playSFX('click');
+                window.location.href = '/?path=menu&page=menu';
+              }}
+              className="stone-button py-1 px-3 text-[10px] mb-3 text-[#D8C49A] border-[#8A6938]/60 hover:text-white uppercase font-orbitron tracking-wider flex items-center gap-1"
+            >
+              ⬅ Regresar al Menú
+            </button>
+          )}
           {/* Irwin Green Orc Header */}
           <div className="flex items-center gap-3 mb-2">
             <OrcIrwinAvatar />
@@ -558,7 +574,7 @@ export const TutorialUI: React.FC = () => {
               className="stone-button py-2 text-xs bg-[#40382d]/30 text-gray-300 hover:text-white"
               title="Reiniciar paso"
             >
-              🔄 Reiniciar
+              Reiniciar
             </button>
 
             {step.expectedAction === 'click_next' && (
@@ -572,7 +588,10 @@ export const TutorialUI: React.FC = () => {
 
             {step.expectedAction === 'click_finish' && (
               <button 
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  audioService.playSFX('click');
+                  window.location.href = '/?path=menu&page=menu';
+                }}
                 className="stone-button stone-button-blue py-2 text-xs flex-1 font-bold animate-bounce"
               >
                 Finalizar Tutorial 🎉

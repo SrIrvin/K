@@ -6,17 +6,46 @@ import {
   subscribeToAuthChanges 
 } from '../services/firebaseService';
 import { audioService } from '../services/audioService';
+import { useTranslation } from 'react-i18next';
 
-interface MainMenuProps {
-  onOnlineMode: () => void;
-}
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'zh', name: '中文' },
+  { code: 'fr', name: 'Français' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'pt', name: 'Português' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'ar', name: 'العربية' },
+  { code: 'nah', name: 'Nāhuatl' }
+];
 
 const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const { dispatch } = useContext(GameContext);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const { t, i18n } = useTranslation();
+  
+  const tMenu = {
+    subtitle: t('menu.subtitle'),
+    tagline: t('menu.tagline'),
+    nicknameLabel: t('menu.nickname_label'),
+    nicknamePlaceholder: t('menu.nickname_placeholder'),
+    googleConnect: t('menu.google_connect'),
+    logout: t('menu.logout'),
+    campaign: t('menu.campaign'),
+    playAi: t('menu.play_ai'),
+    aiDifficulty: t('menu.ai_difficulty'),
+    easy: t('menu.easy'),
+    hard: t('menu.hard'),
+    onlineLobby: t('menu.online_lobby'),
+    playP2: t('menu.play_p2'),
+    tutorial: t('menu.tutorial'),
+    footer: t('menu.footer'),
+    defaultHero: t('menu.default_hero')
+  };
   
   const [playerName, setPlayerName] = useState(() => {
-    return localStorage.getItem('k_player_name') || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
+    return localStorage.getItem('k_player_name') || `${tMenu.defaultHero || 'Hero'}_${Math.floor(1000 + Math.random() * 9000)}`;
   });
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'hard'>('easy');
 
@@ -62,7 +91,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   };
 
   const startGame = (gameType: 'ai' | 'p2') => {
-    const finalName = playerName.trim() || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
+    const finalName = playerName.trim() || `${tMenu.defaultHero || 'Hero'}_${Math.floor(1000 + Math.random() * 9000)}`;
     handleNameChange(finalName);
     dispatch({ 
       type: 'START_GAME', 
@@ -96,14 +125,33 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   });
 
   return (
-    <div className="ancient-bg flex flex-col items-center justify-center h-screen text-white p-4 relative overflow-hidden">
+    <div className="ancient-bg flex flex-col items-center justify-center h-screen text-white p-4 relative overflow-y-auto md:overflow-hidden">
       {/* Visual Overlay layers */}
       <div className="archaeological-vignette" />
       <div className="rune-overlay" />
       <div className="dust-container">{dustParticles}</div>
 
-      {/* Main Content Card Container (Carved Stone Slab) */}
-      <div className="relative z-20 flex flex-col items-center p-8 md:p-12 stone-modal max-w-lg w-full text-center">
+      {/* Language Selector in Top-Left Corner */}
+      <div className="fixed top-4 left-4 z-40 flex items-center gap-1.5 bg-[#1e1a14]/80 border border-[#8A6938]/60 px-3 py-1.5 rounded-full shadow-lg">
+        <span className="text-[#D8C49A] text-xs">🌐</span>
+        <select
+          value={i18n.language}
+          onChange={(e) => {
+            audioService.playSFX('click');
+            i18n.changeLanguage(e.target.value);
+          }}
+          className="bg-transparent border-none text-[#D8C49A] font-bold text-xs focus:outline-none cursor-pointer"
+        >
+          {languages.map((lng) => (
+            <option key={lng.code} value={lng.code} className="bg-[#2c241b] text-[#D8C49A]">
+              {lng.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Main Content Card Container (Ancient Scroll Parchment style) */}
+      <div className="relative z-20 flex flex-col items-center p-8 md:p-12 bg-[#181410]/95 border-2 border-[#574d3c]/80 rounded-2xl max-w-lg w-full text-center shadow-[inset_0_0_40px_rgba(0,0,0,0.9),0_15px_35px_rgba(0,0,0,0.7)]">
         {/* Title Symbol with ancient blue glow */}
         <div className="mb-4">
           <h1 className="text-6xl md:text-8xl font-ancient-header tracking-wider text-[#D8C49A] animate-pulse">
@@ -111,18 +159,18 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
           </h1>
           <div className="h-0.5 w-24 mx-auto my-2 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent" />
           <h2 className="text-xl md:text-2xl font-ancient-header tracking-widest text-[#9A8B72] mt-1">
-            DUELO ESTRATÉGICO
+            {tMenu.subtitle}
           </h2>
         </div>
 
         <p className="text-sm md:text-base text-[#D8C49A]/80 font-runic-text mb-6 max-w-xs leading-relaxed italic">
-          "Las runas del pasado despiertan en el tablero. Solo uno de los guerreros sobrevivirá al juicio de piedra."
+          "{tMenu.tagline}"
         </p>
 
         {/* Hero Name / Nickname Input & Google Sign-in */}
         <div className="w-full max-w-xs mb-8 bg-[#120f0b]/75 border border-[#574d3c]/70 p-3.5 rounded-lg flex flex-col gap-2.5 text-center shadow-inner relative z-30">
           <label className="text-[10px] font-orbitron font-bold text-[#D8C49A] uppercase tracking-widest">
-            Tu Nombre de Héroe (Nickname)
+            {tMenu.nicknameLabel}
           </label>
           <input
             type="text"
@@ -131,7 +179,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             maxLength={18}
             disabled={currentUser && !currentUser.isAnonymous}
             className="bg-[#2c241b] border border-[#8A6938] text-[#D8C49A] font-bold text-xs px-3 py-2 rounded w-full focus:outline-none focus:ring-1 focus:ring-[#D8C49A] text-center tracking-wider disabled:opacity-75 disabled:cursor-not-allowed"
-            placeholder="Escribe tu apodo..."
+            placeholder={tMenu.nicknamePlaceholder}
           />
           
           <div className="h-px bg-[#574d3c]/40 my-1 w-full" />
@@ -157,7 +205,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                 onClick={handleSignOut}
                 className="bg-[#8A6938]/30 hover:bg-red-950/80 border border-[#8A6938]/50 hover:border-red-700 text-[#D8C49A] hover:text-red-200 text-[8px] font-bold py-1 px-2.5 rounded transition-all shrink-0"
               >
-                Cerrar Sesión
+                {tMenu.logout}
               </button>
             </div>
           ) : (
@@ -183,7 +231,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                   fill="#EA4335"
                 />
               </svg>
-              Conectar con Google
+              {tMenu.googleConnect}
             </button>
           )}
         </div>
@@ -197,7 +245,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             }}
             className="stone-button w-full py-3.5 text-sm font-bold text-[#E6C687] bg-gradient-to-r from-[#4d321c] to-[#2c1d10] border-[#D8C49A] hover:from-[#5a3a20] hover:to-[#382414] shadow-[0_0_15px_rgba(216,196,154,0.15)] flex items-center justify-center gap-2"
           >
-            Campaña
+            {tMenu.campaign}
           </button>
 
           {/* AI Section with Difficulty Selection */}
@@ -206,10 +254,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
               onClick={() => startGame('ai')} 
               className="stone-button w-full py-3 text-sm"
             >
-              Desafiar a la IA
+              {tMenu.playAi}
             </button>
             <div className="flex items-center justify-between w-full px-1 text-[10px] text-[#9A8B72] font-orbitron">
-              <span className="tracking-wide">Dificultad IA:</span>
+              <span className="tracking-wide">{tMenu.aiDifficulty}</span>
               <div className="flex gap-1.5">
                 <button
                   onClick={() => setAiDifficulty('easy')}
@@ -219,7 +267,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                       : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
                   }`}
                 >
-                  Aprendiz (Fácil)
+                  {tMenu.easy}
                 </button>
                 <button
                   onClick={() => setAiDifficulty('hard')}
@@ -229,7 +277,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                       : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
                   }`}
                 >
-                  Táctico (Difícil)
+                  {tMenu.hard}
                 </button>
               </div>
             </div>
@@ -239,28 +287,28 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             onClick={onOnlineMode} 
             className="stone-button stone-button-blue w-full py-3 text-sm"
           >
-            Duelo en Línea (Salas)
+            {tMenu.onlineLobby}
           </button>
 
           <button 
             onClick={() => startGame('p2')} 
             className="stone-button w-full py-3 text-sm"
           >
-            Duelo Local (Cara a Cara)
+            {tMenu.playP2}
           </button>
 
           <button 
             onClick={() => dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' })} 
             className="stone-button w-full py-3 text-sm"
           >
-            ✨ Aprender a Jugar (Tutorial)
+            {tMenu.tutorial}
           </button>
         </div>
       </div>
 
       {/* Footer / Copyright in runic style & Contact */}
       <div className="absolute bottom-4 z-20 flex flex-col items-center gap-1 text-[9px] md:text-xs tracking-widest text-[#9A8B72] font-ancient-header opacity-75">
-        <div>A.D. MMXXVI • ARTEFACTO SAGRADO</div>
+        <div>{tMenu.footer}</div>
         <a 
           href="https://linkedin.com/in/sr-irvin/" 
           target="_blank" 

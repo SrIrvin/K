@@ -30,7 +30,7 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
       ? 'glow-necrotic levitate-spell' 
       : (card.rank && parseInt(card.rank, 10) >= 8) 
         ? 'glow-void' 
-        : (unit && unit.boosterCard ? 'glow-mystic' : '');
+        : (unit && (unit.boosterCard || (unit.boosterCards && unit.boosterCards.length > 0)) ? 'glow-mystic' : '');
   
   // Custom borders, backgrounds, gradients and text colors to clearly differentiate Red (Hearts/Diamonds) and Black (Clubs/Spades)
   const borderClass = isSelected
@@ -114,7 +114,7 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
               
               {/* Speed Display */}
               <div className="text-[8px] sm:text-[9px] text-[#9A8B72] border-t border-[#574d3c]/50 pt-0.5 font-runic-text">
-                Spd: <span className="text-[#D8C49A] font-bold">{unit.speed + (unit.boosterCard ? 1 : 0)}</span>
+                Spd: <span className="text-[#D8C49A] font-bold">{unit.speed + (unit.boosterCards ? unit.boosterCards.length : (unit.boosterCard ? 1 : 0))}</span>
               </div>
             </>
           ) : (
@@ -122,17 +122,21 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
           )}
 
           {/* Boosters & Attackers Indicators */}
-          {(unit.boosterCard || (unit.stackedAttackers && unit.stackedAttackers.length > 0)) && (
+          {(unit.boosterCard || (unit.boosterCards && unit.boosterCards.length > 0) || (unit.stackedAttackers && unit.stackedAttackers.length > 0)) && (
             <div className="flex justify-center items-center space-x-1.5 mt-1 pt-0.5 border-t border-[#574d3c]/30">
-              {unit.boosterCard && (
+              {(unit.boosterCards && unit.boosterCards.length > 0) ? (
+                <span title={`${unit.boosterCards.length} Jack Speed Boost(s)`} className="text-[10px] animate-pulse">
+                  ⚡x{unit.boosterCards.length}
+                </span>
+              ) : unit.boosterCard ? (
                 <span title="Jack Speed Boost" className="text-[10px] animate-pulse">⚡</span>
-              )}
+              ) : null}
               {unit.stackedAttackers && unit.stackedAttackers.length > 0 && (
                 <span 
                   title={`${unit.stackedAttackers.length} stacked attacker(s)`} 
                   className="text-[8px] font-bold bg-[#82443A] text-white px-1.5 py-0.2 rounded-full border border-[#D8C49A]/20"
                 >
-                  ⚔️ {unit.stackedAttackers.length}
+                  {unit.stackedAttackers.length}
                 </span>
               )}
             </div>
@@ -167,6 +171,7 @@ export const GameCard = React.memo<GameCardProps>(({ card, isSelected, onClick, 
       prevProps.unit?.speed === nextProps.unit?.speed &&
       prevProps.unit?.hasMoved === nextProps.unit?.hasMoved &&
       prevProps.unit?.boosterCard?.id === nextProps.unit?.boosterCard?.id &&
+      (prevProps.unit?.boosterCards || []).length === (nextProps.unit?.boosterCards || []).length &&
       (prevProps.unit?.stackedAttackers || []).length === (nextProps.unit?.stackedAttackers || []).length
     );
   }

@@ -46,8 +46,14 @@ export const moveUnit = (state: GameState, payload: { to: { row: number; col: nu
 
   let attackerUnit = { ...attacker, hasMoved: true };
 
-  // Discard booster card if present
-  if (attackerUnit.boosterCard) {
+  // Discard booster cards if present
+  if (attackerUnit.boosterCards && attackerUnit.boosterCards.length > 0) {
+    for (const card of attackerUnit.boosterCards) {
+      updatedState = mutators.addCardToDiscard(updatedState, currentPlayer.id, card);
+    }
+    attackerUnit.boosterCards = [];
+    attackerUnit.boosterCard = null;
+  } else if (attackerUnit.boosterCard) {
     updatedState = mutators.addCardToDiscard(updatedState, currentPlayer.id, attackerUnit.boosterCard);
     attackerUnit.boosterCard = null;
   }

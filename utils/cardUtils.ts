@@ -3,7 +3,7 @@ import { Card, Unit, Suit, Rank } from '../types';
 export const unitToCard = (unit: Unit): Card => {
     const { 
         baseDamage, currentDamage, speed, position, 
-        hasMoved, boosterCard, stackedAttackers, ...card 
+        hasMoved, boosterCard, boosterCards, stackedAttackers, ...card 
     } = unit;
     return card;
 };

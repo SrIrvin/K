@@ -11,7 +11,7 @@ export const startGame = (initialState: GameState, payload: { gameType: 'ai' | '
 
   const player1: Player = { 
     id: 0, 
-    name: payload.playerName || 'Player 1 (Black)', 
+    name: payload.playerName || 'Player 1', 
     color: CardColor.Black, 
     damage: 0, 
     deck: blackDeck, 
@@ -23,8 +23,8 @@ export const startGame = (initialState: GameState, payload: { gameType: 'ai' | '
   const player2: Player = { 
     id: 1, 
     name: gameType === 'ai' 
-      ? (aiDifficulty === 'hard' ? 'IA Táctica (Red)' : 'IA Aprendiz (Red)') 
-      : 'Player 2 (Red)', 
+      ? (aiDifficulty === 'hard' ? 'IA Táctica' : 'IA Aprendiz') 
+      : 'Player 2', 
     color: CardColor.Red, 
     damage: 0, 
     deck: redDeck, 
@@ -94,7 +94,7 @@ export const startAdventureLevel = (initialState: GameState, payload: { level: n
   const redDeck = createDeck(CardColor.Red);
 
   const guardianNames = [
-    'PiscinaDeLaMuerte',
+    'Piscina De La Muerte',
     'Solar',
     'IrwingElSabio',
     'Shinigami',

@@ -17,10 +17,13 @@ export const GameContext = createContext<GameContextProps>({
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+  const stateRef = React.useRef(state);
+  stateRef.current = state;
 
   const wrappedDispatch = useCallback((action: Action) => {
+    const currentState = stateRef.current;
     // 1. Calculate next state to determine triggers
-    const nextState = gameReducer(state, action);
+    const nextState = gameReducer(currentState, action);
 
     // 2. Play sound effects based on actions
     try {
@@ -48,12 +51,12 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             audioService.playSFX('win'); // Touchdown
           } else {
             // Check if there was an enemy unit at the target position (combat)
-            const targetUnit = state.board[to.row]?.[to.col];
+            const targetUnit = currentState.board[to.row]?.[to.col];
             const activeUnitId = action.type === 'MOVE_UNIT' 
-              ? state.selectedUnitIdOnBoard 
-              : state.kingMoveState?.selectedUnitId;
+              ? currentState.selectedUnitIdOnBoard 
+              : currentState.kingMoveState?.selectedUnitId;
             
-            const attacker = state.board.flat().find(u => u?.id === activeUnitId);
+            const attacker = currentState.board.flat().find(u => u?.id === activeUnitId);
 
             if (targetUnit && attacker && targetUnit.color !== attacker.color) {
               audioService.playSFX('combat');
@@ -87,9 +90,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           break;
 
         case 'USE_ABILITY_ON_TARGET':
-          if (state.isTargeting === 'queen') audioService.playSFX('heal');
-          else if (state.isTargeting === 'jack') audioService.playSFX('turbo');
-          else if (state.isTargeting === 'joker') audioService.playSFX('joker');
+          if (currentState.isTargeting === 'queen') audioService.playSFX('heal');
+          else if (currentState.isTargeting === 'jack') audioService.playSFX('turbo');
+          else if (currentState.isTargeting === 'joker') audioService.playSFX('joker');
           break;
 
         case 'START_GAME':
@@ -102,7 +105,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       // Check for victory or defeat
-      if (!state.winner && nextState.winner) {
+      if (!currentState.winner && nextState.winner) {
         const localId = nextState.localPlayerId ?? 0;
         if (nextState.winner.id === localId) {
           audioService.playSFX('win');
@@ -149,7 +152,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // 3. Handle BGM music transitions
     try {
-      if (state.gameMode !== nextState.gameMode) {
+      if (currentState.gameMode !== nextState.gameMode) {
         if (nextState.gameMode === 'playing' || nextState.gameMode === 'switch_turn') {
           audioService.startBGM();
         } else if (nextState.gameMode === 'menu' || nextState.gameMode === 'game_over') {
@@ -164,7 +167,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch(action);
 
     // Sync online action if multiplayer
-    if (state.gameType === 'online' && activeRoomId && !isIncomingAction) {
+    if (currentState.gameType === 'online' && activeRoomId && !isIncomingAction) {
       const isLocalAction = ![
         'SET_ONLINE_GAME',
         'SET_FULL_STATE',
@@ -177,7 +180,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sendGameAction(action);
       }
     }
-  }, [state, dispatch]);
+  }, [dispatch]);
 
   return (
     <GameContext.Provider value={{ state, dispatch: wrappedDispatch }}>

@@ -83,11 +83,15 @@ export const applyJackAbility = (
     if (unitOnBoard.color !== currentPlayer.color) {
         return mutators.addLog(state, "Jack can only target friendly units.");
     }
-    if (unitOnBoard.boosterCard) {
-        return mutators.addLog(state, "Unit already has a booster card.");
-    }
 
-    const boostedUnit = { ...unitOnBoard, boosterCard: cardInHand };
+    const currentBoosters = unitOnBoard.boosterCards || [];
+    const updatedBoosters = [...currentBoosters, cardInHand];
+
+    const boostedUnit = { 
+        ...unitOnBoard, 
+        boosterCard: unitOnBoard.boosterCard || cardInHand, // Maintain backward compatibility
+        boosterCards: updatedBoosters 
+    };
     let updatedState = mutators.placeUnitOnBoard(state, unitOnBoard.position.row, unitOnBoard.position.col, boostedUnit);
     
     const newHand = currentPlayer.hand.filter(c => c.id !== cardInHand.id);

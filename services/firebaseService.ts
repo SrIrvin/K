@@ -193,15 +193,22 @@ export interface LobbyRoom {
     peerId: string;
   };
   createdAt: number;
+  isPortal?: boolean;
+  level?: number;
 }
 
 /**
  * Create a new multiplayer room in the lobby
  */
-export const createLobbyRoom = async (roomName: string, hostName: string, hostPeerId: string): Promise<string> => {
-  const roomsRef = ref(rtdb, 'rooms');
-  const newRoomRef = push(roomsRef);
-  const roomId = newRoomRef.key!;
+export const createLobbyRoom = async (
+  roomId: string,
+  roomName: string, 
+  hostName: string, 
+  hostPeerId: string,
+  isPortal?: boolean,
+  level?: number
+): Promise<string> => {
+  const roomRef = ref(rtdb, `rooms/${roomId}`);
   
   const roomData: LobbyRoom = {
     id: roomId,
@@ -211,10 +218,12 @@ export const createLobbyRoom = async (roomName: string, hostName: string, hostPe
       name: hostName,
       peerId: hostPeerId
     },
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    isPortal,
+    level
   };
   
-  await set(newRoomRef, roomData);
+  await set(roomRef, roomData);
   return roomId;
 };
 

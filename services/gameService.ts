@@ -48,7 +48,7 @@ export const getValidMoves = (unit: Unit, board: (Unit | null)[][], playerId: nu
 
   const validMoves: { row: number; col: number }[] = [];
   const { row, col } = unit.position;
-  const speed = unit.speed + (unit.boosterCard ? 1 : 0);
+  const speed = unit.speed + (unit.boosterCards ? unit.boosterCards.length : (unit.boosterCard ? 1 : 0));
 
   const queue: { pos: { row: number; col: number }; dist: number }[] = [{ pos: { row, col }, dist: 0 }];
   const visited = new Set<string>([`${row},${col}`]);

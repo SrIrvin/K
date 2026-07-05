@@ -37,7 +37,8 @@ export const initializeHostPeer = (
   roomId: string,
   onOpponentJoined: (conn: DataConnection) => void,
   onClose: () => void,
-  onError: (err: any) => void
+  onError: (err: any) => void,
+  onOpen?: () => void
 ) => {
   cleanupPeer();
 
@@ -47,6 +48,7 @@ export const initializeHostPeer = (
     console.log('Host Peer opened with ID:', id);
     activeRoomId = id;
     localPlayerId = 0; // Host is Player 0
+    if (onOpen) onOpen();
   });
 
   peer.on('connection', (conn) => {

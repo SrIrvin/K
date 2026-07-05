@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GameContext } from '../context/GameContext';
 import { 
   initializeHostPeer, 
@@ -10,7 +11,7 @@ import {
   localPlayerId,
   connection
 } from '../services/peerService';
-import { startGame } from '../services/actions/gameSetup';
+import { startGame, startAdventureLevel } from '../services/actions/gameSetup';
 import { GameState } from '../types';
 import { 
   loginAsGuest, 
@@ -31,6 +32,7 @@ interface OnlineLobbyProps {
 }
 
 const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
+  const { t } = useTranslation();
   const { state, dispatch } = useContext(GameContext);
   const [playerName, setPlayerName] = useState(() => {
     return localStorage.getItem('k_player_name') || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
@@ -77,17 +79,53 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     const params = new URLSearchParams(window.location.search);
     const roomFromUrl = params.get('room');
     if (roomFromUrl) {
-      // Clear parameter from URL silently
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-      
       // Auto-join with a slight timeout to ensure peer / firebase is fully ready
-      setStatusText(`Cruzando portal de invitación ${roomFromUrl}...`);
+      setStatusText(t('lobby.joining_invite', 'Cruzando portal de invitación {{room}}...', { room: roomFromUrl }));
       setTimeout(() => {
         handleJoinRoomByCode(roomFromUrl);
       }, 600);
     }
   }, []);
+
+  // Synchronize activeRoomId to the URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get('room');
+    if (activeRoomId) {
+      if (roomFromUrl !== activeRoomId) {
+        params.set('path', 'lobby');
+        params.set('page', 'lobby');
+        params.set('room', activeRoomId);
+        window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
+      }
+    } else {
+      if (params.has('room')) {
+        params.delete('room');
+        params.set('path', 'lobby');
+        params.set('page', 'lobby');
+        window.history.replaceState({}, document.title, `${window.location.pathname}?${params.toString()}`);
+      }
+    }
+  }, [activeRoomId]);
+
+  // Auto-host portal room if hostedPortalLevel is set on mount
+  useEffect(() => {
+    if (state.hostedPortalLevel && !activeRoomId && !connecting) {
+      handleCreateRoom();
+    }
+  }, [state.hostedPortalLevel]);
+
+  // Auto-join portal room if autoJoinRoomCode is set on mount
+  useEffect(() => {
+    if (state.autoJoinRoomCode) {
+      const code = state.autoJoinRoomCode;
+      dispatch({ type: 'SET_AUTO_JOIN_ROOM_CODE', payload: { code: null } });
+      setStatusText(t('lobby.joining_portal', 'Cruzando portal en línea {{code}}...', { code: code }));
+      setTimeout(() => {
+        handleJoinRoomByCode(code);
+      }, 600);
+    }
+  }, [state.autoJoinRoomCode]);
 
   // Subscribe to RTDB active rooms and load leaderboard/ranking
   useEffect(() => {
@@ -140,7 +178,9 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
 
             // Initialize the game state and send it to the guest
             setTimeout(() => {
-              const freshState = startGame(state, { gameType: 'p2' });
+              const freshState = state.hostedPortalLevel
+                ? startAdventureLevel(state, { level: state.hostedPortalLevel, playerName: playerName })
+                : startGame(state, { gameType: 'p2' });
               const onlineState: GameState = {
                 ...freshState,
                 gameType: 'online',
@@ -202,13 +242,13 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     // Generate a human-readable 5-character code
     const code = 'K-' + Math.random().toString(36).substring(2, 7).toUpperCase();
     setActiveRoomId(code);
-    setStatusText('Creando portal sagrado...');
+    setStatusText(t('lobby.creating_portal', 'Creando portal sagrado...'));
 
     initializeHostPeer(
       code,
       // Opponent joined
       (conn) => {
-        setStatusText('¡Guerrero detectado! Conectando mentes...');
+        setStatusText(t('lobby.warrior_detected', '¡Guerrero detectado! Conectando mentes...'));
         setConnecting(false);
         
         // Remove room from Firebase RTDB lobby once connected
@@ -232,19 +272,28 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
         deleteLobbyRoom(code).catch(err => console.error('[Firebase] Clean room error:', err));
         setConnecting(false);
         setActiveRoomId(null);
-        setErrorMsg('Error al crear la sala. Prueba de nuevo o revisa tu conexión.');
+        setErrorMsg(t('lobby.create_error', 'Error al crear la sala. Prueba de nuevo o revisa tu conexión.'));
+      },
+      // On Open/Ready
+      () => {
+        setConnecting(false);
       }
     );
 
     // Register room in Firebase RTDB
-    createLobbyRoom(code, `${playerName}'s Portal`, code).catch(err => {
+    const isPortalRoom = !!state.hostedPortalLevel;
+    const resolvedRoomName = isPortalRoom 
+      ? t('lobby.portal_level_name', 'Portal {{level}}: {{name}}', { level: state.hostedPortalLevel, name: playerName })
+      : t('lobby.player_portal_name', 'Portal de {{name}}', { name: playerName });
+
+    createLobbyRoom(code, resolvedRoomName, playerName, code, isPortalRoom, state.hostedPortalLevel || undefined).catch(err => {
       console.error('[Firebase] Failed to register lobby room:', err);
     });
   };
 
   const handleJoinRoomByCode = (code: string) => {
     if (!playerName.trim()) {
-      setErrorMsg('Debes ingresar tu nombre de héroe.');
+      setErrorMsg(t('lobby.name_required', 'Debes ingresar tu nombre de héroe.'));
       return;
     }
 
@@ -252,13 +301,13 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     setErrorMsg(null);
     setIsHost(false);
     setOpponentName(null);
-    setStatusText(`Buscando el portal ${code}...`);
+    setStatusText(t('lobby.searching_portal', 'Buscando el portal {{code}}...', { code: code }));
 
     initializeGuestPeer(
       code,
       // Connected
       (conn) => {
-        setStatusText('¡Portal cruzado! Sincronizando con el anfitrión...');
+        setStatusText(t('lobby.sync_host', '¡Portal cruzado! Sincronizando con el anfitrión...'));
         setConnecting(false);
         onGameJoined(code, 1);
         
@@ -347,11 +396,11 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
         {/* Title */}
         <div className="mb-4">
           <h1 className="text-4xl md:text-5xl font-ancient-header tracking-wider text-[#D8C49A]">
-            PORTAL DE PIEDRA
+            {t('lobby.title', 'PORTAL DE PIEDRA')}
           </h1>
           <div className="h-0.5 w-24 mx-auto my-2 bg-gradient-to-r from-transparent via-[#8A6938] to-transparent" />
           <h2 className="text-xs font-orbitron tracking-widest text-[#9A8B72] mt-1">
-            DUELO EN LÍNEA POR PORTAL SAGRADO
+            {t('lobby.subtitle', 'DUELO EN LÍNEA POR PORTAL SAGRADO')}
           </h2>
         </div>
 
@@ -369,14 +418,14 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
             </p>
             {activeRoomId && isHost && (
               <p className="text-xs text-[#9A8B72] font-mono mt-1">
-                Comparte el código: <span className="text-[#D8C49A] font-bold">{activeRoomId}</span>
+                {t('lobby.status_code', 'Comparte el código: ')} <span className="text-[#D8C49A] font-bold">{activeRoomId}</span>
               </p>
             )}
             <button
               onClick={handleLeaveRoom}
               className="stone-button stone-button-red text-xs py-1.5 px-4 mt-2"
             >
-              Cancelar
+              {t('lobby.cancel', 'Cancelar')}
             </button>
           </div>
         ) : !activeRoomId ? (
@@ -385,7 +434,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
             {/* Player Profile */}
             <div className="bg-[#120f0b]/75 border border-[#574d3c] p-3 rounded-lg flex flex-col sm:flex-row gap-3 items-center justify-between shadow-inner">
               <label className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider">
-                Tu Nombre de Héroe:
+                {t('lobby.nickname_label', 'Tu Nombre de Héroe:')}
               </label>
               <input
                 type="text"
@@ -401,17 +450,17 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col justify-between gap-3 shadow-md">
                 <div>
                   <h3 className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5">
-                    1. Crear Portal (Host)
+                    {t('lobby.create_title', '1. Crear Portal (Host)')}
                   </h3>
                   <p className="text-[10px] text-[#9A8B72] font-runic-text italic leading-relaxed mt-2">
-                    Abrirás un nuevo portal y esperarás a que un oponente ingrese tu código o se una desde la lista.
+                    {t('lobby.create_desc', 'Abrirás un nuevo portal y esperarás a que un oponente ingrese tu código o se una desde la lista.')}
                   </p>
                 </div>
                 <button 
                   onClick={handleCreateRoom}
                   className="stone-button text-xs py-2 w-full mt-2"
                 >
-                  Abrir Portal
+                  {t('lobby.create_btn', 'Abrir Portal')}
                 </button>
               </div>
 
@@ -419,10 +468,10 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               <form onSubmit={handleJoinRoom} className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col justify-between gap-3 shadow-md">
                 <div>
                   <h3 className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5">
-                    2. Unirse por Código
+                    {t('lobby.join_title', '2. Unirse por Código')}
                   </h3>
                   <div className="flex flex-col gap-1 mt-2">
-                    <label className="text-[9px] text-[#9A8B72] uppercase font-bold">Código del Portal:</label>
+                    <label className="text-[9px] text-[#9A8B72] uppercase font-bold">{t('lobby.code_label', 'Código del Portal:')}</label>
                     <input
                       type="text"
                       placeholder="Ej: K-HF4B2"
@@ -433,7 +482,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                   </div>
                 </div>
                 <button type="submit" className="stone-button stone-button-blue text-xs py-2 w-full mt-2">
-                  Cruzar Portal
+                  {t('lobby.join_btn', 'Cruzar Portal')}
                 </button>
               </form>
             </div>
@@ -441,14 +490,14 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
             {/* Option 3: Realtime Database Room List */}
             <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-4 rounded-lg flex flex-col gap-3 shadow-md">
               <h3 className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider border-b border-[#574d3c] pb-1.5 flex items-center justify-between">
-                <span>3. Portales Activos en el Templo</span>
-                <span className="text-[8px] bg-green-950/70 border border-green-600/40 text-green-400 px-1.5 py-0.5 rounded font-mono animate-pulse">EN VIVO</span>
+                <span>{t('lobby.active_portals', '3. Portales Activos en el Templo')}</span>
+                <span className="text-[8px] bg-green-950/70 border border-green-600/40 text-green-400 px-1.5 py-0.5 rounded font-mono animate-pulse">{t('lobby.live_badge', 'EN VIVO')}</span>
               </h3>
               
               <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-1">
                 {availableRooms.length === 0 ? (
                   <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
-                    No hay portales abiertos en este momento. ¡Abre uno!
+                    {t('lobby.no_portals', 'No hay portales abiertos en este momento. ¡Abre uno!')}
                   </div>
                 ) : (
                   availableRooms.map((room) => (
@@ -457,18 +506,23 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                       className="bg-[#120f0b]/90 border border-[#574d3c]/60 p-2 rounded flex items-center justify-between hover:border-[#8A6938] transition-colors"
                     >
                       <div className="flex flex-col text-left">
-                        <span className="text-[11px] font-bold text-[#D8C49A]">
+                        <span className="text-[11px] font-bold text-[#D8C49A] flex items-center gap-1.5">
+                          {room.isPortal && (
+                            <span className="bg-cyan-950/80 border border-cyan-600/50 text-cyan-400 text-[8px] font-orbitron px-1 rounded font-extrabold animate-pulse uppercase">
+                              {t('lobby.portal_level', 'Portal {{level}}', { level: room.level })}
+                            </span>
+                          )}
                           {room.name}
                         </span>
                         <span className="text-[9px] text-[#9A8B72] font-mono">
-                          Creador: {room.host.name}
+                          {t('lobby.creator_name', 'Creador: {{name}}', { name: room.host.name })}
                         </span>
                       </div>
                       <button
                         onClick={() => handleJoinRoomByCode(room.id)}
                         className="stone-button stone-button-blue text-[9px] py-1 px-3"
                       >
-                        UNIRSE
+                        {t('lobby.join_action_btn', 'UNIRSE')}
                       </button>
                     </div>
                   ))
@@ -488,7 +542,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                       : 'text-[#9A8B72]/60 border-transparent hover:text-[#9A8B72]'
                   }`}
                 >
-                  🏆 Ranking (Top 10)
+                  {t('lobby.ranking_tab', '🏆 Ranking (Top 10)')}
                 </button>
                 <button
                   onClick={() => setActiveTab('records')}
@@ -498,7 +552,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                       : 'text-[#9A8B72]/60 border-transparent hover:text-[#9A8B72]'
                   }`}
                 >
-                  📜 Crónicas de Duelo
+                  {t('lobby.records_tab', '📜 Crónicas de Duelo')}
                 </button>
               </div>
               
@@ -509,7 +563,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                   <div className="flex flex-col gap-1.5">
                     {ranking.length === 0 ? (
                       <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
-                        Los templos aún no tienen guerreros consagrados...
+                        {t('lobby.no_ranking', 'Los templos aún no tienen guerreros consagrados...')}
                       </div>
                     ) : (
                       ranking.map((player, index) => {
@@ -537,12 +591,12 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                             </div>
                             <div className="flex gap-4 font-mono text-[10px] text-right">
                               <div>
-                                <span className="text-green-500 font-bold">{player.wins} V</span>
+                                <span className="text-green-500 font-bold">{player.wins} {t('lobby.wins_short', 'V')}</span>
                                 <span className="text-[#9A8B72]/50 mx-1">/</span>
-                                <span className="text-red-500">{player.losses} D</span>
+                                <span className="text-red-500">{player.losses} {t('lobby.losses_short', 'D')}</span>
                               </div>
                               <div className="text-[#9A8B72] font-semibold w-16 text-right">
-                                PG: {player.totalGames}
+                                {t('lobby.total_games_short', 'PG')}: {player.totalGames}
                               </div>
                             </div>
                           </div>
@@ -555,7 +609,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                   <div className="flex flex-col gap-1.5">
                     {leaderboard.length === 0 ? (
                       <div className="text-center text-[10px] text-[#9A8B72]/50 py-4 italic">
-                        Aún no hay registros de batalla en los templos.
+                        {t('lobby.no_records', 'Aún no hay registros de batalla en los templos.')}
                       </div>
                     ) : (
                       leaderboard.map((record, index) => (
@@ -565,7 +619,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                         >
                           <div>
                             <span className="font-bold text-[#D8C49A]">{record.winnerName}</span> 
-                            <span className="text-[#9A8B72]/65"> derrotó a </span>
+                            <span className="text-[#9A8B72]/65"> {t('lobby.record_defeated', 'derrotó a')} </span>
                             <span className="font-bold text-[#D8C49A]">{record.loserName}</span>
                           </div>
                           <div className="font-mono text-[10px] text-[#8A6938] font-bold">
@@ -584,7 +638,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               onClick={onBack}
               className="stone-button stone-button-red text-xs py-2 w-32 self-center mt-2 shadow"
             >
-              Volver al Menú
+              {t('lobby.back_btn', 'Volver al Menú')}
             </button>
           </div>
         ) : (
@@ -592,7 +646,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
           <div className="w-full flex flex-col gap-6 text-left">
             <div className="bg-[#1e1a14]/90 border-2 border-[#574d3c] p-5 rounded-lg flex flex-col gap-4 text-center">
               <h2 className="text-lg font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider animate-pulse">
-                PORTAL ABIERTO
+                {t('lobby.portal_open', 'PORTAL ABIERTO')}
               </h2>
               
               <div className="flex flex-col gap-3.5 max-w-sm mx-auto w-full">
@@ -605,7 +659,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                     onClick={copyRoomCode}
                     className="bg-[#8A6938] text-white hover:bg-[#D8C49A] hover:text-[#2A2A2A] text-xs font-bold px-3 py-2 rounded.5 transition-all shadow border border-[#D8C49A]/30 flex items-center gap-1.5"
                   >
-                    <span>📋</span> {copiedCode ? '¡Copiado!' : 'Copiar Código'}
+                    <span>📋</span> {copiedCode ? t('lobby.copied', '¡Copiado!') : t('lobby.copy_code', 'Copiar Código')}
                   </button>
                 </div>
 
@@ -614,7 +668,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                   onClick={copyDirectLink}
                   className="bg-[#1e40af] text-white hover:bg-[#2563eb] text-xs font-bold py-2.5 px-4 rounded transition-all shadow border border-blue-500/40 flex items-center justify-center gap-2 w-full"
                 >
-                  <span>🔗</span> {copiedLink ? '¡Enlace Copiado!' : 'Copiar Enlace de Invitación'}
+                  <span>🔗</span> {copiedLink ? t('lobby.link_copied', '¡Enlace Copiado!') : t('lobby.copy_link', 'Copiar Enlace de Invitación')}
                 </button>
               </div>
 
@@ -622,32 +676,32 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
 
               <div className="flex flex-col gap-2.5 max-w-sm mx-auto w-full text-left">
                 <h4 className="text-xs font-orbitron font-bold text-[#9A8B72] uppercase tracking-widest text-center mb-1">
-                  Guerreros en el Portal:
+                  {t('lobby.warriors_in_portal', 'Guerreros en el Portal:')}
                 </h4>
                 
                 {/* Creator (You if host, or Opponent if guest) */}
                 <div className="bg-[#120f0b]/90 border border-[#574d3c]/60 px-4 py-2.5 rounded flex items-center justify-between">
                   <span className="text-sm font-bold text-[#D8C49A]">
-                    {isHost ? playerName : (opponentName || 'Conectando...')}
+                    {isHost ? playerName : (opponentName || t('lobby.connecting', 'Conectando...'))}
                   </span>
                   <span className="text-xs px-2 py-0.5 rounded font-bold font-mono border text-[#4facfe] border-[#4facfe]/45 bg-[#4facfe]/10">
-                    Host (Mazo Negro)
+                    {t('lobby.role_host', 'Host (Mazo Negro)')}
                   </span>
                 </div>
 
                 {/* Guest (Opponent if host, or You if guest) */}
                 <div className="bg-[#120f0b]/90 border border-[#574d3c]/60 px-4 py-2.5 rounded flex items-center justify-between">
                   <span className="text-sm font-bold text-[#D8C49A]">
-                    {!isHost ? playerName : (opponentName || 'Esperando...')}
+                    {!isHost ? playerName : (opponentName || t('lobby.waiting', 'Esperando...'))}
                   </span>
                   <span className="text-xs px-2 py-0.5 rounded font-bold font-mono border text-[#e07567] border-[#e07567]/45 bg-[#e07567]/10">
-                    Invitado (Mazo Rojo)
+                    {t('lobby.role_guest', 'Invitado (Mazo Rojo)')}
                   </span>
                 </div>
                 
                 {!opponentName && (
                   <div className="bg-[#120f0b]/40 border border-dashed border-[#574d3c]/40 px-4 py-3 rounded text-center text-xs text-[#9A8B72] italic animate-pulse mt-1">
-                    Esperando a que tu rival ingrese el código del portal...
+                    {t('lobby.waiting_for_rival', 'Esperando a que tu rival ingrese el código del portal...')}
                   </div>
                 )}
               </div>
@@ -656,7 +710,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                 <div className="flex flex-col items-center justify-center py-2 gap-2 mt-2">
                   <div className="w-6 h-6 border-2 border-[#8A6938] border-t-[#D8C49A] rounded-full animate-spin" />
                   <p className="text-xs font-mono text-[#D8C49A] animate-pulse">
-                    ¡Ambos guerreros en sintonía! Sincronizando runas de batalla...
+                    {t('lobby.synchronizing_runes', '¡Ambos guerreros en sintonía! Sincronizando runas de batalla...')}
                   </p>
                 </div>
               )}
@@ -667,7 +721,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               onClick={handleLeaveRoom}
               className="stone-button stone-button-red text-xs py-2 w-44 self-center mt-2 shadow"
             >
-              Cerrar Portal
+              {t('lobby.close_portal', 'Cerrar Portal')}
             </button>
           </div>
         )}

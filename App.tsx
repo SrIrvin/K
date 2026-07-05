@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { GameContext } from './context/GameContext';
 import MainMenu from './components/MainMenu';
 import GameUI from './components/GameUI';
@@ -13,9 +13,61 @@ import {
   cleanupPeer,
   setIncomingActionFlag 
 } from './services/peerService';
+import { 
+  getInitialGraphicsSetting, 
+  applyGraphicsSettings, 
+  applySmartphoneMode 
+} from './utils/graphicsSettings';
+
+// Helper to map URL page/path and room parameters to internal game mode
+const getGameModeFromUrl = (pageOrPath: string | null, room: string | null): 'menu' | 'online_lobby' | 'adventure_map' | 'tutorial' | 'playing' => {
+  if (room || pageOrPath === 'lobby' || pageOrPath === 'online_lobby') {
+    return 'online_lobby';
+  }
+  if (pageOrPath === 'adventure' || pageOrPath === 'adventure_map') {
+    return 'adventure_map';
+  }
+  if (pageOrPath === 'tutorial') {
+    return 'tutorial';
+  }
+  if (pageOrPath === 'game' || pageOrPath === 'playing') {
+    return 'playing';
+  }
+  return 'menu';
+};
+
+// Helper to map internal game mode to external URL path value
+const getUrlPathFromGameMode = (gameMode: string): string => {
+  if (gameMode === 'online_lobby') return 'lobby';
+  if (gameMode === 'adventure_map') return 'adventure';
+  if (gameMode === 'tutorial') return 'tutorial';
+  if (['playing', 'switch_turn', 'game_over'].includes(gameMode)) return 'game';
+  return 'menu';
+};
 
 function AppContent() {
   const { state, dispatch } = useContext(GameContext);
+
+  // States to handle the premium Japanese Kabuki (Joshikimaku) loading curtain transitions
+  const [renderedGameMode, setRenderedGameMode] = useState<'menu' | 'online_lobby' | 'adventure_map' | 'tutorial' | 'playing'>(state.gameMode);
+  const [isCurtainActive, setIsCurtainActive] = useState(false);
+
+  // Initialize graphics quality and smartphone mode
+  useEffect(() => {
+    const initGraphicsAndMobile = () => {
+      const initialGraphics = getInitialGraphicsSetting();
+      applyGraphicsSettings(initialGraphics);
+      applySmartphoneMode();
+    };
+
+    initGraphicsAndMobile();
+
+    // Re-check smartphone mode on window resize
+    window.addEventListener('resize', applySmartphoneMode);
+    return () => {
+      window.removeEventListener('resize', applySmartphoneMode);
+    };
+  }, []);
 
   useEffect(() => {
     const handleSocketMessage = (data: any) => {
@@ -45,13 +97,85 @@ function AppContent() {
     };
   }, [dispatch]);
 
-  // Redirect to Online Lobby if invite room is in the URL query parameters
+  // Premium Joshikimaku Curtain Transition logic whenever the game mode changes
+  useEffect(() => {
+    if (state.gameMode !== renderedGameMode) {
+      // 1. Close curtain
+      setIsCurtainActive(true);
+      
+      // 2. Wait for curtain to completely close before mounting new screen
+      const renderTimer = setTimeout(() => {
+        setRenderedGameMode(state.gameMode);
+        
+        // 3. Keep curtain closed briefly to allow React rendering behind the scenes, then slide open
+        const openTimer = setTimeout(() => {
+          setIsCurtainActive(false);
+        }, 300);
+        
+      }, 650);
+      
+      return () => {
+        clearTimeout(renderTimer);
+      };
+    }
+  }, [state.gameMode]);
+
+  // Initialize state from URL on mount (Deep Linking)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const roomFromUrl = params.get('room');
-    if (roomFromUrl) {
-      dispatch({ type: 'SET_GAME_MODE', payload: 'online_lobby' });
+    const pageOrPath = params.get('path') || params.get('page');
+    const room = params.get('room');
+    
+    const targetMode = getGameModeFromUrl(pageOrPath, room);
+
+    if (targetMode !== 'menu') {
+      dispatch({ type: 'SET_GAME_MODE', payload: targetMode as any });
+      setRenderedGameMode(targetMode); // Instantly set on mount to prevent unnecessary curtain transition
     }
+  }, [dispatch]);
+
+  // Synchronize state.gameMode with the URL (Bidirectional Sync)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const currentPath = params.get('path') || params.get('page');
+    const currentRoom = params.get('room');
+    
+    const expectedPath = getUrlPathFromGameMode(state.gameMode);
+
+    if (currentPath !== expectedPath) {
+      const newParams = new URLSearchParams();
+      newParams.set('path', expectedPath);
+      newParams.set('page', expectedPath); // Maintain backward compatibility
+      if (state.gameMode === 'online_lobby' && currentRoom) {
+        newParams.set('room', currentRoom);
+      }
+      const newSearch = newParams.toString();
+      window.history.replaceState(null, '', `${window.location.pathname}?${newSearch}`);
+    }
+  }, [state.gameMode]);
+
+  // Keep a ref of gameMode to avoid popstate listener re-registration / race conditions
+  const gameModeRef = React.useRef(state.gameMode);
+  useEffect(() => {
+    gameModeRef.current = state.gameMode;
+  }, [state.gameMode]);
+
+  // Listen to browser Back/Forward navigation (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const pageOrPath = params.get('path') || params.get('page');
+      const room = params.get('room');
+      
+      const targetMode = getGameModeFromUrl(pageOrPath, room);
+      
+      if (gameModeRef.current !== targetMode) {
+        dispatch({ type: 'SET_GAME_MODE', payload: targetMode as any });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, [dispatch]);
 
   const handleGameJoined = (roomId: string, localPlayerId: number) => {
@@ -59,7 +183,7 @@ function AppContent() {
   };
 
   const renderContent = () => {
-    switch (state.gameMode) {
+    switch (renderedGameMode) {
       case 'menu':
         return (
           <MainMenu 
@@ -71,7 +195,13 @@ function AppContent() {
           <OnlineLobby 
             onBack={() => {
               cleanupPeer();
-              dispatch({ type: 'SET_GAME_MODE', payload: 'menu' });
+              const wasPortal = !!state.hostedPortalLevel;
+              dispatch({ type: 'SET_HOSTED_PORTAL_LEVEL', payload: { level: null } });
+              if (wasPortal) {
+                window.location.href = '/?path=adventure&page=adventure';
+              } else {
+                window.location.href = '/?path=menu&page=menu';
+              }
             }}
             onGameJoined={handleGameJoined}
           />
@@ -81,6 +211,7 @@ function AppContent() {
           <AdventureMap 
             onBack={() => dispatch({ type: 'SET_GAME_MODE', payload: 'menu' })} 
             dispatch={dispatch}
+            state={state}
           />
         );
       case 'playing':
@@ -88,7 +219,7 @@ function AppContent() {
       case 'game_over':
         return <GameUI />;
       case 'tutorial':
-        return <TutorialUI />;
+        return <TutorialUI onBack={() => dispatch({ type: 'SET_GAME_MODE', payload: 'menu' })} />;
       default:
         return (
           <MainMenu 
@@ -101,6 +232,16 @@ function AppContent() {
   return (
     <>
       {renderContent()}
+      
+      {/* 🎭 Kabuki Curtain (Joshikimaku) Premium Loading Overlay */}
+      <div className={`kabuki-curtain ${isCurtainActive ? 'active' : ''}`}>
+        <div className="kabuki-left" />
+        <div className="kabuki-right" />
+        <div className="kabuki-crest">
+          <div className="kabuki-crest-symbol">𐎵</div>
+        </div>
+      </div>
+
       <AudioSettings />
     </>
   );

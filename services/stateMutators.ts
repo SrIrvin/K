@@ -7,7 +7,7 @@ import { WIN_DAMAGE } from '@/utils/constants';
 export const unitToCard = (unit: Unit): Card => {
   const { 
     speed, position, 
-    hasMoved, boosterCard, stackedAttackers, ...card 
+    hasMoved, boosterCard, boosterCards, stackedAttackers, ...card 
   } = unit;
   return { ...card, baseDamage: unit.baseDamage, currentDamage: unit.currentDamage };
 };

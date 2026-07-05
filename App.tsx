@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { GameContext } from './context/GameContext';
 import MainMenu from './components/MainMenu';
 import GameUI from './components/GameUI';
@@ -48,6 +48,10 @@ const getUrlPageFromGameMode = (gameMode: string): string => {
 function AppContent() {
   const { state, dispatch } = useContext(GameContext);
 
+  // States to handle the premium Japanese Kabuki (Joshikimaku) loading curtain transitions
+  const [renderedGameMode, setRenderedGameMode] = useState<'menu' | 'online_lobby' | 'adventure_map' | 'tutorial' | 'playing'>(state.gameMode);
+  const [isCurtainActive, setIsCurtainActive] = useState(false);
+
   // Initialize graphics quality and smartphone mode
   useEffect(() => {
     const initGraphicsAndMobile = () => {
@@ -93,6 +97,28 @@ function AppContent() {
     };
   }, [dispatch]);
 
+  // Premium Joshikimaku Curtain Transition logic whenever the game mode changes
+  useEffect(() => {
+    if (state.gameMode !== renderedGameMode) {
+      // 1. Close curtain
+      setIsCurtainActive(true);
+      
+      // 2. Wait for curtain to completely close before mounting new screen
+      const renderTimer = setTimeout(() => {
+        setRenderedGameMode(state.gameMode);
+        
+        // 3. Keep curtain closed briefly to allow React rendering behind the scenes, then slide open
+        const openTimer = setTimeout(() => {
+          setIsCurtainActive(false);
+        }, 300);
+        
+        return () => clearTimeout(openTimer);
+      }, 650);
+      
+      return () => clearTimeout(renderTimer);
+    }
+  }, [state.gameMode, renderedGameMode]);
+
   // Initialize state from URL on mount (Deep Linking)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -103,6 +129,7 @@ function AppContent() {
 
     if (targetMode !== 'menu') {
       dispatch({ type: 'SET_GAME_MODE', payload: targetMode as any });
+      setRenderedGameMode(targetMode); // Instantly set on mount to prevent unnecessary curtain transition
     }
   }, [dispatch]);
 
@@ -154,7 +181,7 @@ function AppContent() {
   };
 
   const renderContent = () => {
-    switch (state.gameMode) {
+    switch (renderedGameMode) {
       case 'menu':
         return (
           <MainMenu 
@@ -199,6 +226,16 @@ function AppContent() {
   return (
     <>
       {renderContent()}
+      
+      {/* 🎭 Kabuki Curtain (Joshikimaku) Premium Loading Overlay */}
+      <div className={`kabuki-curtain ${isCurtainActive ? 'active' : ''}`}>
+        <div className="kabuki-left" />
+        <div className="kabuki-right" />
+        <div className="kabuki-crest">
+          <div className="kabuki-crest-symbol">𐎵</div>
+        </div>
+      </div>
+
       <AudioSettings />
     </>
   );

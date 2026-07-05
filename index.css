@@ -1030,3 +1030,106 @@ body {
   padding: 2px !important;
 }
 
+/* 🎭 JOSHIKIMAKU (JAPANESE KABUKI THEATER CURTAIN) TRANSITION SCREEN */
+.kabuki-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.kabuki-curtain.active {
+  pointer-events: auto;
+}
+
+.kabuki-left, .kabuki-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  /* Classic Kabuki Joshikimaku Stripes: Black, Deep Green, Persimmon/Rust Red */
+  background: repeating-linear-gradient(
+    90deg,
+    #111111,          /* Black */
+    #111111 8.33vw,
+    #1a4329 8.33vw,   /* Deep Green */
+    #1a4329 16.66vw,
+    #7a3221 16.66vw,   /* Rust Persimmon Red */
+    #7a3221 25.00vw
+  );
+  background-size: 25vw 100%;
+  transition: transform 0.65s cubic-bezier(0.76, 0, 0.24, 1);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.95);
+  z-index: 100001;
+}
+
+.kabuki-left {
+  left: 0;
+  transform: translateX(-100%);
+  border-right: 4px solid #8A6938;
+}
+
+.kabuki-right {
+  right: 0;
+  transform: translateX(100%);
+  border-left: 4px solid #8A6938;
+}
+
+.kabuki-curtain.active .kabuki-left {
+  transform: translateX(0);
+}
+
+.kabuki-curtain.active .kabuki-right {
+  transform: translateX(0);
+}
+
+/* Central Golden Crest */
+.kabuki-crest {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle at center, #26211a 0%, #0d0b08 100%);
+  border: 4px solid #D8C49A;
+  border-radius: 50%;
+  z-index: 100002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
+  box-shadow: 
+    0 10px 40px rgba(0,0,0,0.9), 
+    inset 0 0 25px rgba(216,196,154,0.3);
+}
+
+.kabuki-curtain.active .kabuki-crest {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.kabuki-crest-symbol {
+  font-family: var(--font-ancient);
+  font-size: 60px;
+  font-weight: 900;
+  color: #D8C49A;
+  text-shadow: 0 0 15px rgba(216, 196, 154, 0.7);
+  animation: crest-glow 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes crest-glow {
+  0% {
+    opacity: 0.75;
+    transform: scale(0.95);
+    filter: drop-shadow(0 0 5px rgba(216,196,154,0.4));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(216,196,154,0.8));
+  }
+}
+
+

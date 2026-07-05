@@ -112,12 +112,13 @@ function AppContent() {
           setIsCurtainActive(false);
         }, 300);
         
-        return () => clearTimeout(openTimer);
       }, 650);
       
-      return () => clearTimeout(renderTimer);
+      return () => {
+        clearTimeout(renderTimer);
+      };
     }
-  }, [state.gameMode, renderedGameMode]);
+  }, [state.gameMode]);
 
   // Initialize state from URL on mount (Deep Linking)
   useEffect(() => {

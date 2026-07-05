@@ -225,7 +225,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
   });
 
   return (
-    <div className="ancient-bg flex flex-col items-center justify-between h-screen text-white p-4 relative overflow-hidden">
+    <div className="ancient-bg flex flex-col items-center justify-between min-h-screen md:h-screen text-white p-4 relative overflow-y-auto md:overflow-hidden">
       {/* Visual Overlay layers */}
       <div className="archaeological-vignette" />
       <div className="rune-overlay" />
@@ -259,7 +259,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
       </div>
 
       {/* Main Map & Detail Panel Layout */}
-      <div className="relative z-20 w-full max-w-5xl flex-1 flex flex-col md:flex-row gap-6 my-4 overflow-hidden min-h-0">
+      <div className="relative z-20 w-full max-w-5xl flex-1 flex flex-col md:flex-row gap-6 my-4 overflow-visible md:overflow-hidden min-h-0">
         
         {/* The ancient scroll map */}
         <div className="flex-1 bg-[#181410]/95 border border-[#574d3c]/70 rounded-xl relative overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.8),0_10px_20px_rgba(0,0,0,0.5)] p-4 flex items-center justify-center min-h-[350px] md:min-h-0">

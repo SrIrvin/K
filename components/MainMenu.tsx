@@ -96,7 +96,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   });
 
   return (
-    <div className="ancient-bg flex flex-col items-center justify-center h-screen text-white p-4 relative overflow-hidden">
+    <div className="ancient-bg flex flex-col items-center justify-center min-h-screen md:h-screen text-white p-4 relative overflow-y-auto md:overflow-hidden">
       {/* Visual Overlay layers */}
       <div className="archaeological-vignette" />
       <div className="rune-overlay" />

@@ -80,4 +80,35 @@ describe('combatService tests', () => {
     expect(finalDefender?.currentDamage).toBe(6);
     expect(finalDefender?.stackedAttackers.some(c => c.id === 'Spade4')).toBe(true);
   });
+
+  it('should destroy both units if attacker damage is equal to defender damage (Case B1)', () => {
+    const state = createMockState();
+
+    const attacker: Unit = {
+      id: 'Club5', rank: '5', suit: Suit.Clubs, color: CardColor.Black,
+      baseDamage: 5, currentDamage: 5, speed: 2, position: { row: 2, col: 2 },
+      hasMoved: false, boosterCard: null, stackedAttackers: []
+    };
+
+    const defender: Unit = {
+      id: 'Heart5', rank: '5', suit: Suit.Hearts, color: CardColor.Red,
+      baseDamage: 5, currentDamage: 5, speed: 2, position: { row: 2, col: 3 },
+      hasMoved: false, boosterCard: null, stackedAttackers: []
+    };
+
+    state.board[2][2] = attacker;
+    state.board[2][3] = defender;
+
+    const nextState = handleCombat(state, attacker, defender);
+
+    // Defender should be removed from board
+    expect(nextState.board[2][3]).toBeNull();
+
+    const player1 = nextState.players[0]; // Black
+    const player2 = nextState.players[1]; // Red
+
+    expect(player1.discard.some(c => c.id === 'Club5')).toBe(true);
+    expect(player2.discard.some(c => c.id === 'Heart5')).toBe(true);
+    expect(nextState.log[0]).toContain('Defender destroyed!');
+  });
 });

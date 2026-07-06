@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GameContext } from '../context/GameContext';
 import { Card, Unit, Player, CardColor, Suit, Rank } from '../types';

@@ -542,7 +542,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
       <div className="rune-overlay" />
 
       {/* 1. TUTORIAL BUBBLE OVERLAY PANEL (LEFT SIDEBAR ON LARGE SCREENS) */}
-      <div className="w-full md:w-[380px] bg-[#1a1510]/95 border-b-2 md:border-b-0 md:border-r-2 border-[#8A6938] flex flex-col justify-between p-4 md:p-6 z-30 shadow-2xl shrink-0 max-h-[40vh] md:max-h-screen overflow-y-auto">
+      <div className="w-full md:w-[380px] bg-[#1a1510]/95 border-b-2 md:border-b-0 md:border-r-2 border-[#8A6938] flex flex-col justify-between p-3 md:p-6 z-30 shadow-2xl shrink-0 max-h-[48vh] md:max-h-screen overflow-y-auto">
         <div>
           {onBack && (
             <button
@@ -550,13 +550,13 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
                 audioService.playSFX('click');
                 window.location.href = '/?path=menu&page=menu';
               }}
-              className="stone-button py-1 px-3 text-[10px] mb-3 text-[#D8C49A] border-[#8A6938]/60 hover:text-white uppercase font-orbitron tracking-wider flex items-center gap-1"
+              className="stone-button py-1 px-3 text-[10px] mb-2 md:mb-3 text-[#D8C49A] border-[#8A6938]/60 hover:text-white uppercase font-orbitron tracking-wider flex items-center gap-1"
             >
               ⬅ Regresar al Menú
             </button>
           )}
           {/* Irwing the Wise Sage Header */}
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-1.5 md:mb-2">
             <OrcIrwinAvatar />
             <div>
               <div className="text-[10px] font-orbitron font-extrabold text-[#D8C49A] uppercase tracking-widest leading-none flex items-center gap-1.5">
@@ -566,15 +566,15 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
             </div>
           </div>
 
-          <div className="h-0.5 bg-gradient-to-r from-[#D8C49A]/60 via-[#8A6938]/40 to-transparent my-2.5" />
+          <div className="h-0.5 bg-gradient-to-r from-[#D8C49A]/60 via-[#8A6938]/40 to-transparent my-1.5 md:my-2.5" />
 
           {/* Comic Dialogue Balloon */}
-          <div className="relative mt-2 mb-2">
+          <div className="relative mt-1 mb-1 md:mt-2 md:mb-2">
             {/* Balloon arrow pointing up to the avatar (on desktop) */}
             <div className="absolute -top-1.5 left-6 w-3 h-3 bg-[#14100d] border-t border-l border-[#8A6938]/80 rotate-45 z-10 hidden md:block" />
             
-            <div className="relative z-0 bg-gradient-to-b from-[#14100d] to-[#0a0806] border-2 border-[#8A6938]/80 p-3.5 rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.95)]">
-              <h2 className="text-sm md:text-base font-ancient-header text-[#76a143] mb-2 tracking-wide font-black border-b border-[#574d3c]/40 pb-1 flex items-center gap-1.5">
+            <div className="relative z-0 bg-gradient-to-b from-[#14100d] to-[#0a0806] border-2 border-[#8A6938]/80 p-2.5 md:p-3.5 rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.95)]">
+              <h2 className="text-sm md:text-base font-ancient-header text-[#76a143] mb-1.5 md:mb-2 tracking-wide font-black border-b border-[#574d3c]/40 pb-1 flex items-center gap-1.5">
                 💬 {step.title}
               </h2>
               
@@ -586,16 +586,16 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
         </div>
 
         {/* Instructions, Controls and Back Button */}
-        <div className="mt-4 flex flex-col gap-3">
-          <div className="text-[11px] md:text-xs font-orbitron font-extrabold text-[#9A8B72] border-l-2 border-red-800 pl-2 py-0.5 animate-pulse bg-red-950/20">
+        <div className="mt-2 md:mt-4 flex flex-col gap-2 md:gap-3">
+          <div className="text-[11px] md:text-xs font-orbitron font-extrabold text-[#9A8B72] border-l-2 border-red-800 pl-2 py-0.5 bg-red-950/20">
             👉 {step.actionPrompt}
           </div>
 
-          <div className="flex gap-2 w-full mt-1">
+          <div className="flex gap-2 w-full mt-0.5 md:mt-1">
             {currentStepIdx > 0 && (
               <button 
                 onClick={handlePrevStep}
-                className="stone-button py-2 text-xs flex-1"
+                className="stone-button py-1.5 md:py-2 text-xs flex-1"
               >
                 ◀ Anterior
               </button>
@@ -603,7 +603,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
 
             <button
               onClick={handleResetStep}
-              className="stone-button py-2 text-xs bg-[#40382d]/30 text-gray-300 hover:text-white"
+              className="stone-button py-1.5 md:py-2 text-xs bg-[#40382d]/30 text-gray-300 hover:text-white"
               title="Reiniciar paso"
             >
               Reiniciar
@@ -612,7 +612,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
             {step.expectedAction === 'click_next' && (
               <button 
                 onClick={handleNextStep}
-                className="stone-button py-2 text-xs flex-1 text-[#E2C799] border-[#8A6938] font-bold"
+                className="stone-button py-1.5 md:py-2 text-xs flex-1 text-[#E2C799] border-[#8A6938] font-bold"
               >
                 Siguiente ▶
               </button>

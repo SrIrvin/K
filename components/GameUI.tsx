@@ -136,7 +136,7 @@ const GameUI: React.FC = () => {
       { name: "Shinigami", title: "El Antiguo Dios de la Muerte", image: "Shinigami.png" },
       { name: "Moon", title: "La Princesa Carmesí", image: "Moon.png" },
       { name: "Katty", title: "La Diosa del Conocimiento", image: "Katty.png" },
-      { name: "King21", title: "El Dictador Loco", image: "King21.png" },
+      { name: "King21", title: "El Jerarca Divino", image: "King21.png" },
     ], []);
 
     const guardianQuotePools = useMemo(() => [
@@ -207,29 +207,29 @@ const GameUI: React.FC = () => {
       ],
       // Level 6: Katty
       [
-        "La sangre de los valientes siempre tiene un sabor tan... dulce y fresco.",
-        "Me gusta jugar con mi comida antes de devorarla por completo. ¡Miau!",
-        "Tus reflejos son demasiado lentos para mis garras. ¿Te rindes ya?",
-        "Arañazo a arañazo, mazo a mazo... voy a desmantelar toda tu defensa.",
-        "¡Tengo nueve vidas de ventaja y tú apenas puedes cuidar de una sola!",
-        "¡Ronroneas del miedo! Puedo oler el sudor frío de tus cartas numéricas.",
-        "Un ratoncito acorralado en la esquina del tablero... qué adorable banquete.",
-        "No hay biblioteca en el universo que contenga la estrategia para derrotarme.",
-        "El conocimiento absoluto guía mi garra. Sé exactamente qué carta tienes en mano.",
-        "¡Qué divertido es ver tus esfuerzos inútiles! Eres como un ovillo de lana en mis manos."
+        "Oh, qué tierno intento... pero estás cometiendo un error de principiante.",
+        "A ver, te lo explicaré despacio para que puedas entenderlo: esa carta no va ahí.",
+        "¿De verdad pensaste que eso funcionaría? Qué adorable.",
+        "Tranquilo, no llores. De los errores se aprende, pequeño comandante.",
+        "Ven, déjame darte una lección de estrategia que jamás olvidarás.",
+        "Es lindo ver cómo te esfuerzas, pero estás jugando a nivel de guardería.",
+        "¿Quieres que te deje ganar un punto para que no te sientas mal?",
+        "La paciencia es una virtud... lástima que aún seas muy inmaduro para entenderla.",
+        "Te trato con cariño porque sé que estás dando lo mejor de ti, aunque no sea suficiente.",
+        "Pon atención a este movimiento: así es como juega un verdadero maestro."
       ],
       // Level 7: King21
       [
-        "Yo inventé las reglas de este sagrado altar... ¡ahora intenta sobrevivir a ellas!",
-        "¡Silencio ante el Rey! Tu insolencia será castigada con la aniquilación total.",
-        "¿Osas desafiar al Dictador Loco? ¡Marcharé con todas mis tropas sobre tu meta!",
-        "El número 21 es mi corona. Y tú solo eres un humilde peón en mi tablero.",
-        "¡Moverse es una orden, no una sugerencia! ¡Marcharéis todos hacia adelante!",
-        "¡Mi locura es mi mayor estratega! No puedes predecir lo que ni yo mismo comprendo.",
-        "¡El desierto entero temblará cuando el Dictador Loco juegue su mano!",
-        "¡La desobediencia se paga con el descarte! Ningún cobarde permanecerá en mi ejército.",
-        "¡Mi trono está hecho con las cenizas del mazo de mis enemigos!",
-        "¡El choque de espadas es música para mis oídos reales! ¡Ataquen, mis leales unidades!"
+        "Desciendo de los dioses antiguos; mi deber es guiar y proteger a mi pueblo con sabiduría.",
+        "La fuerza sin sabiduría solo trae destrucción. Muéstrame tu verdadero propósito.",
+        "Como gobernante supremo, cada movimiento en este tablero busca proteger la paz de mi reino.",
+        "El respeto se gana en el campo de batalla, con honor y decisiones justas.",
+        "No busco tu aniquilación, sino probar si eres digno de liderar el destino de los tuyos.",
+        "Las leyes que creé protegen el equilibrio de nuestro mundo. Debes respetarlas.",
+        "Un líder sabio protege a cada uno de sus soldados en el tablero.",
+        "La autoridad no proviene del miedo, sino de la justicia y la devoción a nuestro pueblo.",
+        "Demuestra tu valía como comandante, con nobleza y sin caer en impulsos egoístas.",
+        "Que los dioses juzguen nuestro duelo. Que gane quien realmente pueda proteger al reino."
       ]
     ], []);
 

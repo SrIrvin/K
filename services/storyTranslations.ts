@@ -113,9 +113,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
       },
       'Katty': {
         displayName: "Katty",
-        subtitle: "La Diosa del Conocimiento",
-        description: "Una poderosa diosa de color púrpura. Es la maestra de todos los dioses y guardiana del conocimiento absoluto. Cada estrategia ha sido estudiada por ella miles de veces.",
-        quote: "La estrategia puede aprenderse... pero la sabiduría debe ganarse.",
+        subtitle: "La Gran Maestra",
+        description: "La maestra de todos los dioses y guardiana del conocimiento absoluto. Te tratará como a un niño de cuatro años, con un tono dulce pero sumamente condescendiente, dándote lecciones y corrigiendo tus movimientos mientras juegas.",
+        quote: "Oh, qué tierno intento... a ver, te lo explicaré despacio para que puedas entenderlo.",
         modifiers: [
           "Primera línea de 4 unidades rápidas (fila 1)",
           "Segunda línea de 2 unidades medias y 2 tanques (fila 0)",
@@ -128,9 +128,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
       },
       'King21': {
         displayName: "King 21",
-        subtitle: "El Rey Supremo",
-        description: "El creador del juego. Dios de la Estrategia, el rey absoluto y último rival. No busca demostrar que es poderoso; solo quiere ver si por fin hay alguien capaz de derrotarlo.",
-        quote: "Yo inventé las reglas... ahora intenta vencerme con ellas.",
+        subtitle: "El Jerarca Divino",
+        description: "El máximo jerarca, descendiente directo de los antiguos dioses. Lejos de estar loco, es una figura de inmenso respeto y sabiduría que protege firmemente a su pueblo, buscando siempre lo mejor para su reino con benevolencia y honor.",
+        quote: "Un verdadero líder no busca la guerra, sino el bienestar de su pueblo. Demuestra tu nobleza.",
         modifiers: [
           "Vanguardia enemiga de 4 unidades rápidas (fila 1)",
           "Retaguardia enemiga de 4 tanques con Velocidad 2 (Speed 2!)",
@@ -228,9 +228,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
       },
       'Katty': {
         displayName: "Katty",
-        subtitle: "The Goddess of Knowledge",
-        description: "A powerful purple goddess. She is the teacher of all gods and guardian of absolute knowledge. Every strategy has been studied by her thousands of times.",
-        quote: "Strategy can be learned... but wisdom must be earned.",
+        subtitle: "The Grand Teacher",
+        description: "The teacher of all gods and guardian of absolute knowledge. She will treat you like a four-year-old child, in a sweet but highly condescending tone, giving you lessons and correcting your moves as you play.",
+        quote: "Oh, what a cute try... let me explain it slowly so you can understand.",
         modifiers: [
           "Front line of 4 fast units (row 1)",
           "Back line of 2 medium units and 2 tanks (row 0)",
@@ -243,9 +243,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
       },
       'King21': {
         displayName: "King 21",
-        subtitle: "The Supreme King",
-        description: "The creator of the game. God of Strategy, the absolute king and final rival. He does not seek to prove his power; he only wants to see if there is finally someone capable of defeating him.",
-        quote: "I invented the rules... now try to beat me with them.",
+        subtitle: "The Divine Hierarch",
+        description: "The supreme hierarch, direct descendant of the ancient gods. Far from being crazy, he is a figure of immense respect and wisdom who firmly protects his people, always seeking the best for his kingdom with benevolence and honor.",
+        quote: "A true leader does not seek war, but the well-being of his people. Prove your nobility.",
         modifiers: [
           "Enemy vanguard of 4 fast units (row 1)",
           "Enemy rearguard of 4 tanks with Speed 2!",

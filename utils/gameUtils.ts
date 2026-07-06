@@ -56,3 +56,18 @@ export const calculatePlayerGold = (player: Player, board: (Unit | null)[][]): G
     conservedKingsGold
   };
 };
+
+export const formatGold = (value: number): string => {
+  const absValue = Math.abs(value);
+  const sign = value < 0 ? '-' : '';
+  if (absValue >= 1_000_000) {
+    const formatted = (absValue / 1_000_000).toFixed(1);
+    return `${sign}${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M`;
+  }
+  if (absValue >= 1_000) {
+    const formatted = (absValue / 1_000).toFixed(1);
+    return `${sign}${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}K`;
+  }
+  return `${sign}${absValue}`;
+};
+

@@ -2,13 +2,15 @@ import React, { useContext, useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GameContext } from '../../context/GameContext';
 import { Player } from '@/types';
+import { formatGold } from '@/utils/gameUtils';
 
 interface AnimatedCounterProps {
     value: number;
     duration?: number;
+    formatter?: (val: number) => string;
 }
 
-const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ value, duration = 1500 }) => {
+const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ value, duration = 1500, formatter }) => {
     const [currentValue, setCurrentValue] = useState(0);
 
     useEffect(() => {
@@ -36,7 +38,7 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ value, duration = 150
         return () => window.cancelAnimationFrame(animationFrameId);
     }, [value, duration]);
 
-    return <span>{currentValue}</span>;
+    return <span>{formatter ? formatter(currentValue) : currentValue}</span>;
 };
 
 interface GameOverModalProps {
@@ -108,14 +110,14 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
                     <div className="mb-3.5 pb-3 border-b border-[#574d3c]/35">
                         <div className="flex justify-between items-center mb-1">
                             <span className="font-bold text-green-500">🏆 {winnerName} {t('game_ui.winner_suffix')}:</span>
-                            <span className="text-yellow-500 font-extrabold text-sm"><AnimatedCounter value={winnerGold} /> {t('game_ui.gold_suffix')}</span>
+                            <span className="text-yellow-500 font-extrabold text-sm"><AnimatedCounter value={winnerGold} formatter={formatGold} /> {t('game_ui.gold_suffix')}</span>
                         </div>
                         <div className="text-[#9A8B72]/80 text-[11px] pl-4 flex flex-col gap-0.5">
-                            <div>• {t('game_ui.conserved_units_label')}: <AnimatedCounter value={winnerConserved} /> × 3 = <AnimatedCounter value={winnerConserved * 3} /> {t('game_ui.gold_suffix')}</div>
-                            <div>• {t('game_ui.special_effects_label')}: <AnimatedCounter value={winnerEffects} /> × 7 = <AnimatedCounter value={winnerEffects * 7} /> {t('game_ui.gold_suffix')}</div>
-                            {winnerJokers > 0 && <div>• {t('game_ui.jokers_label')}: <AnimatedCounter value={winnerJokers} /> × 13 = <AnimatedCounter value={winnerJokers * 13} /> {t('game_ui.gold_suffix')}</div>}
-                            {winnerKings > 0 && <div>• {t('game_ui.kings_label')}: <AnimatedCounter value={winnerKings} /> × 21 = <AnimatedCounter value={winnerKings * 21} /> {t('game_ui.gold_suffix')}</div>}
-                            {winnerBonus > 0 && <div className="text-green-400 font-semibold">• {t('game_ui.victory_bonus_label')}: +<AnimatedCounter value={winnerBonus} /> {t('game_ui.gold_suffix')}</div>}
+                            <div>• {t('game_ui.conserved_units_label')}: <AnimatedCounter value={winnerConserved} /> × 3 = <AnimatedCounter value={winnerConserved * 3} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>
+                            <div>• {t('game_ui.special_effects_label')}: <AnimatedCounter value={winnerEffects} /> × 7 = <AnimatedCounter value={winnerEffects * 7} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>
+                            {winnerJokers > 0 && <div>• {t('game_ui.jokers_label')}: <AnimatedCounter value={winnerJokers} /> × 13 = <AnimatedCounter value={winnerJokers * 13} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>}
+                            {winnerKings > 0 && <div>• {t('game_ui.kings_label')}: <AnimatedCounter value={winnerKings} /> × 21 = <AnimatedCounter value={winnerKings * 21} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>}
+                            {winnerBonus > 0 && <div className="text-green-400 font-semibold">• {t('game_ui.victory_bonus_label')}: +<AnimatedCounter value={winnerBonus} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>}
                         </div>
                     </div>
 
@@ -123,16 +125,16 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
                     <div>
                         <div className="flex justify-between items-center mb-1">
                             <span className="font-semibold text-red-400">💀 {loserName}:</span>
-                            <span className="text-yellow-600 font-bold text-xs"><AnimatedCounter value={loserGold} /> {t('game_ui.gold_suffix')}</span>
+                            <span className="text-yellow-600 font-bold text-xs"><AnimatedCounter value={loserGold} formatter={formatGold} /> {t('game_ui.gold_suffix')}</span>
                         </div>
                         <div className="text-[#9A8B72]/70 text-[10px] pl-4 flex flex-col gap-0.5">
-                            <div>• {t('game_ui.conserved_units_label')}: <AnimatedCounter value={loserConserved} /> × 3 = <AnimatedCounter value={loserConserved * 3} /> {t('game_ui.gold_suffix')}</div>
-                            <div>• {t('game_ui.special_effects_label')}: <AnimatedCounter value={loserEffects} /> × 7 = <AnimatedCounter value={loserEffects * 7} /> {t('game_ui.gold_suffix')}</div>
-                            {loserJokers > 0 && <div>• {t('game_ui.jokers_label')}: <AnimatedCounter value={loserJokers} /> × 13 = <AnimatedCounter value={loserJokers * 13} /> {t('game_ui.gold_suffix')}</div>}
-                            {loserKings > 0 && <div>• {t('game_ui.kings_label')}: <AnimatedCounter value={loserKings} /> × 21 = <AnimatedCounter value={loserKings * 21} /> {t('game_ui.gold_suffix')}</div>}
+                            <div>• {t('game_ui.conserved_units_label')}: <AnimatedCounter value={loserConserved} /> × 3 = <AnimatedCounter value={loserConserved * 3} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>
+                            <div>• {t('game_ui.special_effects_label')}: <AnimatedCounter value={loserEffects} /> × 7 = <AnimatedCounter value={loserEffects * 7} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>
+                            {loserJokers > 0 && <div>• {t('game_ui.jokers_label')}: <AnimatedCounter value={loserJokers} /> × 13 = <AnimatedCounter value={loserJokers * 13} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>}
+                            {loserKings > 0 && <div>• {t('game_ui.kings_label')}: <AnimatedCounter value={loserKings} /> × 21 = <AnimatedCounter value={loserKings * 21} formatter={formatGold} /> {t('game_ui.gold_suffix')}</div>}
                             {loserBonus !== 0 && (
                                 <div className={`${loserBonus < 0 ? 'text-red-400' : 'text-green-400'} font-semibold`}>
-                                    • {loserBonus < 0 ? t('game_ui.bet_loss_label') : t('game_ui.bet_bonus_label')}: <AnimatedCounter value={loserBonus} /> {t('game_ui.gold_suffix')}
+                                    • {loserBonus < 0 ? t('game_ui.bet_loss_label') : t('game_ui.bet_bonus_label')}: <AnimatedCounter value={loserBonus} formatter={formatGold} /> {t('game_ui.gold_suffix')}
                                 </div>
                             )}
                         </div>

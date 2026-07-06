@@ -13,6 +13,7 @@ import {
 } from '../services/peerService';
 import { startGame, startAdventureLevel } from '../services/actions/gameSetup';
 import { GameState } from '../types';
+import { formatGold } from '../utils/gameUtils';
 import { 
   loginAsGuest, 
   createLobbyRoom, 
@@ -619,8 +620,8 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                               <span className="font-bold text-[#D8C49A]">{player.name}</span>
                             </div>
                             <div className="flex gap-3 font-mono text-[10px] text-right items-center">
-                              <div className="text-yellow-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-                                🪙 {player.gold ?? 0} <span className="text-[9px] text-amber-500/70 font-normal">Oro</span>
+                              <div className="text-yellow-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20" title={(player.gold ?? 0).toString()}>
+                                🪙 {formatGold(player.gold ?? 0)} <span className="text-[9px] text-amber-500/70 font-normal">Oro</span>
                               </div>
                               <div>
                                 <span className="text-green-500 font-bold">{player.wins} {t('lobby.wins_short', 'V')}</span>
@@ -655,8 +656,8 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                             <span className="font-bold text-[#D8C49A]">{record.loserName}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="font-mono text-[9px] text-yellow-500/90 font-semibold" title="Oro ganado (Ganador - Perdedor)">
-                              🪙 {record.winnerGold ?? 0} - {record.loserGold ?? 0}
+                            <div className="font-mono text-[9px] text-yellow-500/90 font-semibold" title={`Oro ganado: ${record.winnerGold ?? 0} - ${record.loserGold ?? 0}`}>
+                              🪙 {formatGold(record.winnerGold ?? 0)} - {formatGold(record.loserGold ?? 0)}
                             </div>
                             <div className="font-mono text-[10px] text-[#8A6938] font-bold">
                               {record.winnerDamage} - {record.loserDamage}

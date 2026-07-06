@@ -254,6 +254,18 @@ export const getAiBestAction = (state: GameState): Action | null => {
     for (const unit of aiUnits) {
         if (unit.hasMoved) continue;
         const validMoves = getValidMoves(unit, state.board, 1);
+        
+        // Check for direct touchdown move via movement
+        const touchdownMove = validMoves.find(m => m.row === -1 && m.col === -1);
+        if (touchdownMove) {
+            possibleActions.push({
+                type: 'MOVE_UNIT',
+                payload: { to: touchdownMove },
+                score: 1200 + unit.currentDamage, // Extremely high priority to score points immediately
+                log: `AI will score direct touchdown via movement with ${unit.rank} (${unit.currentDamage} pts)`
+            });
+        }
+
         const forwardMoves = validMoves.filter(m => m.row !== -1 && !state.board[m.row][m.col]).sort((a, b) => b.row - a.row);
         
         for (const move of forwardMoves) {

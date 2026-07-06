@@ -12,90 +12,64 @@ const OrcIrwinAvatar: React.FC = () => {
     return (
       <img 
         src="/images/orc_irwin.png" 
-        alt="Maestro Irwin" 
+        alt="Irwing el Sabio" 
         onError={() => setImgError(true)}
-        className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#76a143] bg-[#12190e] shadow-[0_0_15px_rgba(118,161,67,0.5)] object-cover shrink-0"
+        className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#D8C49A] bg-[#1a1510] shadow-[0_0_15px_rgba(216,196,154,0.5)] object-cover shrink-0"
       />
     );
   }
 
   return (
-    <svg viewBox="0 0 100 100" className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#76a143] bg-gradient-to-br from-[#2c3d24] to-[#12190e] shadow-[0_0_15px_rgba(118,161,67,0.4)] animate-pulse shrink-0">
+    <svg viewBox="0 0 100 100" className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#D8C49A] bg-gradient-to-br from-[#2a1e15] to-[#0d0906] shadow-[0_0_15px_rgba(216,196,154,0.4)] animate-pulse shrink-0">
       <defs>
         <radialGradient id="auraGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#76a143" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#12190e" stopOpacity="1" />
+          <stop offset="0%" stopColor="#8A6938" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#0a0806" stopOpacity="1" />
         </radialGradient>
-        <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6b9643" />
-          <stop offset="50%" stopColor="#4f702f" />
-          <stop offset="100%" stopColor="#30441d" />
+        <linearGradient id="hoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#8A6938" />
+          <stop offset="50%" stopColor="#5c4524" />
+          <stop offset="100%" stopColor="#2c1e0e" />
         </linearGradient>
-        <linearGradient id="tuskGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id="beardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#ffffff" />
           <stop offset="100%" stopColor="#d5d0be" />
-        </linearGradient>
-        <linearGradient id="collarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#54301d" />
-          <stop offset="100%" stopColor="#301b10" />
         </linearGradient>
       </defs>
 
       {/* Aura background */}
       <circle cx="50" cy="50" r="50" fill="url(#auraGlow)" />
 
-      {/* Orc green ears (more detailed) */}
-      <path d="M 12 43 C 2 33 4 20 20 28 C 15 35 15 40 12 43 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
-      <path d="M 88 43 C 98 33 96 20 80 28 C 85 35 85 40 88 43 Z" fill="#4d6934" stroke="#253518" strokeWidth="1" />
-      <path d="M 15 37 C 8 32 10 24 20 29" stroke="#374e25" strokeWidth="1" fill="none" />
-      <path d="M 85 37 C 92 32 90 24 80 29" stroke="#374e25" strokeWidth="1" fill="none" />
-      
-      {/* Hair (wild black Mohawk or topknot) */}
-      <path d="M 33 16 C 45 3 55 3 67 16 C 62 27 38 27 33 16 Z" fill="#111215" />
-      <path d="M 40 14 C 47 5 53 5 60 14" stroke="#2a2c35" strokeWidth="1.5" fill="none" />
-      
-      {/* Head shape */}
-      <ellipse cx="50" cy="45" rx="31" ry="26" fill="url(#skinGrad)" stroke="#1d2a13" strokeWidth="2.5" />
-      
-      {/* Forehead wrinkles */}
-      <path d="M 38 30 Q 50 27 62 30" stroke="#202f12" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.8" />
-      <path d="M 42 26 Q 50 24 58 26" stroke="#202f12" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
+      {/* Wizard Hood/Cowl */}
+      <path d="M 15 85 C 10 50 20 20 50 12 C 80 20 90 50 85 85 Z" fill="url(#hoodGrad)" stroke="#1a1208" strokeWidth="2" />
+      <path d="M 22 85 C 20 60 28 35 50 25 C 72 35 80 60 78 85 Z" fill="#14100d" />
 
-      {/* Eyebrows */}
-      <path d="M 28 35 C 34 30 43 32 46 38" stroke="#111215" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-      <path d="M 72 35 C 66 30 57 32 54 38" stroke="#111215" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+      {/* Head/Face (Old Wise Man) */}
+      <circle cx="50" cy="48" r="18" fill="#edd8be" stroke="#524335" strokeWidth="1.5" />
 
-      {/* Wise Glowing Orange Eyes */}
-      <circle cx="37" cy="40" r="4.5" fill="#ff7700" filter="drop-shadow(0 0 2px #ffbb00)" />
-      <circle cx="37" cy="40" r="1.5" fill="#fff" />
-      <circle cx="63" cy="40" r="4.5" fill="#ff7700" filter="drop-shadow(0 0 2px #ffbb00)" />
-      <circle cx="63" cy="40" r="1.5" fill="#fff" />
-      
-      {/* Nose (broader, styled) */}
-      <path d="M 44 49 L 50 43 L 56 49 Z" fill="#2d3f1a" stroke="#1d2a13" strokeWidth="1" />
-      <path d="M 46 48 L 50 45 L 54 48" stroke="#3b5220" strokeWidth="1.5" fill="none" />
-      
-      {/* Mouth and tusks */}
-      <path d="M 34 56 Q 50 64 66 56" stroke="#131b0a" strokeWidth="2.5" fill="none" />
-      {/* Left tusk */}
-      <path d="M 36 57 L 40 47 L 44 56 Z" fill="url(#tuskGrad)" stroke="#131b0a" strokeWidth="1" />
-      {/* Right tusk */}
-      <path d="M 64 57 L 60 47 L 56 56 Z" fill="url(#tuskGrad)" stroke="#131b0a" strokeWidth="1" />
-      
-      {/* Cheeks shadow and details */}
-      <circle cx="28" cy="48" r="2.5" fill="#243415" opacity="0.4" />
-      <circle cx="72" cy="48" r="2.5" fill="#243415" opacity="0.4" />
-      
-      {/* Leather collar */}
-      <path d="M 28 66 L 50 80 L 72 66 L 50 61 Z" fill="url(#collarGrad)" stroke="#1a100a" strokeWidth="1.5" />
-      {/* Metallic studs on leather */}
-      <circle cx="35" cy="69" r="1.5" fill="#d2d2d2" stroke="#606060" strokeWidth="0.5" />
-      <circle cx="65" cy="69" r="1.5" fill="#d2d2d2" stroke="#606060" strokeWidth="0.5" />
+      {/* Wrinkles */}
+      <path d="M 42 36 Q 50 34 58 36" stroke="#aa9384" strokeWidth="1" fill="none" />
+      <path d="M 45 40 Q 50 38 55 40" stroke="#aa9384" strokeWidth="1" fill="none" />
 
-      {/* Gold rune medal on collar */}
-      <circle cx="50" cy="72" r="5" fill="#d4af37" stroke="#8a6d1c" strokeWidth="1" filter="drop-shadow(0 1px 3px rgba(0,0,0,0.5))" />
-      {/* Inner runic design */}
-      <path d="M 48 70 L 52 70 M 50 70 L 50 74 M 48 74 L 52 74" stroke="#4a370e" strokeWidth="1" strokeLinecap="round" fill="none" />
+      {/* Wise Glowing Blue Eyes */}
+      <circle cx="43" cy="45" r="3.5" fill="#4facfe" filter="drop-shadow(0 0 3px #00f2fe)" />
+      <circle cx="43" cy="45" r="1" fill="#fff" />
+      <circle cx="57" cy="45" r="3.5" fill="#4facfe" filter="drop-shadow(0 0 3px #00f2fe)" />
+      <circle cx="57" cy="45" r="1" fill="#fff" />
+
+      {/* Eyebrows (Bushy and White) */}
+      <path d="M 37 41 Q 43 35 48 41" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <path d="M 63 41 Q 57 35 52 41" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+      {/* Nose */}
+      <path d="M 48 52 Q 50 48 52 52" stroke="#ccaa99" strokeWidth="1.5" fill="none" />
+
+      {/* Long Flowing Sage Beard */}
+      <path d="M 32 54 C 30 70 38 98 50 100 C 62 98 70 70 68 54 C 58 60 42 60 32 54 Z" fill="url(#beardGrad)" stroke="#aa9c8d" strokeWidth="1.5" />
+      <path d="M 40 58 Q 50 64 60 58" stroke="#ffffff" strokeWidth="2" fill="none" />
+      
+      {/* Mystical Forehead Gem or Bindu */}
+      <circle cx="50" cy="32" r="2.5" fill="#ff2a5f" filter="drop-shadow(0 0 2px #ff2a5f)" />
     </svg>
   );
 };
@@ -124,7 +98,8 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [selectedHandCardId, setSelectedHandCardId] = useState<string | null>(null);
   const [selectedBoardUnitId, setSelectedUnitId] = useState<string | null>(null);
-  const [activeTargeting, setActiveTargeting] = useState<'queen' | 'jack' | null>(null);
+  const [activeTargeting, setActiveTargeting] = useState<'queen' | 'jack' | 'king' | null>(null);
+  const [kingMovedUnitIds, setKingMovedUnitIds] = useState<string[]>([]);
 
   // Mocks and initializers for different steps
   const tutorialSteps: TutorialStep[] = useMemo(() => [
@@ -302,8 +277,28 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
       }
     },
     {
+      title: "Habilidades Especiales: Rey (K)",
+      text: "El Rey (K - El Dictador Loco) es una carta mágica de mando supremo. Al jugarla, obligas a TODAS tus unidades en el tablero a avanzar exactamente 1 casilla en una dirección ortogonal.\n\n⚠️ ¡IMPORTANTE! Durante el turno del Rey, cada unidad debe moverse obligatoriamente. Si terminas la acción y dejas alguna unidad sin mover, esa unidad será de inmediato eliminada del tablero y enviada al descarte.\n\nTienes un 5, un 8 y un 10 en el tablero. Juega el Rey de tu mano para ordenar un avance masivo y mover tus tropas hacia adelante.",
+      expectedAction: 'play_spell',
+      playerDamage: 0,
+      opponentDamage: 9,
+      playerScored: [],
+      opponentScored: [],
+      highlightedHandCards: ['ClubsK'],
+      actionPrompt: "Selecciona el Rey (K) de tu mano, luego haz clic en cada una de tus tres unidades para moverlas adelante.",
+      setupHand: () => [{ id: 'ClubsK', rank: 'K', suit: Suit.Clubs, color: CardColor.Black }],
+      setupOpponentHand: () => [],
+      setupBoard: () => {
+        const board = Array(BOARD_ROWS).fill(null).map(() => Array(BOARD_COLS).fill(null));
+        board[3][0] = { id: 'Clubs5', rank: '5', suit: Suit.Clubs, color: CardColor.Black, baseDamage: 5, currentDamage: 5, speed: 2, position: { row: 3, col: 0 }, hasMoved: false, boosterCard: null, stackedAttackers: [] };
+        board[3][2] = { id: 'Spades8', rank: '8', suit: Suit.Spades, color: CardColor.Black, baseDamage: 8, currentDamage: 8, speed: 1, position: { row: 3, col: 2 }, hasMoved: false, boosterCard: null, stackedAttackers: [] };
+        board[3][3] = { id: 'Clubs10', rank: '10', suit: Suit.Clubs, color: CardColor.Black, baseDamage: 10, currentDamage: 10, speed: 1, position: { row: 3, col: 3 }, hasMoved: false, boosterCard: null, stackedAttackers: [] };
+        return board;
+      }
+    },
+    {
       title: "¡Felicidades, Maestro de las Runas!",
-      text: "¡Increíble trabajo! Has completado el entrenamiento básico. Ya dominas todas las mecánicas fundamentales del juego:\n- Invocación de unidades y velocidades de movimiento.\n- Los dos casos de combate (destrucción mutua y apilamiento).\n- Touchdown en la zona meta para acumular puntos.\n- Uso estratégico de cartas de habilidades como la Jota y la Reina.\n\nAhora estás listo para enfrentarte al destino. ¡Que comience el duelo real!",
+      text: "¡Increíble trabajo! Has completado el entrenamiento básico. Ya dominas todas las mecánicas fundamentales del juego:\n- Invocación de unidades y velocidades de movimiento.\n- Los dos casos de combate (destrucción mutua y apilamiento).\n- Touchdown en la zona meta para acumular puntos.\n- Uso estratégico de cartas de habilidades como la Jota, la Reina y el Rey (K).\n\nAhora estás listo para enfrentarte al destino. ¡Que comience el duelo real!",
       expectedAction: 'click_finish',
       playerDamage: 0,
       opponentDamage: 9,
@@ -327,6 +322,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
       setSelectedHandCardId(null);
       setSelectedUnitId(null);
       setActiveTargeting(null);
+      setKingMovedUnitIds([]);
       setBoard(tutorialSteps[nextIdx].setupBoard());
       setHand(tutorialSteps[nextIdx].setupHand());
     }
@@ -339,6 +335,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
       setSelectedHandCardId(null);
       setSelectedUnitId(null);
       setActiveTargeting(null);
+      setKingMovedUnitIds([]);
       setBoard(tutorialSteps[prevIdx].setupBoard());
       setHand(tutorialSteps[prevIdx].setupHand());
     }
@@ -348,6 +345,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
     setSelectedHandCardId(null);
     setSelectedUnitId(null);
     setActiveTargeting(null);
+    setKingMovedUnitIds([]);
     setBoard(step.setupBoard());
     setHand(step.setupHand());
   };
@@ -468,6 +466,38 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
       return;
     }
 
+    // STEP 8: Spell King (K)
+    if (activeTargeting === 'king' && unitInCell && unitInCell.color === CardColor.Black) {
+      if (!kingMovedUnitIds.includes(unitInCell.id)) {
+        const targetRow = row - 1;
+        if (targetRow >= 0) {
+          const updatedUnit = {
+            ...unitInCell,
+            position: { row: targetRow, col }
+          };
+          const newBoard = board.map((r, rIdx) =>
+            r.map((c, cIdx) => {
+              if (rIdx === row && cIdx === col) return null;
+              if (rIdx === targetRow && cIdx === col) return updatedUnit;
+              return c;
+            })
+          );
+          setBoard(newBoard);
+          audioService.playSFX('slash');
+          const nextMoved = [...kingMovedUnitIds, unitInCell.id];
+          setKingMovedUnitIds(nextMoved);
+          
+          if (nextMoved.length === 3) {
+            setActiveTargeting(null);
+            setSelectedHandCardId(null);
+            setHand([]);
+            setTimeout(() => handleNextStep(), 2000);
+          }
+        }
+      }
+      return;
+    }
+
     // Default select unit
     if (unitInCell && unitInCell.color === CardColor.Black) {
       setSelectedUnitId(unitInCell.id);
@@ -500,6 +530,8 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
         setActiveTargeting('jack');
       } else if (card.rank === 'Q') {
         setActiveTargeting('queen');
+      } else if (card.rank === 'K') {
+        setActiveTargeting('king');
       }
     }
   };
@@ -523,18 +555,18 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
               ⬅ Regresar al Menú
             </button>
           )}
-          {/* Irwin Green Orc Header */}
+          {/* Irwing the Wise Sage Header */}
           <div className="flex items-center gap-3 mb-2">
             <OrcIrwinAvatar />
             <div>
-              <div className="text-[10px] font-orbitron font-extrabold text-[#76a143] uppercase tracking-widest leading-none flex items-center gap-1.5">
-                🟢 ORCO GUÍA <span className="animate-bounce">★</span>
+              <div className="text-[10px] font-orbitron font-extrabold text-[#D8C49A] uppercase tracking-widest leading-none flex items-center gap-1.5">
+                🧙‍♂️ EL SABIO GUÍA <span className="animate-bounce">★</span>
               </div>
-              <h1 className="text-sm md:text-base font-ancient-header text-[#E2C799] font-black tracking-wider mt-0.5">IRWIN, EL SABIO</h1>
+              <h1 className="text-sm md:text-base font-ancient-header text-[#E2C799] font-black tracking-wider mt-0.5">IRWING EL SABIO</h1>
             </div>
           </div>
 
-          <div className="h-0.5 bg-gradient-to-r from-[#76a143]/60 via-[#8A6938]/40 to-transparent my-2.5" />
+          <div className="h-0.5 bg-gradient-to-r from-[#D8C49A]/60 via-[#8A6938]/40 to-transparent my-2.5" />
 
           {/* Comic Dialogue Balloon */}
           <div className="relative mt-2 mb-2">

@@ -339,15 +339,15 @@ body {
   position: absolute;
   background-color: var(--particle-color, var(--color-sand));
   border-radius: 50%;
-  opacity: 0.15;
-  box-shadow: 0 0 8px var(--particle-color, var(--color-sand));
+  opacity: 0.45;
+  box-shadow: 0 0 10px var(--particle-color, var(--color-sand));
   animation: float-dust 25s infinite linear;
 }
 
 @keyframes float-dust {
   0% { transform: translateY(var(--drift-start, 105vh)) translateX(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.15; }
-  90% { opacity: 0.15; }
+  10% { opacity: 0.45; }
+  90% { opacity: 0.45; }
   100% { transform: translateY(var(--drift-end, -5vh)) translateX(var(--drift-x, 50px)) rotate(360deg); opacity: 0; }
 }
 

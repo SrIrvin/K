@@ -129,19 +129,75 @@ const GameUI: React.FC = () => {
     const currentPlayer = useMemo(() => players?.[localPlayerIdResolved], [players, localPlayerIdResolved]);
     const opponentPlayer = useMemo(() => players?.[1 - localPlayerIdResolved], [players, localPlayerIdResolved]);
 
-    const guardianQuoteResolved = useMemo(() => {
-        if (state.gameType !== 'adventure' || !state.storyLevel) return undefined;
-        const guardianQuotes = [
-          "¿Eso fue un ataque? Pensé que estabas acomodando las cartas.",
-          "El sol siempre vuelve a levantarse... ¿podrás hacer lo mismo?",
-          "Si llegaste hasta aquí... al menos moriste haciendo ejercicio.",
-          "Toda partida termina igual... solo cambia cuánto tardas en aceptarlo.",
-          "La sangre de los valientes siempre tiene mejor sabor.",
-          "La estrategia puede aprenderse... pero la sabiduría debe ganarse.",
-          "Yo inventé las reglas... ahora intenta vencerme con ellas."
-        ];
-        return guardianQuotes[state.storyLevel - 1];
-    }, [state.gameType, state.storyLevel]);
+    const guardianQuotePools = useMemo(() => [
+      // Level 1: Piscina De La Muerte
+      [
+        "¡Oye! ¿Podrías apurarte? Mi chimichanga se está enfriando.",
+        "¿Eso fue un ataque? Pensé que estabas acomodando las cartas para la foto.",
+        "¡Cuidado con las costuras de mi traje! Me costó una fortuna en la sastrería dimensional.",
+        "¿Sabías que somos solo píxeles en la pantalla de alguien? ¡Igual te voy a aplastar!"
+      ],
+      // Level 2: Solar
+      [
+        "El sol siempre vuelve a levantarse... ¿crees que tú podrás hacer lo mismo?",
+        "Mis destellos purificarán tu arrogancia. El fuego solar no conoce piedad.",
+        "¿Sientes el calor del tablero? Es tu fin aproximándose grado a grado.",
+        "Aquellos que desafían la luz solo encuentran cenizas en su camino."
+      ],
+      // Level 3: IrwingElSabio
+      [
+        "La estrategia puede aprenderse en libros... pero la sabiduría rúnica se gana con sangre.",
+        "He calculado todos tus movimientos posibles. Ninguno de ellos te salva de la derrota.",
+        "Las runas antiguas susurran tu destino... y no es un final feliz para ti.",
+        "Cada carta que juegas es un paso más hacia la trampa que diseñé hace siglos."
+      ],
+      // Level 4: Shinigami
+      [
+        "Si llegaste hasta aquí... al menos morirás sirviendo de abono para mi jardín de almas.",
+        "Tu nombre ya está escrito en mi cuaderno del descarte. Es solo cuestión de tiempo.",
+        "¿Escuchas ese frío viento? Es el filo de mi guadaña reclamando tu mazo.",
+        "Toda vida es efímera. Tus cartas jugadas pronto me pertenecerán en la pila de descarte."
+      ],
+      // Level 5: Moon
+      [
+        "Toda partida termina igual... en la completa y absoluta penumbra de la luna nueva.",
+        "La noche es mi aliada y tus secretos son visibles bajo mi luz plateada.",
+        "Caminas a ciegas en un laberinto de sombras. Yo soy la dueña del laberinto.",
+        "El eclipse total de tu esperanza comenzará en tu próximo movimiento."
+      ],
+      // Level 6: Katty
+      [
+        "La sangre de los valientes siempre tiene un sabor tan... dulce y fresco.",
+        "Me gusta jugar con mi comida antes de devorarla por completo. ¡Miau!",
+        "Tus reflejos son demasiado lentos para mis garras. ¿Te rindes ya?",
+        "Arañazo a arañazo, mazo a mazo... voy a desmantelar toda tu defensa."
+      ],
+      // Level 7: King21
+      [
+        "Yo inventé las reglas de este sagrado altar... ¡ahora intenta sobrevivir a ellas!",
+        "¡Silencio ante el Rey! Tu insolencia será castigada con la aniquilación total.",
+        "¿Osas desafiar al Dictador Loco? ¡Marcharé con todas mis tropas sobre tu meta!",
+        "El número 21 es mi corona. Y tú solo eres un humilde peón en mi tablero."
+      ]
+    ], []);
+
+    const [activeGuardianQuote, setActiveGuardianQuote] = useState<string>('');
+
+    useEffect(() => {
+        if (state.gameType !== 'adventure' || !state.storyLevel) return;
+        const levelIdx = state.storyLevel - 1;
+        const pool = guardianQuotePools[levelIdx];
+        if (!pool) return;
+
+        const getRandomQuote = () => pool[Math.floor(Math.random() * pool.length)];
+        setActiveGuardianQuote(getRandomQuote());
+
+        const interval = setInterval(() => {
+            setActiveGuardianQuote(getRandomQuote());
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [state.gameType, state.storyLevel, guardianQuotePools]);
 
 
     
@@ -405,7 +461,7 @@ const GameUI: React.FC = () => {
                           isOpponent={true} 
                           title={(state.gameType === 'ai' || state.gameType === 'adventure') ? "Fuerza AI" : "Rival"} 
                           winTarget={state.winTarget}
-                          guardianQuote={guardianQuoteResolved}
+                          guardianQuote={activeGuardianQuote || undefined}
                         />
                     </div>
 

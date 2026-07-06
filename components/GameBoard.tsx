@@ -421,8 +421,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                         : 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
             >
-                {/* Opponent's Goal Zone (Top) */}
-                <GoalZone player={opponentPlayer} isOpponent={true} canScoreDirectly={canScoreDirectly} />
+                {/* Player 0 (Black / Human) Goal Zone (Top) */}
+                <GoalZone 
+                  player={state.players[0]} 
+                  isOpponent={currentPlayerId !== 0} 
+                  canScoreDirectly={currentPlayerId === 0 && canScoreDirectly} 
+                />
                 
                 {/* The altar containing the board */}
                 <div className="w-full max-w-lg mx-auto flex-grow my-1 p-3 bg-[#40382d]/50 border-4 border-[#8A6938] rounded-xl shadow-[0_15px_30px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.1)] relative" style={{ aspectRatio: '4 / 5' }}>
@@ -553,8 +557,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                   </div>
                 </div>
 
-                {/* Current Player's Goal Zone (Bottom) */}
-                <GoalZone player={currentPlayer} />
+                {/* Player 1 (Red / AI / Opponent) Goal Zone (Bottom) */}
+                <GoalZone 
+                  player={state.players[1]} 
+                  isOpponent={currentPlayerId !== 1} 
+                  canScoreDirectly={currentPlayerId === 1 && canScoreDirectly} 
+                />
             </div>
         </div>
     );

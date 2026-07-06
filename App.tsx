@@ -198,9 +198,9 @@ function AppContent() {
               const wasPortal = !!state.hostedPortalLevel;
               dispatch({ type: 'SET_HOSTED_PORTAL_LEVEL', payload: { level: null } });
               if (wasPortal) {
-                window.location.href = '/?path=adventure&page=adventure';
+                dispatch({ type: 'SET_GAME_MODE', payload: 'adventure_map' });
               } else {
-                window.location.href = '/?path=menu&page=menu';
+                dispatch({ type: 'SET_GAME_MODE', payload: 'menu' });
               }
             }}
             onGameJoined={handleGameJoined}

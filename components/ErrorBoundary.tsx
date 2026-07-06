@@ -63,7 +63,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 onClick={() => {
                   localStorage.clear();
-                  window.location.href = '/';
+                  window.location.href = window.location.pathname;
                 }}
                 className="stone-button stone-button-red text-xs py-2 px-5 font-orbitron"
               >

@@ -232,7 +232,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
         <button
           onClick={() => {
             audioService.playSFX('click');
-            window.location.href = '/?path=menu&page=menu';
+            onBack();
           }}
           className="stone-button py-1.5 px-4 text-xs font-bold text-[#D8C49A] hover:text-white"
         >

@@ -549,7 +549,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
             <button
               onClick={() => {
                 audioService.playSFX('click');
-                window.location.href = '/?path=menu&page=menu';
+                onBack();
               }}
               className="stone-button py-1 px-3 text-[10px] mb-2 md:mb-3 text-[#D8C49A] border-[#8A6938]/60 hover:text-white uppercase font-orbitron tracking-wider flex items-center gap-1"
             >
@@ -630,7 +630,7 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
                   } catch (e) {
                     console.error('Error saving tutorial stats:', e);
                   } finally {
-                    window.location.href = '/?path=menu&page=menu';
+                    onBack();
                   }
                 }}
                 className="stone-button stone-button-blue py-2 text-xs flex-1 font-bold animate-bounce"

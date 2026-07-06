@@ -447,7 +447,30 @@ const GameUI: React.FC = () => {
             {state.kingMoveState?.isMoving && (
                 <>
                     <div className="king-phase-bg-overlay" />
-                    <div className="king-watermark" />
+                    <div className="king-watermark">
+                        <svg viewBox="0 0 100 100" style={{
+                            width: '55vh',
+                            height: '55vh',
+                            fill: '#ffffff',
+                            opacity: 0.14,
+                            filter: 'drop-shadow(0 0 45px rgba(255, 255, 255, 0.45)) blur(1px)',
+                            animation: 'king-watermark-fade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                            pointerEvents: 'none',
+                            userSelect: 'none'
+                        }}>
+                          {/* Vertical left wedge (stem of K) */}
+                          <path d="M 28 20 L 44 20 L 36 30 Z" />
+                          <path d="M 33 28 L 39 28 L 36 80 Z" />
+                          
+                          {/* Upper diagonal wedge (pointing to center) */}
+                          <path d="M 72 25 L 82 37 L 68 34 Z" />
+                          <path d="M 73 31 L 77 36 L 36 50 Z" />
+                          
+                          {/* Lower diagonal wedge (pointing to center) */}
+                          <path d="M 72 75 L 68 66 L 82 63 Z" />
+                          <path d="M 73 69 L 77 64 L 36 50 Z" />
+                        </svg>
+                    </div>
                 </>
             )}
 

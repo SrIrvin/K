@@ -238,7 +238,21 @@ function AppContent() {
         <div className="kabuki-left" />
         <div className="kabuki-right" />
         <div className="kabuki-crest">
-          <div className="kabuki-crest-symbol">𐎵</div>
+          <div className="kabuki-crest-symbol" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg viewBox="0 0 100 100" width="75" height="75" style={{ fill: '#D8C49A', filter: 'drop-shadow(0 0 8px rgba(216,196,154,0.75))' }}>
+              {/* Vertical left wedge (stem of K) */}
+              <path d="M 28 20 L 44 20 L 36 30 Z" />
+              <path d="M 33 28 L 39 28 L 36 80 Z" />
+              
+              {/* Upper diagonal wedge (pointing to center) */}
+              <path d="M 72 25 L 82 37 L 68 34 Z" />
+              <path d="M 73 31 L 77 36 L 36 50 Z" />
+              
+              {/* Lower diagonal wedge (pointing to center) */}
+              <path d="M 72 75 L 68 66 L 82 63 Z" />
+              <path d="M 73 69 L 77 64 L 36 50 Z" />
+            </svg>
+          </div>
         </div>
       </div>
 

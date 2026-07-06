@@ -322,9 +322,9 @@ const GameUI: React.FC = () => {
       return getValidMoves(selectedUnit, board, currentPlayerId);
     }, [selectedUnit, board, currentPlayerId, kingMoveState]);
 
-    // Generate 30 dust particles for background animation
+    // Generate 85 dust particles for background animation
     const dustParticles = useMemo(() => {
-      return Array.from({ length: 30 }).map((_, i) => {
+      return Array.from({ length: 85 }).map((_, i) => {
         const size = Math.random() * 4 + 1.5;
         const left = Math.random() * 100;
         const delay = Math.random() * 25;
@@ -1022,7 +1022,35 @@ const GameUI: React.FC = () => {
             {activeEffect === 'mystic' && <div className="mystic-overlay" />}
             {activeEffect === 'queen_purify' && <div className="queen-purify-overlay" />}
             {activeEffect === 'jack_speed' && <div className="jack-silver-overlay" />}
-            {activeEffect === 'king_iron' && <div className="king-iron-overlay" />}
+            {activeEffect === 'king_iron' && (
+              <div className="king-iron-overlay">
+                <svg viewBox="0 0 100 100" className="king-iron-svg">
+                  <defs>
+                    <linearGradient id="ironGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#d5d8dc" />
+                      <stop offset="30%" stopColor="#7f8c8d" />
+                      <stop offset="70%" stopColor="#34495e" />
+                      <stop offset="100%" stopColor="#1c2833" />
+                    </linearGradient>
+                    <filter id="ironShadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#000000" floodOpacity="0.95" />
+                      <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#ffffff" floodOpacity="0.4" />
+                    </filter>
+                  </defs>
+                  {/* Vertical left wedge (stem of K) */}
+                  <path d="M 28 20 L 44 20 L 36 30 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  <path d="M 33 28 L 39 28 L 36 80 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  
+                  {/* Upper diagonal wedge (pointing to center) */}
+                  <path d="M 72 25 L 82 37 L 68 34 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  <path d="M 73 31 L 77 36 L 36 50 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  
+                  {/* Lower diagonal wedge (pointing to center) */}
+                  <path d="M 72 75 L 68 66 L 82 63 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  <path d="M 73 69 L 77 64 L 36 50 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                </svg>
+              </div>
+            )}
             {activeEffect === 'ace_arrow' && <div className="ace-arrow-projectile" />}
 
             {/* Game Over Modal overlay (Runic celebration) */}

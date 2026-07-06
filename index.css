@@ -817,16 +817,9 @@ body {
   pointer-events: none;
 }
 
-.king-iron-overlay::before {
-  content: '𐎵'; /* Ancient runic iron glyph */
-  font-family: var(--font-ancient);
-  font-size: 8rem;
-  font-weight: 900;
-  color: #7f8c8d;
-  background: linear-gradient(135deg, #7f8c8d 30%, #34495e 70%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 15px rgba(0,0,0,0.95)) drop-shadow(0 0 2px rgba(255,255,255,0.4));
+.king-iron-svg {
+  width: 16rem;
+  height: 16rem;
   animation: king-iron-anim 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   pointer-events: none;
 }

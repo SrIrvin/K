@@ -87,7 +87,17 @@
     "back_to_map": "Voltar para o Mapa",
     "back_to_menu": "Voltar para o Templo (Menu)",
     "chronicle": "📜 CRÔNICA DO DUELO 📜",
-    "no_logs": "As pedras sagradas ainda não registram combates..."
+    "no_logs": "As pedras sagradas ainda não registram combates...",
+    "gold_booty": "🪙 BOTIM DE GUERRA (OURO)",
+    "winner_suffix": "(Vencedor)",
+    "gold_suffix": "Ouro",
+    "conserved_units_label": "Unidades conservadas",
+    "special_effects_label": "Efeitos especiais",
+    "jokers_label": "Jokers conservados",
+    "kings_label": "Reis conservados",
+    "victory_bonus_label": "Bônus de Vitória",
+    "bet_loss_label": "Perda por Aposta",
+    "bet_bonus_label": "Bônus por Aposta"
   },
   "lobby": {
     "portal_level": "Portal {{level}}",

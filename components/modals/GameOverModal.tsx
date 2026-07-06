@@ -101,21 +101,21 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
                 {/* GOLD REWARDS SUMMARY PANEL */}
                 <div className="bg-[#120f0b]/90 border border-[#574d3c] rounded p-4 mb-6 text-left font-mono text-xs max-h-[350px] overflow-y-auto">
                     <h3 className="text-[#D8C49A] font-bold text-center border-b border-[#574d3c] pb-2 mb-3 tracking-widest uppercase flex items-center justify-center gap-1.5">
-                        🪙 BOTÍN DE GUERRA (ORO)
+                        {t('game_ui.gold_booty')}
                     </h3>
                     
                     {/* Winner Gold */}
                     <div className="mb-3.5 pb-3 border-b border-[#574d3c]/35">
                         <div className="flex justify-between items-center mb-1">
-                            <span className="font-bold text-green-500">🏆 {winnerName} (Ganador):</span>
-                            <span className="text-yellow-500 font-extrabold text-sm"><AnimatedCounter value={winnerGold} /> Oro</span>
+                            <span className="font-bold text-green-500">🏆 {winnerName} {t('game_ui.winner_suffix')}:</span>
+                            <span className="text-yellow-500 font-extrabold text-sm"><AnimatedCounter value={winnerGold} /> {t('game_ui.gold_suffix')}</span>
                         </div>
                         <div className="text-[#9A8B72]/80 text-[11px] pl-4 flex flex-col gap-0.5">
-                            <div>• Unidades conservadas: <AnimatedCounter value={winnerConserved} /> × 3 = <AnimatedCounter value={winnerConserved * 3} /> oro</div>
-                            <div>• Efectos especiales: <AnimatedCounter value={winnerEffects} /> × 7 = <AnimatedCounter value={winnerEffects * 7} /> oro</div>
-                            {winnerJokers > 0 && <div>• Jokers conservados: <AnimatedCounter value={winnerJokers} /> × 13 = <AnimatedCounter value={winnerJokers * 13} /> oro</div>}
-                            {winnerKings > 0 && <div>• Reyes conservados: <AnimatedCounter value={winnerKings} /> × 21 = <AnimatedCounter value={winnerKings * 21} /> oro</div>}
-                            {winnerBonus > 0 && <div className="text-green-400 font-semibold">• Bono de Victoria: +<AnimatedCounter value={winnerBonus} /> oro</div>}
+                            <div>• {t('game_ui.conserved_units_label')}: <AnimatedCounter value={winnerConserved} /> × 3 = <AnimatedCounter value={winnerConserved * 3} /> {t('game_ui.gold_suffix')}</div>
+                            <div>• {t('game_ui.special_effects_label')}: <AnimatedCounter value={winnerEffects} /> × 7 = <AnimatedCounter value={winnerEffects * 7} /> {t('game_ui.gold_suffix')}</div>
+                            {winnerJokers > 0 && <div>• {t('game_ui.jokers_label')}: <AnimatedCounter value={winnerJokers} /> × 13 = <AnimatedCounter value={winnerJokers * 13} /> {t('game_ui.gold_suffix')}</div>}
+                            {winnerKings > 0 && <div>• {t('game_ui.kings_label')}: <AnimatedCounter value={winnerKings} /> × 21 = <AnimatedCounter value={winnerKings * 21} /> {t('game_ui.gold_suffix')}</div>}
+                            {winnerBonus > 0 && <div className="text-green-400 font-semibold">• {t('game_ui.victory_bonus_label')}: +<AnimatedCounter value={winnerBonus} /> {t('game_ui.gold_suffix')}</div>}
                         </div>
                     </div>
 
@@ -123,16 +123,16 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
                     <div>
                         <div className="flex justify-between items-center mb-1">
                             <span className="font-semibold text-red-400">💀 {loserName}:</span>
-                            <span className="text-yellow-600 font-bold text-xs"><AnimatedCounter value={loserGold} /> Oro</span>
+                            <span className="text-yellow-600 font-bold text-xs"><AnimatedCounter value={loserGold} /> {t('game_ui.gold_suffix')}</span>
                         </div>
                         <div className="text-[#9A8B72]/70 text-[10px] pl-4 flex flex-col gap-0.5">
-                            <div>• Unidades conservadas: <AnimatedCounter value={loserConserved} /> × 3 = <AnimatedCounter value={loserConserved * 3} /> oro</div>
-                            <div>• Efectos especiales: <AnimatedCounter value={loserEffects} /> × 7 = <AnimatedCounter value={loserEffects * 7} /> oro</div>
-                            {loserJokers > 0 && <div>• Jokers conservados: <AnimatedCounter value={loserJokers} /> × 13 = <AnimatedCounter value={loserJokers * 13} /> oro</div>}
-                            {loserKings > 0 && <div>• Reyes conservados: <AnimatedCounter value={loserKings} /> × 21 = <AnimatedCounter value={loserKings * 21} /> oro</div>}
+                            <div>• {t('game_ui.conserved_units_label')}: <AnimatedCounter value={loserConserved} /> × 3 = <AnimatedCounter value={loserConserved * 3} /> {t('game_ui.gold_suffix')}</div>
+                            <div>• {t('game_ui.special_effects_label')}: <AnimatedCounter value={loserEffects} /> × 7 = <AnimatedCounter value={loserEffects * 7} /> {t('game_ui.gold_suffix')}</div>
+                            {loserJokers > 0 && <div>• {t('game_ui.jokers_label')}: <AnimatedCounter value={loserJokers} /> × 13 = <AnimatedCounter value={loserJokers * 13} /> {t('game_ui.gold_suffix')}</div>}
+                            {loserKings > 0 && <div>• {t('game_ui.kings_label')}: <AnimatedCounter value={loserKings} /> × 21 = <AnimatedCounter value={loserKings * 21} /> {t('game_ui.gold_suffix')}</div>}
                             {loserBonus !== 0 && (
                                 <div className={`${loserBonus < 0 ? 'text-red-400' : 'text-green-400'} font-semibold`}>
-                                    • {loserBonus < 0 ? 'Pérdida por Apuesta:' : 'Bono por Apuesta:'} <AnimatedCounter value={loserBonus} /> oro
+                                    • {loserBonus < 0 ? t('game_ui.bet_loss_label') : t('game_ui.bet_bonus_label')}: <AnimatedCounter value={loserBonus} /> {t('game_ui.gold_suffix')}
                                 </div>
                             )}
                         </div>

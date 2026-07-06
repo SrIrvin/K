@@ -87,7 +87,17 @@
     "back_to_map": "Retour à la Carte",
     "back_to_menu": "Retour au Temple (Menu)",
     "chronicle": "📜 CHRONIQUE DU DUEL 📜",
-    "no_logs": "Les pierres sacrées n'enregistrent pas encore de combats..."
+    "no_logs": "Les pierres sacrées n'enregistrent pas encore de combats...",
+    "gold_booty": "🪙 BUTIN DE GUERRA (OR)",
+    "winner_suffix": "(Vainqueur)",
+    "gold_suffix": "Or",
+    "conserved_units_label": "Unités conservées",
+    "special_effects_label": "Effets spéciaux",
+    "jokers_label": "Jokers conservés",
+    "kings_label": "Rois conservés",
+    "victory_bonus_label": "Bonus de Victoire",
+    "bet_loss_label": "Perte par Pari",
+    "bet_bonus_label": "Bonus par Pari"
   },
   "lobby": {
     "portal_level": "Portail {{level}}",

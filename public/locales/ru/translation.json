@@ -87,7 +87,17 @@
     "back_to_map": "Вернуться на карту",
     "back_to_menu": "Вернуться в Храм (Меню)",
     "chronicle": "📜 ХРОНИКА ДУЭЛИ 📜",
-    "no_logs": "Священные камни пока хранят молчание..."
+    "no_logs": "Священные камни пока хранят молчание...",
+    "gold_booty": "🪙 ВОЕННАЯ ДОБЫЧА (ЗОЛОТО)",
+    "winner_suffix": "(Победитель)",
+    "gold_suffix": "Золото",
+    "conserved_units_label": "Сохраненные юниты",
+    "special_effects_label": "Особые эффекты",
+    "jokers_label": "Сохраненные джокеры",
+    "kings_label": "Сохраненные короли",
+    "victory_bonus_label": "Бонус за победу",
+    "bet_loss_label": "Проигрыш по ставке",
+    "bet_bonus_label": "Бонус по ставке"
   },
   "lobby": {
     "portal_level": "Портал {{level}}",

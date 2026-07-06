@@ -87,7 +87,17 @@
     "back_to_map": "العودة إلى الخريطة",
     "back_to_menu": "العودة إلى المعبد (القائمة)",
     "chronicle": "📜 سجل المبارزة 📜",
-    "no_logs": "الأحجار المقدسة لم تسجل أي معارك بعد..."
+    "no_logs": "الأحجار المقدسة لم تسجل أي معارك بعد...",
+    "gold_booty": "🪙 غنيمة الحرب (الذهب)",
+    "winner_suffix": "(الفائز)",
+    "gold_suffix": "ذهب",
+    "conserved_units_label": "الوحدات المحفوظة",
+    "special_effects_label": "التأثيرات الخاصة",
+    "jokers_label": "الجوكرز المحفوظة",
+    "kings_label": "الملوك المحفوظة",
+    "victory_bonus_label": "مكافأة النصر",
+    "bet_loss_label": "خسارة الرهان",
+    "bet_bonus_label": "مكافأة الرهان"
   },
   "lobby": {
     "portal_level": "بوابة {{level}}",

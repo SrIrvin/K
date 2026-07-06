@@ -87,7 +87,17 @@
     "back_to_map": "Torna alla Mappa",
     "back_to_menu": "Torna al Tempio (Menu)",
     "chronicle": "📜 CRONACA DEL DUELLO 📜",
-    "no_logs": "Le pietre sacre non registrano ancora battaglie..."
+    "no_logs": "Le pietre sacre non registrano ancora battaglie...",
+    "gold_booty": "🪙 BOTTINO DI GUERRA (ORO)",
+    "winner_suffix": "(Vincitore)",
+    "gold_suffix": "Oro",
+    "conserved_units_label": "Unità conservate",
+    "special_effects_label": "Effetti speciali",
+    "jokers_label": "Joker conservati",
+    "kings_label": "Re conservati",
+    "victory_bonus_label": "Bonus Vittoria",
+    "bet_loss_label": "Perdita Scommessa",
+    "bet_bonus_label": "Bonus Scommessa"
   },
   "lobby": {
     "portal_level": "Portale {{level}}",

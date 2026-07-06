@@ -7,6 +7,7 @@ import {
 } from '../services/firebaseService';
 import { audioService } from '../services/audioService';
 import { useTranslation } from 'react-i18next';
+import { AchievementsModal } from './modals/AchievementsModal';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -48,6 +49,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
     return localStorage.getItem('k_player_name') || `${tMenu.defaultHero || 'Hero'}_${Math.floor(1000 + Math.random() * 9000)}`;
   });
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'hard'>('easy');
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
 
   // Listen to Authentication changes to update Google Profile
   useEffect(() => {
@@ -303,8 +305,23 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
           >
             {tMenu.tutorial}
           </button>
+
+          <button 
+            onClick={() => {
+              audioService.playSFX('click');
+              setIsAchievementsOpen(true);
+            }} 
+            className="stone-button w-full py-3 text-sm flex items-center justify-center gap-1.5 text-[#E6C687] bg-gradient-to-r from-[#3e2c1c] to-[#20150b] border-amber-600/40 hover:border-amber-500 shadow-[inset_0_0_10px_rgba(217,119,6,0.15)]"
+          >
+            🏆 {t('menu.achievements_button', 'Logros')}
+          </button>
         </div>
       </div>
+
+      <AchievementsModal 
+        isOpen={isAchievementsOpen} 
+        onClose={() => setIsAchievementsOpen(false)} 
+      />
 
       {/* Footer / Copyright in runic style & Contact */}
       <div className="absolute bottom-4 z-20 flex flex-col items-center gap-1 text-[9px] md:text-xs tracking-widest text-[#9A8B72] font-ancient-header opacity-75">

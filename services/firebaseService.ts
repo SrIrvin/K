@@ -137,24 +137,46 @@ export interface PlayerStats {
   losses: number;
   totalGames: number;
   gold?: number;
+  onlineWins?: number;
+  tutorialCompleted?: boolean;
+  storyCompleted?: boolean;
 }
 
 /**
  * Update player statistics in Firestore (atomic increments)
  */
-export const updatePlayerStats = async (playerName: string, isWinner: boolean, goldEarned = 0) => {
+export const updatePlayerStats = async (
+  playerName: string, 
+  isWinner: boolean, 
+  goldEarned = 0, 
+  isOnline = false,
+  tutorialCompleted?: boolean,
+  storyCompleted?: boolean
+) => {
   if (!playerName || playerName.trim() === '') return;
   
   try {
     const playerRef = doc(db, 'players_stats', playerName);
-    await setDoc(playerRef, {
+    const updateData: any = {
       name: playerName,
       wins: increment(isWinner ? 1 : 0),
       losses: increment(isWinner ? 0 : 1),
       totalGames: increment(1),
       gold: increment(goldEarned),
       lastUpdated: serverTimestamp()
-    }, { merge: true });
+    };
+
+    if (isOnline && isWinner) {
+      updateData.onlineWins = increment(1);
+    }
+    if (tutorialCompleted !== undefined) {
+      updateData.tutorialCompleted = tutorialCompleted;
+    }
+    if (storyCompleted !== undefined) {
+      updateData.storyCompleted = storyCompleted;
+    }
+
+    await setDoc(playerRef, updateData, { merge: true });
     console.log(`[Firebase] Updated stats and gold for ${playerName}`);
   } catch (error) {
     console.error('[Firebase] Error updating player stats:', error);
@@ -177,7 +199,10 @@ export const getTopRankedPlayers = async (limitCount = 10): Promise<PlayerStats[
         wins: data.wins || 0,
         losses: data.losses || 0,
         totalGames: data.totalGames || 0,
-        gold: data.gold || 0
+        gold: data.gold || 0,
+        onlineWins: data.onlineWins || 0,
+        tutorialCompleted: !!data.tutorialCompleted,
+        storyCompleted: !!data.storyCompleted
       };
     });
   } catch (error) {
@@ -201,7 +226,10 @@ export const getPlayerStats = async (playerName: string): Promise<PlayerStats | 
         wins: data.wins || 0,
         losses: data.losses || 0,
         totalGames: data.totalGames || 0,
-        gold: data.gold || 0
+        gold: data.gold || 0,
+        onlineWins: data.onlineWins || 0,
+        tutorialCompleted: !!data.tutorialCompleted,
+        storyCompleted: !!data.storyCompleted
       };
     }
   } catch (error) {
@@ -209,6 +237,32 @@ export const getPlayerStats = async (playerName: string): Promise<PlayerStats | 
   }
   return null;
 };
+
+/**
+ * Fetch all players stats (used to calculate achievement percentages)
+ */
+export const getAllPlayersStats = async (): Promise<PlayerStats[]> => {
+  try {
+    const statsCol = collection(db, 'players_stats');
+    const snapshot = await getDocs(statsCol);
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        name: data.name || doc.id,
+        wins: data.wins || 0,
+        losses: data.losses || 0,
+        totalGames: data.totalGames || 0,
+        gold: data.gold || 0,
+        onlineWins: data.onlineWins || 0,
+        tutorialCompleted: !!data.tutorialCompleted,
+        storyCompleted: !!data.storyCompleted
+      };
+    });
+  } catch (error) {
+    console.error('[Firebase] Error getting all players stats:', error);
+    return [];
+  }
+};;
 
 // --- REALTIME DATABASE: MULTIPLAYER LOBBY ---
 

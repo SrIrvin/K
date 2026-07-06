@@ -129,11 +129,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               loserGold: nextState.loserGold || 0
             });
 
-            // Update stats for global ranking for all nicknames
-            updatePlayerStats(winnerPlayer.name, true, nextState.winnerGold || 0);
-            updatePlayerStats(loserPlayer.name, false, nextState.loserGold || 0);
-
-            // Handle adventure level progression
+            // Handle adventure level progression and story completion
+            let isWinnerStoryCompleted = localStorage.getItem('k_story_completed') === 'true';
             if (nextState.gameType === 'adventure' && nextState.winner.id === 0) {
               const currentLevel = nextState.storyLevel || 1;
               const nextLevel = currentLevel + 1;
@@ -142,7 +139,34 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 localStorage.setItem('k_unlocked_story_level', String(nextLevel));
                 console.log(`[Adventure] Unlocked level ${nextLevel}`);
               }
+              if (currentLevel === 7) {
+                localStorage.setItem('k_story_completed', 'true');
+                isWinnerStoryCompleted = true;
+                console.log('[Adventure] Story completed!');
+              }
             }
+
+            const winnerTutorialCompleted = localStorage.getItem('k_tutorial_completed') === 'true';
+            const isWinnerOnline = nextState.gameType === 'online';
+
+            // Update stats for global ranking for all nicknames
+            updatePlayerStats(
+              winnerPlayer.name, 
+              true, 
+              nextState.winnerGold || 0, 
+              isWinnerOnline, 
+              winnerTutorialCompleted, 
+              isWinnerStoryCompleted
+            );
+            
+            updatePlayerStats(
+              loserPlayer.name, 
+              false, 
+              nextState.loserGold || 0, 
+              false, 
+              localStorage.getItem('k_tutorial_completed') === 'true', 
+              localStorage.getItem('k_story_completed') === 'true'
+            );
           }
         } catch (err) {
           console.warn('[Firebase] Failed to save game record or stats:', err);

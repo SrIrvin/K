@@ -4,6 +4,7 @@ import { GameCard } from './GameCard';
 import { GoalZone } from './GoalZone';
 import { BOARD_ROWS, BOARD_COLS } from '../utils/constants';
 import { audioService } from '../services/audioService';
+import { updatePlayerStats } from '../services/firebaseService';
 
 const OrcIrwinAvatar: React.FC = () => {
   const [imgError, setImgError] = useState(false);
@@ -620,9 +621,17 @@ export const TutorialUI: React.FC<TutorialUIProps> = ({ onBack }) => {
 
             {step.expectedAction === 'click_finish' && (
               <button 
-                onClick={() => {
+                onClick={async () => {
                   audioService.playSFX('click');
-                  window.location.href = '/?path=menu&page=menu';
+                  localStorage.setItem('k_tutorial_completed', 'true');
+                  const playerName = localStorage.getItem('k_player_name') || 'Invitado';
+                  try {
+                    await updatePlayerStats(playerName, false, 0, false, true, undefined);
+                  } catch (e) {
+                    console.error('Error saving tutorial stats:', e);
+                  } finally {
+                    window.location.href = '/?path=menu&page=menu';
+                  }
                 }}
                 className="stone-button stone-button-blue py-2 text-xs flex-1 font-bold animate-bounce"
               >

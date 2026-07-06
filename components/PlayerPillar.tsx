@@ -23,7 +23,7 @@ export const PlayerPillar: React.FC<PlayerPillarProps> = ({ player, isOpponent =
         {isOpponent && ['Piscina De La Muerte', 'Solar', 'IrwingElSabio', 'Shinigami', 'Moon', 'Katty', 'King21'].includes(player.name) && (
           <div className="mb-2 flex justify-center">
             <img 
-              src={`/images/history/${player.name}.png`} 
+              src={`images/history/${player.name}.png`} 
               alt={player.name} 
               className="w-16 h-16 md:w-20 md:h-20 rounded-lg border-2 border-[#8A6938] object-cover shadow-[0_0_12px_rgba(138,105,56,0.4)] bg-[#1e1a14] animate-fade-in" 
             />

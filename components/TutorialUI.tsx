@@ -12,7 +12,7 @@ const OrcIrwinAvatar: React.FC = () => {
   if (!imgError) {
     return (
       <img 
-        src="/images/history/IrwingElSabio.png" 
+        src="images/history/IrwingElSabio.png" 
         alt="Irwing el Sabio" 
         onError={() => setImgError(true)}
         className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-[#D8C49A] bg-[#1a1510] shadow-[0_0_15px_rgba(216,196,154,0.5)] object-cover shrink-0"

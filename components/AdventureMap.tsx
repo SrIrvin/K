@@ -376,7 +376,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
                 {/* Guardian Portrait */}
                 <div className="w-full flex justify-center mb-3">
                   <img 
-                    src={`/images/history/${selectedLevel.name}.png`} 
+                    src={`images/history/${selectedLevel.name}.png`} 
                     alt={selectedLevelResolved.subtitle} 
                     className="w-24 h-24 rounded-lg border-2 border-[#8A6938] object-cover shadow-[0_4px_10px_rgba(0,0,0,0.5)] bg-[#120f0b] animate-fade-in"
                   />

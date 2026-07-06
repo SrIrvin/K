@@ -646,7 +646,7 @@ const GameUI: React.FC = () => {
                               }}
                             >
                               <img 
-                                src={`/images/history/${storyGuardians[state.storyLevel - 1]?.image || 'IrwingElSabio.png'}`}
+                                src={`images/history/${storyGuardians[state.storyLevel - 1]?.image || 'IrwingElSabio.png'}`}
                                 alt={storyGuardians[state.storyLevel - 1]?.name}
                                 className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl border-2 border-[#8A6938] object-cover shrink-0 shadow-md bg-black"
                               />

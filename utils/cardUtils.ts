@@ -39,5 +39,5 @@ export const getCardImagePath = (card: Card): string => {
     fileName = isAce ? `As ${suitNumber}.webp` : `${card.rank} ${suitNumber}.webp`;
   }
 
-  return `/images/${folder}/${fileName}`;
+  return `images/${folder}/${fileName}`;
 };

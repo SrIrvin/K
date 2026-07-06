@@ -87,7 +87,17 @@
     "back_to_map": "Niman Aventura Map",
     "back_to_menu": "Niman Templo (Menu)",
     "chronicle": "📜 YAOTLACUILOLI CRÓNICA 📜",
-    "no_logs": "Tetl ahmo quipia yaotl log..."
+    "no_logs": "Tetl ahmo quipia yaotl log...",
+    "gold_booty": "🪙 TEOCUITLATL (ORO)",
+    "winner_suffix": "(Tlatlani)",
+    "gold_suffix": "Teocuitlatl",
+    "conserved_units_label": "Centlalia tlatectli",
+    "special_effects_label": "Tlamahuizolli",
+    "jokers_label": "Jokers tlamatiliztli",
+    "kings_label": "Tlahtohqueh",
+    "victory_bonus_label": "Tlatlaniliztli nemactli",
+    "bet_loss_label": "Tlaxtlahuiztli",
+    "bet_bonus_label": "Nemactli"
   },
   "lobby": {
     "portal_level": "Calixcuacalli {{level}}",

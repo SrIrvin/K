@@ -12,6 +12,7 @@ import {
   collection, 
   addDoc, 
   getDocs, 
+  getDoc,
   query, 
   orderBy, 
   limit, 
@@ -83,6 +84,8 @@ export interface GameRecord {
   loserDamage: number;
   gameType: string;
   timestamp?: any;
+  winnerGold?: number;
+  loserGold?: number;
 }
 
 /**
@@ -117,7 +120,9 @@ export const getLeaderboard = async (limitCount = 10): Promise<GameRecord[]> => 
         loserName: data.loserName,
         loserDamage: data.loserDamage,
         gameType: data.gameType,
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
+        winnerGold: data.winnerGold || 0,
+        loserGold: data.loserGold || 0
       };
     });
   } catch (error) {
@@ -131,12 +136,13 @@ export interface PlayerStats {
   wins: number;
   losses: number;
   totalGames: number;
+  gold?: number;
 }
 
 /**
  * Update player statistics in Firestore (atomic increments)
  */
-export const updatePlayerStats = async (playerName: string, isWinner: boolean) => {
+export const updatePlayerStats = async (playerName: string, isWinner: boolean, goldEarned = 0) => {
   if (!playerName || playerName.trim() === '') return;
   
   try {
@@ -146,21 +152,22 @@ export const updatePlayerStats = async (playerName: string, isWinner: boolean) =
       wins: increment(isWinner ? 1 : 0),
       losses: increment(isWinner ? 0 : 1),
       totalGames: increment(1),
+      gold: increment(goldEarned),
       lastUpdated: serverTimestamp()
     }, { merge: true });
-    console.log(`[Firebase] Updated stats for ${playerName}`);
+    console.log(`[Firebase] Updated stats and gold for ${playerName}`);
   } catch (error) {
     console.error('[Firebase] Error updating player stats:', error);
   }
 };
 
 /**
- * Get top 10 ranked players ordered by wins
+ * Get top 10 ranked players ordered by gold
  */
 export const getTopRankedPlayers = async (limitCount = 10): Promise<PlayerStats[]> => {
   try {
     const statsCol = collection(db, 'players_stats');
-    const q = query(statsCol, orderBy('wins', 'desc'), limit(limitCount));
+    const q = query(statsCol, orderBy('gold', 'desc'), limit(limitCount));
     const snapshot = await getDocs(q);
     
     return snapshot.docs.map(doc => {
@@ -169,13 +176,38 @@ export const getTopRankedPlayers = async (limitCount = 10): Promise<PlayerStats[
         name: data.name || doc.id,
         wins: data.wins || 0,
         losses: data.losses || 0,
-        totalGames: data.totalGames || 0
+        totalGames: data.totalGames || 0,
+        gold: data.gold || 0
       };
     });
   } catch (error) {
     console.error('[Firebase] Error getting ranking:', error);
     return [];
   }
+};
+
+/**
+ * Retrieve specific player stats
+ */
+export const getPlayerStats = async (playerName: string): Promise<PlayerStats | null> => {
+  if (!playerName || playerName.trim() === '') return null;
+  try {
+    const playerRef = doc(db, 'players_stats', playerName);
+    const snapshot = await getDoc(playerRef);
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      return {
+        name: data.name || snapshot.id,
+        wins: data.wins || 0,
+        losses: data.losses || 0,
+        totalGames: data.totalGames || 0,
+        gold: data.gold || 0
+      };
+    }
+  } catch (error) {
+    console.error('[Firebase] Error getting player stats:', error);
+  }
+  return null;
 };
 
 // --- REALTIME DATABASE: MULTIPLAYER LOBBY ---

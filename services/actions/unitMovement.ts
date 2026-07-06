@@ -113,5 +113,6 @@ export const drawCard = (state: GameState): GameState => {
   });
 
   const withActionSpent = mutators.spendAction(updatedState);
-  return mutators.addLog(withActionSpent, 'Drew a card.');
+  const withLog = mutators.addLog(withActionSpent, 'Drew a card.');
+  return mutators.checkForWinner(withLog);
 };

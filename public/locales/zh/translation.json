@@ -87,7 +87,17 @@
     "back_to_map": "返回战役地图",
     "back_to_menu": "返回大厅 (菜单)",
     "chronicle": "📜 决斗编年史 📜",
-    "no_logs": "神圣的石碑尚未记录任何战斗..."
+    "no_logs": "神圣的石碑尚未记录任何战斗...",
+    "gold_booty": "🪙 战利品 (黄金)",
+    "winner_suffix": "(胜者)",
+    "gold_suffix": "黄金",
+    "conserved_units_label": "保留的单位",
+    "special_effects_label": "特殊效果",
+    "jokers_label": "保留的鬼牌",
+    "kings_label": "保留的国王",
+    "victory_bonus_label": "胜利奖励",
+    "bet_loss_label": "下注损失",
+    "bet_bonus_label": "下注奖励"
   },
   "lobby": {
     "portal_level": "传送门 {{level}}",

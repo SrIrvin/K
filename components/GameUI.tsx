@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GameContext } from '../context/GameContext';
 import { Card, Unit, Player, CardColor, Suit, Rank } from '../types';
@@ -129,19 +129,161 @@ const GameUI: React.FC = () => {
     const currentPlayer = useMemo(() => players?.[localPlayerIdResolved], [players, localPlayerIdResolved]);
     const opponentPlayer = useMemo(() => players?.[1 - localPlayerIdResolved], [players, localPlayerIdResolved]);
 
-    const guardianQuoteResolved = useMemo(() => {
-        if (state.gameType !== 'adventure' || !state.storyLevel) return undefined;
-        const guardianQuotes = [
-          "¿Eso fue un ataque? Pensé que estabas acomodando las cartas.",
-          "El sol siempre vuelve a levantarse... ¿podrás hacer lo mismo?",
-          "Si llegaste hasta aquí... al menos moriste haciendo ejercicio.",
-          "Toda partida termina igual... solo cambia cuánto tardas en aceptarlo.",
-          "La sangre de los valientes siempre tiene mejor sabor.",
-          "La estrategia puede aprenderse... pero la sabiduría debe ganarse.",
-          "Yo inventé las reglas... ahora intenta vencerme con ellas."
-        ];
-        return guardianQuotes[state.storyLevel - 1];
-    }, [state.gameType, state.storyLevel]);
+    const storyGuardians = useMemo(() => [
+      { name: "Piscina De La Muerte", title: "El Mercenario Burlón", image: "Piscina De La Muerte.png" },
+      { name: "Solar", title: "El Guardián del Sol", image: "Solar.png" },
+      { name: "IrwingElSabio", title: "Irwing El Sabio", image: "IrwingElSabio.png" },
+      { name: "Shinigami", title: "El Antiguo Dios de la Muerte", image: "Shinigami.png" },
+      { name: "Moon", title: "La Princesa Carmesí", image: "Moon.png" },
+      { name: "Katty", title: "La Diosa del Conocimiento", image: "Katty.png" },
+      { name: "King21", title: "El Jerarca Divino", image: "King21.png" },
+    ], []);
+
+    const guardianQuotePools = useMemo(() => [
+      // Level 1: Piscina De La Muerte
+      [
+        "¡Oye! ¿Podrías apurarte? Mi chimichanga se está enfriando.",
+        "¿Eso fue un ataque? Pensé que estabas acomodando las cartas para la foto.",
+        "¡Cuidado con las costuras de mi traje! Me costó una fortuna en la sastrería dimensional.",
+        "¿Sabías que somos solo píxeles en la pantalla de alguien? ¡Igual te voy a aplastar!",
+        "¡Mira mamá, estoy peleando con cartas de piedra! Espera, ¿dónde está mi espada real?",
+        "¡Apuéstame 5 dólares a que mi Reina cura tu depresión antes de destruir tu meta!",
+        "¡Toc, toc! ¿Quién es? ¡El tipo que va a reventar tus defensas en tres segundos!",
+        "¡Uff, jugar contra ti es más lento que una película de autor francesa!",
+        "¡No llores si mi comodín hace desaparecer a tu carta favorita, es solo negocios!",
+        "¿Me das tu autógrafo antes de perder? Es para mi colección de 'rivales caídos'."
+      ],
+      // Level 2: Solar
+      [
+        "El sol siempre vuelve a levantarse... ¿crees que tú podrás hacer lo mismo?",
+        "Mis destellos purificarán tu arrogancia. El fuego solar no conoce piedad.",
+        "¿Sientes el calor del tablero? Es tu fin aproximándose grado a grado.",
+        "Aquellos que desafían la luz solo encuentran cenizas en su camino.",
+        "¡La aurora del mediodía derretirá tus runas! No hay sombra donde esconderse.",
+        "El brillo del amanecer corona mi victoria. Ríndete ante el calor celestial.",
+        "Cada carta tuya que toco se convierte en humo rúnico.",
+        "La luz solar revela todas tus debilidades, no puedes ocultar tu estrategia.",
+        "Bajo el sol ardiente, solo los fuertes de espíritu prevalecerán.",
+        "¡Siente la gloria del amanecer eterno golpear tu zona de meta!"
+      ],
+      // Level 3: IrwingElSabio
+      [
+        "La estrategia puede aprenderse en libros... pero la sabiduría rúnica se gana con sangre.",
+        "He calculado todos tus movimientos posibles. Ninguno de ellos te salva de la derrota.",
+        "Las runas antiguas susurran tu destino... y no es un final feliz para ti.",
+        "Cada carta que juegas es un paso más hacia la trampa que diseñé hace siglos.",
+        "El conocimiento es el arma definitiva, y tu mazo carece de profundidad.",
+        "Aprende de esta lección, joven discípulo: el tablero es mi mente y tú solo un pensamiento.",
+        "Un verdadero sabio no teme al descarte; sabe que todo vuelve en el ciclo rúnico.",
+        "Tus impulsos te traicionan, joven estratega. La paciencia es el pilar de la victoria.",
+        "Incluso la roca más dura se erosiona ante un río de decisiones inteligentes.",
+        "¿Crees en la suerte de las cartas? Yo solo creo en el diseño rúnico de mi mazo."
+      ],
+      // Level 4: Shinigami
+      [
+        "Si llegaste hasta aquí... al menos morirás sirviendo de abono para mi jardín de almas.",
+        "Tu nombre ya está escrito en mi cuaderno del descarte. Es solo cuestión de tiempo.",
+        "¿Escuchas ese frío viento? Es el filo de mi guadaña reclamando tu mazo.",
+        "Toda vida es efímera. Tus cartas jugadas pronto me pertenecerán en la pila de descarte.",
+        "He cosechado almas más brillantes que la tuya. La tuya será un juego de niños.",
+        "La muerte no es injusta... simplemente es puntual. Tu reloj se agota.",
+        "El vacío del descarte te llama por tu nombre de pila.",
+        "Cada turno que pasa, tu sombra se alarga y tu tiempo en este tablero disminuye.",
+        "No llores por tus unidades caídas, todas encontrarán descanso eterno en mi cementerio.",
+        "El destino final de todo jugador es rendir sus cartas ante mi presencia."
+      ],
+      // Level 5: Moon
+      [
+        "Toda partida termina igual... en la completa y absoluta penumbra de la luna nueva.",
+        "La noche es mi aliada y tus secretos son visibles bajo mi luz plateada.",
+        "Caminas a ciegas en un laberinto de sombras. Yo soy la dueña del laberinto.",
+        "El eclipse total de tu esperanza comenzará en tu próximo movimiento.",
+        "La marea de mi mazo sube y bajará para ahogar tus débiles tropas.",
+        "La fría gravedad lunar aprisionará tu velocidad de avance.",
+        "Incluso las estrellas titilan con miedo cuando despliego mis fases ocultas.",
+        "La belleza de la luna carmesí es lo último que verán tus ojos cansados.",
+        "Tu luz de esperanza se atenúa... pronto reinará la oscuridad absoluta en tu meta.",
+        "Mis cartas danzan al ritmo de la marea lunar, un baile del que no podrás escapar."
+      ],
+      // Level 6: Katty
+      [
+        "Oh, qué tierno intento... pero estás cometiendo un error de principiante.",
+        "A ver, te lo explicaré despacio para que puedas entenderlo: esa carta no va ahí.",
+        "¿De verdad pensaste que eso funcionaría? Qué adorable.",
+        "Tranquilo, no llores. De los errores se aprende, pequeño comandante.",
+        "Ven, déjame darte una lección de estrategia que jamás olvidarás.",
+        "Es lindo ver cómo te esfuerzas, pero estás jugando a nivel de guardería.",
+        "¿Quieres que te deje ganar un punto para que no te sientas mal?",
+        "La paciencia es una virtud... lástima que aún seas muy inmaduro para entenderla.",
+        "Te trato con cariño porque sé que estás dando lo mejor de ti, aunque no sea suficiente.",
+        "Pon atención a este movimiento: así es como juega un verdadero maestro."
+      ],
+      // Level 7: King21
+      [
+        "Desciendo de los dioses antiguos; mi deber es guiar y proteger a mi pueblo con sabiduría.",
+        "La fuerza sin sabiduría solo trae destrucción. Muéstrame tu verdadero propósito.",
+        "Como gobernante supremo, cada movimiento en este tablero busca proteger la paz de mi reino.",
+        "El respeto se gana en el campo de batalla, con honor y decisiones justas.",
+        "No busco tu aniquilación, sino probar si eres digno de liderar el destino de los tuyos.",
+        "Las leyes que creé protegen el equilibrio de nuestro mundo. Debes respetarlas.",
+        "Un líder sabio protege a cada uno de sus soldados en el tablero.",
+        "La autoridad no proviene del miedo, sino de la justicia y la devoción a nuestro pueblo.",
+        "Demuestra tu valía como comandante, con nobleza y sin caer en impulsos egoístas.",
+        "Que los dioses juzguen nuestro duelo. Que gane quien realmente pueda proteger al reino."
+      ]
+    ], []);
+
+    const [activeGuardianQuote, setActiveGuardianQuote] = useState<string>('');
+    const [showStoryBubble, setShowStoryBubble] = useState<boolean>(false);
+    const prevDamageRef = useRef<number | null>(null);
+
+    // Initial game-start quote trigger
+    useEffect(() => {
+        if (state.gameType !== 'adventure' || !state.storyLevel) return;
+        const levelIdx = state.storyLevel - 1;
+        const pool = guardianQuotePools[levelIdx];
+        if (!pool) return;
+
+        const getRandomQuote = () => pool[Math.floor(Math.random() * pool.length)];
+        
+        // Show first quote after 3 seconds so the board finishes opening
+        const initialTimeout = setTimeout(() => {
+            setActiveGuardianQuote(getRandomQuote());
+            setShowStoryBubble(true);
+        }, 3000);
+
+        return () => {
+            clearTimeout(initialTimeout);
+        };
+    }, [state.gameType, state.storyLevel, guardianQuotePools]);
+
+    // Quote trigger when the boss inflicts damage to the human player
+    const p0Damage = state.players[0]?.damage || 0;
+    useEffect(() => {
+        if (state.gameType !== 'adventure' || !state.storyLevel) return;
+
+        // On first run, store initial damage and do not trigger
+        if (prevDamageRef.current === null) {
+            prevDamageRef.current = p0Damage;
+            return;
+        }
+
+        // If human player's damage increased, the boss has inflicted damage!
+        if (p0Damage > prevDamageRef.current) {
+            const levelIdx = state.storyLevel - 1;
+            const pool = guardianQuotePools[levelIdx];
+            if (pool && pool.length > 0) {
+                const getRandomQuote = () => pool[Math.floor(Math.random() * pool.length)];
+                // Slightly delay the comment so it aligns beautifully with the score/damage animation
+                const timeout = setTimeout(() => {
+                    setActiveGuardianQuote(getRandomQuote());
+                    setShowStoryBubble(true);
+                }, 1000);
+                return () => clearTimeout(timeout);
+            }
+        }
+        prevDamageRef.current = p0Damage;
+    }, [p0Damage, state.gameType, state.storyLevel, guardianQuotePools]);
 
 
     
@@ -245,9 +387,9 @@ const GameUI: React.FC = () => {
       return getValidMoves(selectedUnit, board, currentPlayerId);
     }, [selectedUnit, board, currentPlayerId, kingMoveState]);
 
-    // Generate 30 dust particles for background animation
+    // Generate 85 dust particles for background animation
     const dustParticles = useMemo(() => {
-      return Array.from({ length: 30 }).map((_, i) => {
+      return Array.from({ length: 85 }).map((_, i) => {
         const size = Math.random() * 4 + 1.5;
         const left = Math.random() * 100;
         const delay = Math.random() * 25;
@@ -370,7 +512,30 @@ const GameUI: React.FC = () => {
             {state.kingMoveState?.isMoving && (
                 <>
                     <div className="king-phase-bg-overlay" />
-                    <div className="king-watermark" />
+                    <div className="king-watermark">
+                        <svg viewBox="0 0 100 100" style={{
+                            width: '55vh',
+                            height: '55vh',
+                            fill: '#ffffff',
+                            opacity: 0.14,
+                            filter: 'drop-shadow(0 0 45px rgba(255, 255, 255, 0.45)) blur(1px)',
+                            animation: 'king-watermark-fade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                            pointerEvents: 'none',
+                            userSelect: 'none'
+                        }}>
+                          {/* Vertical left wedge (stem of K) */}
+                          <path d="M 28 20 L 44 20 L 36 30 Z" />
+                          <path d="M 33 28 L 39 28 L 36 80 Z" />
+                          
+                          {/* Upper diagonal wedge (pointing to center) */}
+                          <path d="M 72 25 L 82 37 L 68 34 Z" />
+                          <path d="M 73 31 L 77 36 L 36 50 Z" />
+                          
+                          {/* Lower diagonal wedge (pointing to center) */}
+                          <path d="M 72 75 L 68 66 L 82 63 Z" />
+                          <path d="M 73 69 L 77 64 L 36 50 Z" />
+                        </svg>
+                    </div>
                 </>
             )}
 
@@ -405,7 +570,7 @@ const GameUI: React.FC = () => {
                           isOpponent={true} 
                           title={(state.gameType === 'ai' || state.gameType === 'adventure') ? "Fuerza AI" : "Rival"} 
                           winTarget={state.winTarget}
-                          guardianQuote={guardianQuoteResolved}
+                          guardianQuote={activeGuardianQuote || undefined}
                         />
                     </div>
 
@@ -446,7 +611,7 @@ const GameUI: React.FC = () => {
                     </div>
 
                     {/* Game board takes about 70% of the screen height */}
-                    <div className={`flex-grow flex items-center justify-center w-full min-h-0 py-1 md:py-2 ${activeEffect === 'blood' ? 'shake-effect' : ''}`}>
+                    <div className={`flex-grow flex items-center justify-center w-full min-h-0 py-1 md:py-2 ${activeEffect === 'blood' ? 'shake-effect' : ''} relative`}>
                         <GameBoard 
                           board={board}
                           currentPlayer={currentPlayer}
@@ -454,6 +619,57 @@ const GameUI: React.FC = () => {
                           validMoves={validMoves}
                           showHints={showHints}
                         />
+
+                        {/* Story Mode Dialog Bubble Overlay */}
+                        {state.gameType === 'adventure' && showStoryBubble && activeGuardianQuote && (
+                          <>
+                            {/* Fullscreen backdrop to capture screen touches/clicks and dismiss the bubble */}
+                            <div 
+                              className="fixed inset-0 z-40 bg-black/10 cursor-pointer pointer-events-auto"
+                              onClick={() => {
+                                audioService.playSFX('click');
+                                setShowStoryBubble(false);
+                              }}
+                            />
+                            
+                            {/* Comic Speech Bubble */}
+                            <div 
+                              className="absolute z-50 max-w-[280px] sm:max-w-md bg-[#1d1610]/95 border-2 border-[#D8C49A] p-4 rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.95)] flex gap-3.5 items-start cursor-pointer hover:border-white transition-all transform hover:scale-[1.02] pointer-events-auto"
+                              onClick={() => {
+                                audioService.playSFX('click');
+                                setShowStoryBubble(false);
+                              }}
+                              style={{
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                              }}
+                            >
+                              <img 
+                                src={`/images/history/${storyGuardians[state.storyLevel - 1]?.image || 'IrwingElSabio.png'}`}
+                                alt={storyGuardians[state.storyLevel - 1]?.name}
+                                className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl border-2 border-[#8A6938] object-cover shrink-0 shadow-md bg-black"
+                              />
+                              <div className="flex flex-col">
+                                <span className="text-[9px] font-orbitron tracking-widest text-[#D8C49A] uppercase leading-none font-bold">
+                                  {storyGuardians[state.storyLevel - 1]?.title || 'Enemigo'}
+                                </span>
+                                <h4 className="text-xs sm:text-sm font-ancient-header text-white font-extrabold tracking-wide mt-1">
+                                  {storyGuardians[state.storyLevel - 1]?.name.replace(/([A-Z])/g, ' $1').trim()}
+                                </h4>
+                                <div className="h-0.5 bg-gradient-to-r from-[#8A6938] to-transparent my-1.5" />
+                                <p className="text-xs sm:text-sm text-[#E2C799] italic leading-relaxed font-runic-text">
+                                  "{activeGuardianQuote}"
+                                </p>
+                                <span className="text-[8px] text-[#8A6938] mt-2 self-end animate-pulse uppercase tracking-wider font-extrabold font-orbitron">
+                                  ⚡ Toca la pantalla para continuar
+                                </span>
+                              </div>
+                              {/* Speech Bubble Arrow Indicator */}
+                              <div className="absolute -bottom-2 left-8 w-4 h-4 bg-[#1d1610] border-r-2 border-b-2 border-[#D8C49A] rotate-45" />
+                            </div>
+                          </>
+                        )}
                     </div>
 
                     {/* Current Player's Active Hand (tactile slots) */}
@@ -762,12 +978,14 @@ const GameUI: React.FC = () => {
                                                   <>
                                                       <button 
                                                         onClick={() => dispatch({ type: 'DRAW_CARD'})} 
-                                                        disabled={!canAct} 
+                                                        disabled={!canAct || !currentPlayer || currentPlayer.deck.length === 0} 
                                                         className={`stone-button w-full py-1.5 text-[8px] sm:text-[9px] text-[#1e1a14] ${
+                                                          currentPlayer && currentPlayer.deck.length === 0 ? 'bg-red-950/40 text-red-500 border-red-900/80 cursor-not-allowed hover:scale-100 hover:border-red-900/80' : ''
+                                                        } ${
                                                           showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''
                                                         }`}
                                                       >
-                                                        Robar ({actionsRemaining})
+                                                        {currentPlayer && currentPlayer.deck.length === 0 ? '¡Sin cartas!' : `Robar (${actionsRemaining})`}
                                                       </button>
                                                       <button 
                                                         onClick={() => dispatch({ type: 'END_TURN'})} 
@@ -825,10 +1043,12 @@ const GameUI: React.FC = () => {
                                 
                                 <button 
                                   onClick={() => dispatch({ type: 'DRAW_CARD'})} 
-                                  disabled={!canAct} 
-                                  className={`stone-button w-full py-2.5 text-xs text-[#1e1a14] ${showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''}`}
+                                  disabled={!canAct || !currentPlayer || currentPlayer.deck.length === 0} 
+                                  className={`stone-button w-full py-2.5 text-xs text-[#1e1a14] ${
+                                    currentPlayer && currentPlayer.deck.length === 0 ? 'bg-red-950/40 text-red-500 border-red-900/80 cursor-not-allowed hover:scale-100 hover:border-red-900/80' : ''
+                                  } ${showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''}`}
                                 >
-                                  Robar (1 Act)
+                                  {currentPlayer && currentPlayer.deck.length === 0 ? '¡No hay más cartas!' : 'Robar (1 Act)'}
                                 </button>
                                 
                                 <button 
@@ -922,7 +1142,35 @@ const GameUI: React.FC = () => {
             {activeEffect === 'mystic' && <div className="mystic-overlay" />}
             {activeEffect === 'queen_purify' && <div className="queen-purify-overlay" />}
             {activeEffect === 'jack_speed' && <div className="jack-silver-overlay" />}
-            {activeEffect === 'king_iron' && <div className="king-iron-overlay" />}
+            {activeEffect === 'king_iron' && (
+              <div className="king-iron-overlay">
+                <svg viewBox="0 0 100 100" className="king-iron-svg">
+                  <defs>
+                    <linearGradient id="ironGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#d5d8dc" />
+                      <stop offset="30%" stopColor="#7f8c8d" />
+                      <stop offset="70%" stopColor="#34495e" />
+                      <stop offset="100%" stopColor="#1c2833" />
+                    </linearGradient>
+                    <filter id="ironShadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#000000" floodOpacity="0.95" />
+                      <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#ffffff" floodOpacity="0.4" />
+                    </filter>
+                  </defs>
+                  {/* Vertical left wedge (stem of K) */}
+                  <path d="M 28 20 L 44 20 L 36 30 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  <path d="M 33 28 L 39 28 L 36 80 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  
+                  {/* Upper diagonal wedge (pointing to center) */}
+                  <path d="M 72 25 L 82 37 L 68 34 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  <path d="M 73 31 L 77 36 L 36 50 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  
+                  {/* Lower diagonal wedge (pointing to center) */}
+                  <path d="M 72 75 L 68 66 L 82 63 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                  <path d="M 73 69 L 77 64 L 36 50 Z" fill="url(#ironGrad)" filter="url(#ironShadow)" />
+                </svg>
+              </div>
+            )}
             {activeEffect === 'ace_arrow' && <div className="ace-arrow-projectile" />}
 
             {/* Game Over Modal overlay (Runic celebration) */}

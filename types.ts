@@ -71,6 +71,10 @@ export interface GameState {
     selectedUnitId: string | null;
   } | null;
   cardInfoModal: Card | null;
+  winnerGold?: number;
+  loserGold?: number;
+  winnerGoldDetails?: { conserved: number, effects: number, jokers?: number, kings?: number, bonus?: number };
+  loserGoldDetails?: { conserved: number, effects: number, jokers?: number, kings?: number, bonus?: number };
 }
 
 export type MoveDirection = 'up' | 'down' | 'left' | 'right';

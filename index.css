@@ -339,15 +339,15 @@ body {
   position: absolute;
   background-color: var(--particle-color, var(--color-sand));
   border-radius: 50%;
-  opacity: 0.15;
-  box-shadow: 0 0 8px var(--particle-color, var(--color-sand));
+  opacity: 0.45;
+  box-shadow: 0 0 10px var(--particle-color, var(--color-sand));
   animation: float-dust 25s infinite linear;
 }
 
 @keyframes float-dust {
   0% { transform: translateY(var(--drift-start, 105vh)) translateX(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.15; }
-  90% { opacity: 0.15; }
+  10% { opacity: 0.45; }
+  90% { opacity: 0.45; }
   100% { transform: translateY(var(--drift-end, -5vh)) translateX(var(--drift-x, 50px)) rotate(360deg); opacity: 0; }
 }
 
@@ -817,16 +817,9 @@ body {
   pointer-events: none;
 }
 
-.king-iron-overlay::before {
-  content: '𐎵'; /* Ancient runic iron glyph */
-  font-family: var(--font-ancient);
-  font-size: 8rem;
-  font-weight: 900;
-  color: #7f8c8d;
-  background: linear-gradient(135deg, #7f8c8d 30%, #34495e 70%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 15px rgba(0,0,0,0.95)) drop-shadow(0 0 2px rgba(255,255,255,0.4));
+.king-iron-svg {
+  width: 16rem;
+  height: 16rem;
   animation: king-iron-anim 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   pointer-events: none;
 }
@@ -948,18 +941,6 @@ body {
   overflow: hidden;
 }
 
-.king-watermark::before {
-  content: '𐎵'; /* Ancient runic K glyph */
-  font-family: var(--font-ancient);
-  font-size: 55vh; /* ~50-55% of screen height */
-  font-weight: 900;
-  color: #ffffff;
-  opacity: 0.14;
-  filter: drop-shadow(0 0 45px rgba(255, 255, 255, 0.45)) blur(1px);
-  animation: king-watermark-fade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  pointer-events: none;
-  user-select: none;
-}
 
 /* --- LOW PERFORMANCE / LOW GRAPHICS MODE --- */
 .low-graphics {

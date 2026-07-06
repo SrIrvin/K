@@ -2,8 +2,7 @@ export const isMobileDevice = (): boolean => {
   if (typeof window === 'undefined') return false;
   const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
   const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-  const isSmallScreen = window.innerWidth <= 768;
-  return mobileRegex.test(userAgent) || isSmallScreen;
+  return mobileRegex.test(userAgent);
 };
 
 export const getInitialGraphicsSetting = (): boolean => {
@@ -33,7 +32,7 @@ export const applyGraphicsSettings = (fancyGraphics: boolean) => {
 
 export const applySmartphoneMode = () => {
   if (typeof document !== 'undefined') {
-    const isMobile = isMobileDevice();
+    const isMobile = isMobileDevice() || (typeof window !== 'undefined' && window.innerWidth <= 768);
     if (isMobile) {
       document.documentElement.classList.add('smartphone-mode');
       document.body.classList.add('smartphone-mode');

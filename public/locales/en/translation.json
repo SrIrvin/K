@@ -90,7 +90,17 @@
     "back_to_map": "Back to Adventure Map",
     "back_to_menu": "Back to Temple (Menu)",
     "chronicle": "📜 CHRONICLE OF THE DUEL 📜",
-    "no_logs": "The sacred stones do not yet record battles..."
+    "no_logs": "The sacred stones do not yet record battles...",
+    "gold_booty": "🪙 WAR BOOTY (GOLD)",
+    "winner_suffix": "(Winner)",
+    "gold_suffix": "Gold",
+    "conserved_units_label": "Conserved units",
+    "special_effects_label": "Special effects",
+    "jokers_label": "Conserved Jokers",
+    "kings_label": "Conserved Kings",
+    "victory_bonus_label": "Victory Bonus",
+    "bet_loss_label": "Bet Loss",
+    "bet_bonus_label": "Bet Bonus"
   },
   "lobby": {
     "portal_level": "Portal {{level}}",

@@ -3,7 +3,7 @@ import { GameContext } from '../context/GameContext';
 import { Unit, Player, Card, Rank } from '../types';
 import { GameCard } from './GameCard';
 import { GoalZone } from './GoalZone';
-import { BOARD_ROWS } from '../constants';
+import { BOARD_ROWS, BOARD_COLS } from '../constants';
 import { getKingValidMoves } from '../services/gameService';
 
 interface GameBoardProps {
@@ -19,6 +19,7 @@ interface GameBoardProps {
 const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPlayer, validMoves, showHints }) => {
     const { state, dispatch } = useContext(GameContext);
     const { selectedCardIdInHand, selectedUnitIdOnBoard, currentPlayerId, isTargeting, actionsRemaining, kingMoveState } = state;
+    const isFlipped = state.gameType === 'online' && state.localPlayerId === 1;
     const playerStartRow = currentPlayerId === 0 ? BOARD_ROWS - 1 : 0;
 
     // Zoom & Pan States
@@ -103,6 +104,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
             else if (newPos.col < oldPos.col) direction = 'left';
             else if (newPos.col > oldPos.col) direction = 'right';
     
+            if (isFlipped) {
+                if (direction === 'up') direction = 'down';
+                else if (direction === 'down') direction = 'up';
+                else if (direction === 'left') direction = 'right';
+                else if (direction === 'right') direction = 'left';
+            }
+
             const isHeavy = (movedUnit.baseDamage || 0) >= 8;
     
             setAnimatingMove({
@@ -220,7 +228,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
             if (combatTimer) clearTimeout(combatTimer);
             if (spellTimer) clearTimeout(spellTimer);
         };
-    }, [board]);
+    }, [board, isFlipped]);
 
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -421,8 +429,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                         : 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
             >
-                {/* Opponent's Goal Zone (Top) */}
-                <GoalZone player={opponentPlayer} isOpponent={true} canScoreDirectly={canScoreDirectly} />
+                {/* Player 0 (Black / Human) Goal Zone (Top) */}
+                <GoalZone 
+                  player={isFlipped ? state.players[1] : state.players[0]} 
+                  isOpponent={isFlipped ? currentPlayerId !== 1 : currentPlayerId !== 0} 
+                  canScoreDirectly={isFlipped ? (currentPlayerId === 1 && canScoreDirectly) : (currentPlayerId === 0 && canScoreDirectly)} 
+                />
                 
                 {/* The altar containing the board */}
                 <div className="w-full max-w-lg mx-auto flex-grow my-1 p-3 bg-[#40382d]/50 border-4 border-[#8A6938] rounded-xl shadow-[0_15px_30px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.1)] relative" style={{ aspectRatio: '4 / 5' }}>
@@ -431,8 +443,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_10%,_rgba(0,0,0,0.65)_90%)] z-0 pointer-events-none rounded-lg" />
                   
                   <div className="grid grid-cols-4 grid-rows-5 gap-1.5 sm:gap-2.5 w-full h-full relative z-10">
-                    {board.map((row, rowIndex) => (
-                      row.map((unit, colIndex) => {
+                    {Array.from({ length: BOARD_ROWS }).map((_, displayRowIndex) => {
+                      const rowIndex = isFlipped ? BOARD_ROWS - 1 - displayRowIndex : displayRowIndex;
+                      const row = board[rowIndex];
+                      return Array.from({ length: BOARD_COLS }).map((_, displayColIndex) => {
+                        const colIndex = isFlipped ? BOARD_COLS - 1 - displayColIndex : displayColIndex;
+                        const unit = row[colIndex];
+
                         const isMovable = validMoves.some(m => m.row === rowIndex && m.col === colIndex);
                         const selectedRank = currentPlayer.hand.find(c => c.id === selectedCardIdInHand)?.rank;
                         const isNumberCardSelected = selectedRank && !(['J','Q','K','A','Joker'] as Rank[]).includes(selectedRank);
@@ -547,14 +564,18 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, currentPlayer, opponentPla
                               );
                             })()}
                           </div>
-                        )
-                      })
-                    ))}
+                        );
+                      });
+                    })}
                   </div>
                 </div>
 
-                {/* Current Player's Goal Zone (Bottom) */}
-                <GoalZone player={currentPlayer} />
+                {/* Player 1 (Red / AI / Opponent) Goal Zone (Bottom) */}
+                <GoalZone 
+                  player={isFlipped ? state.players[0] : state.players[1]} 
+                  isOpponent={isFlipped ? currentPlayerId !== 0 : currentPlayerId !== 1} 
+                  canScoreDirectly={isFlipped ? (currentPlayerId === 0 && canScoreDirectly) : (currentPlayerId === 1 && canScoreDirectly)} 
+                />
             </div>
         </div>
     );

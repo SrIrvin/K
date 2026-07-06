@@ -27,14 +27,14 @@ export const GoalZone: React.FC<GoalZoneProps> = ({ player, isOpponent = false, 
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-      if (canScoreDirectly && isOpponent && isLocalTurn) {
+      if (canScoreDirectly && isLocalTurn) {
           e.preventDefault();
       }
   };
 
   const handleDrop = (e: React.DragEvent) => {
       e.preventDefault();
-      if (canScoreDirectly && isOpponent && isLocalTurn) {
+      if (canScoreDirectly && isLocalTurn) {
           if (state.kingMoveState?.isMoving) {
               dispatch({ type: 'MOVE_UNIT_DURING_KING_EFFECT', payload: { to: { row: -1, col: -1 } } });
           } else {
@@ -55,7 +55,7 @@ export const GoalZone: React.FC<GoalZoneProps> = ({ player, isOpponent = false, 
             borderWidth: '3px'
           }}
       >
-          {canScoreDirectly && isOpponent && (
+          {canScoreDirectly && (
               <div className="absolute inset-0 bg-[#8A6938]/40 border-4 border-[#D8C49A] rounded-lg animate-pulse flex items-center justify-center cursor-pointer shadow-[0_0_25px_rgba(216,196,154,0.5)] z-20">
                   <p className="text-[#D8C49A] font-orbitron text-base sm:text-lg font-black tracking-widest text-shadow-lg">
                     𐎫 REGISTRAR PUNTOS (1) 𐎫

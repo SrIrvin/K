@@ -12,6 +12,9 @@ if (fs.existsSync(distIndexPath)) {
   // Also clean up any other module preload links if Vite generated them
   html = html.replace(/<link rel="modulepreload"[^>]*>/g, '');
 
+  // Remove crossorigin from CSS link tags to avoid CORS block over file://
+  html = html.replace(/<link rel="stylesheet"\s+crossorigin\s+href="([^"]+)"[^>]*>/g, '<link rel="stylesheet" href="$1">');
+
   fs.writeFileSync(distIndexPath, html, 'utf-8');
   console.log('Post-build: Successfully converted script tags to classic scripts (non-module) for offline/local play.');
 } else {

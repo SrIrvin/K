@@ -135,49 +135,70 @@ const GameUI: React.FC = () => {
         "¡Oye! ¿Podrías apurarte? Mi chimichanga se está enfriando.",
         "¿Eso fue un ataque? Pensé que estabas acomodando las cartas para la foto.",
         "¡Cuidado con las costuras de mi traje! Me costó una fortuna en la sastrería dimensional.",
-        "¿Sabías que somos solo píxeles en la pantalla de alguien? ¡Igual te voy a aplastar!"
+        "¿Sabías que somos solo píxeles en la pantalla de alguien? ¡Igual te voy a aplastar!",
+        "¡Mira mamá, estoy peleando con cartas de piedra! Espera, ¿dónde está mi espada real?",
+        "¡Apuéstame 5 dólares a que mi Reina cura tu depresión antes de destruir tu meta!",
+        "¡Toc, toc! ¿Quién es? ¡El tipo que va a reventar tus defensas en tres segundos!"
       ],
       // Level 2: Solar
       [
         "El sol siempre vuelve a levantarse... ¿crees que tú podrás hacer lo mismo?",
         "Mis destellos purificarán tu arrogancia. El fuego solar no conoce piedad.",
         "¿Sientes el calor del tablero? Es tu fin aproximándose grado a grado.",
-        "Aquellos que desafían la luz solo encuentran cenizas en su camino."
+        "Aquellos que desafían la luz solo encuentran cenizas en su camino.",
+        "¡La aurora del mediodía derretirá tus runas! No hay sombra donde esconderse.",
+        "El brillo del amanecer corona mi victoria. Ríndete ante el calor celestial.",
+        "Cada carta tuya que toco se convierte en humo rúnico."
       ],
       // Level 3: IrwingElSabio
       [
         "La estrategia puede aprenderse en libros... pero la sabiduría rúnica se gana con sangre.",
         "He calculado todos tus movimientos posibles. Ninguno de ellos te salva de la derrota.",
         "Las runas antiguas susurran tu destino... y no es un final feliz para ti.",
-        "Cada carta que juegas es un paso más hacia la trampa que diseñé hace siglos."
+        "Cada carta que juegas es un paso más hacia la trampa que diseñé hace siglos.",
+        "El conocimiento es el arma definitiva, y tu mazo carece de profundidad.",
+        "Aprende de esta lección, joven discípulo: el tablero es mi mente y tú solo un pensamiento.",
+        "Un verdadero sabio no teme al descarte; sabe que todo vuelve en el ciclo rúnico."
       ],
       // Level 4: Shinigami
       [
         "Si llegaste hasta aquí... al menos morirás sirviendo de abono para mi jardín de almas.",
         "Tu nombre ya está escrito en mi cuaderno del descarte. Es solo cuestión de tiempo.",
         "¿Escuchas ese frío viento? Es el filo de mi guadaña reclamando tu mazo.",
-        "Toda vida es efímera. Tus cartas jugadas pronto me pertenecerán en la pila de descarte."
+        "Toda vida es efímera. Tus cartas jugadas pronto me pertenecerán en la pila de descarte.",
+        "He cosechado almas más brillantes que la tuya. La tuya será un juego de niños.",
+        "La muerte no es injusta... simplemente es puntual. Tu reloj se agota.",
+        "El vacío del descarte te llama por tu nombre de pila."
       ],
       // Level 5: Moon
       [
         "Toda partida termina igual... en la completa y absoluta penumbra de la luna nueva.",
         "La noche es mi aliada y tus secretos son visibles bajo mi luz plateada.",
         "Caminas a ciegas en un laberinto de sombras. Yo soy la dueña del laberinto.",
-        "El eclipse total de tu esperanza comenzará en tu próximo movimiento."
+        "El eclipse total de tu esperanza comenzará en tu próximo movimiento.",
+        "La marea de mi mazo sube y bajará para ahogar tus débiles tropas.",
+        "La fría gravedad lunar aprisionará tu velocidad de avance.",
+        "Incluso las estrellas titilan con miedo cuando despliego mis fases ocultas."
       ],
       // Level 6: Katty
       [
         "La sangre de los valientes siempre tiene un sabor tan... dulce y fresco.",
         "Me gusta jugar con mi comida antes de devorarla por completo. ¡Miau!",
         "Tus reflejos son demasiado lentos para mis garras. ¿Te rindes ya?",
-        "Arañazo a arañazo, mazo a mazo... voy a desmantelar toda tu defensa."
+        "Arañazo a arañazo, mazo a mazo... voy a desmantelar toda tu defensa.",
+        "¡Tengo nueve vidas de ventaja y tú apenas puedes cuidar de una sola!",
+        "¡Ronroneas del miedo! Puedo oler el sudor frío de tus cartas numéricas.",
+        "Un ratoncito acorralado en la esquina del tablero... qué adorable banquete."
       ],
       // Level 7: King21
       [
         "Yo inventé las reglas de este sagrado altar... ¡ahora intenta sobrevivir a ellas!",
         "¡Silencio ante el Rey! Tu insolencia será castigada con la aniquilación total.",
         "¿Osas desafiar al Dictador Loco? ¡Marcharé con todas mis tropas sobre tu meta!",
-        "El número 21 es mi corona. Y tú solo eres un humilde peón en mi tablero."
+        "El número 21 es mi corona. Y tú solo eres un humilde peón en mi tablero.",
+        "¡Moverse es una orden, no una sugerencia! ¡Marcharéis todos hacia adelante!",
+        "¡Mi locura es mi mayor estratega! No puedes predecir lo que ni yo mismo comprendo.",
+        "¡El desierto entero temblará cuando el Dictador Loco juegue su mano!"
       ]
     ], []);
 

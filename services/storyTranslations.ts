@@ -170,7 +170,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "AI starts the game",
           "First to score 3 points wins"
         ],
-        aiDifficulty: "Apprentice (Easy)"
+        aiDifficulty: "Apprentice (Easy)",
+        winQuote: "What?! You won? You must have hacked the game! Or it was lag... definitely lag.",
+        loseQuote: "Hahaha! Come back when you learn how to hold your cards without spilling coffee on yourself, rookie."
       },
       'Solar': {
         displayName: "Solar",
@@ -183,7 +185,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "AI starts the game",
           "First to score 6 points wins"
         ],
-        aiDifficulty: "Apprentice (Easy)"
+        aiDifficulty: "Apprentice (Easy)",
+        winQuote: "Your skill exceeds my expectations. The sun shines brightly upon you, victorious commander.",
+        loseQuote: "The dawn's glow crowns my victory. Keep training; there is honor in your defeat."
       },
       'IrwingElSabio': {
         displayName: "Irwing The Wise",
@@ -196,7 +200,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "AI starts the game",
           "First to score 9 points wins"
         ],
-        aiDifficulty: "Apprentice (Easy)"
+        aiDifficulty: "Apprentice (Easy)",
+        winQuote: "Impressive... your tactics broke my defense. You have my respect, traveler.",
+        loseQuote: "I warned you. At least you died while exercising."
       },
       'Shinigami': {
         displayName: "Shinigami",
@@ -210,7 +216,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "AI starts the game",
           "First to score 12 points wins"
         ],
-        aiDifficulty: "Tactician (Hard)"
+        aiDifficulty: "Tactician (Hard)",
+        winQuote: "Today you have cheated death... but remember, time always plays in my favor.",
+        loseQuote: "Every game ends the same way... your soul now belongs to my realm."
       },
       'Moon': {
         displayName: "Moon",
@@ -224,7 +232,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "AI starts the game",
           "First to score 15 points wins"
         ],
-        aiDifficulty: "Tactician (Hard)"
+        aiDifficulty: "Tactician (Hard)",
+        winQuote: "Agh... this defeat burns. But your tenacity only makes me want to savor your defeat next time.",
+        loseQuote: "The blood of the brave always tastes better... and today, you were my feast."
       },
       'Katty': {
         displayName: "Katty",
@@ -239,7 +249,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "AI starts the game",
           "First to score 18 points wins"
         ],
-        aiDifficulty: "Tactician (Hard)"
+        aiDifficulty: "Tactician (Hard)",
+        winQuote: "Oh, look how well you did! The little commander finally learned how to use their units! I'm so proud of you.",
+        loseQuote: "Aww, don't cry... You made such a sweet try. Come here, I'll give you a piece of candy to make you feel better."
       },
       'King21': {
         displayName: "King 21",
@@ -254,7 +266,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "AI starts the game",
           "First to score 21 points wins"
         ],
-        aiDifficulty: "Tactician (Hard)"
+        aiDifficulty: "Tactician (Hard)",
+        winQuote: "You have demonstrated divine nobility and wisdom. The future of this kingdom is in good hands with you.",
+        loseQuote: "The well-being of my people requires my unwavering victory. Your defeat teaches that you still need to mature as a leader."
       }
     }
   },
@@ -515,7 +529,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "L'IA inizia la partita",
           "Vince chi ottiene prima 3 punti"
         ],
-        aiDifficulty: "Apprendista (Facile)"
+        aiDifficulty: "Apprendista (Facile)",
+        winQuote: "Cosa?! Hai vinto? Devi aver hackerato il gioco! Oppure era lag... sicuramente lag.",
+        loseQuote: "Ahahah! Torna quando avrai imparato a tenere le carte senza versarti il caffè addosso, novellino."
       },
       'Solar': {
         displayName: "Solar",
@@ -528,7 +544,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "L'IA inizia la partita",
           "Vince chi ottiene prima 6 punti"
         ],
-        aiDifficulty: "Apprendista (Facile)"
+        aiDifficulty: "Apprendista (Facile)",
+        winQuote: "La tua abilità supera le mie aspettative. Il sole splende luminoso su di te, comandante vittorioso.",
+        loseQuote: "Il bagliore dell'alba corona la mia vittoria. Continua ad allenarti; c'è onore nella tua sconfitta."
       },
       'IrwingElSabio': {
         displayName: "Irwing il Saggio",
@@ -541,7 +559,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "L'IA inizia la partita",
           "Vince chi ottiene prima 9 punti"
         ],
-        aiDifficulty: "Apprendista (Facile)"
+        aiDifficulty: "Apprendista (Facile)",
+        winQuote: "Impressionante... le tue tattiche hanno infranto la mia difesa. Hai il mio rispetto, straniero.",
+        loseQuote: "Ti avevo avvertito. Almeno sei morto facendo esercizio."
       },
       'Shinigami': {
         displayName: "Shinigami",
@@ -555,7 +575,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "L'IA inizia la partita",
           "Vince chi ottiene prima 12 punti"
         ],
-        aiDifficulty: "Tattica (Difficile)"
+        aiDifficulty: "Tattica (Difficile)",
+        winQuote: "Oggi hai ingannato la morte... ma ricorda che il tempo gioca sempre a mio favore.",
+        loseQuote: "Ogni partita finisce nello stesso modo... la tua anima ora appartiene al mio regno."
       },
       'Moon': {
         displayName: "Moon",
@@ -569,7 +591,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "L'IA inizia la partita",
           "Vince chi ottiene prima 15 punti"
         ],
-        aiDifficulty: "Tattica (Difficile)"
+        aiDifficulty: "Tattica (Difficile)",
+        winQuote: "Agh... questa sconfitta brucia. Ma la tua tenacia mi fa solo desiderare di assaporare la tua sconfitta la prossima volta.",
+        loseQuote: "Il sangue dei coraggiosi ha sempre un sapore migliore... e oggi tu sei stato il mio banchetto."
       },
       'Katty': {
         displayName: "Katty",
@@ -584,7 +608,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "L'IA inizia la partita",
           "Vince chi ottiene prima 18 punti"
         ],
-        aiDifficulty: "Tattica (Difficile)"
+        aiDifficulty: "Tattica (Difficile)",
+        winQuote: "Oh, guarda come te la sei cavata bene! Il piccolo comandante ha finalmente imparato a usare le sue unità! Sono così orgogliosa di te.",
+        loseQuote: "Aww, non piangere... Hai fatto un tentativo dolcissimo. Vieni qui, ti darò una caramella per farti sentire meglio."
       },
       'King21': {
         displayName: "King 21",
@@ -599,7 +625,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "L'IA inizia la partita",
           "Vince chi ottiene prima 21 punti"
         ],
-        aiDifficulty: "Tattica (Difficile)"
+        aiDifficulty: "Tattica (Difficile)",
+        winQuote: "Hai dimostrato nobiltà e saggezza divine. Il futuro di questo regno è in buone mani con te.",
+        loseQuote: "Il benessere del mio popolo richiede la mia incrollabile vittoria. La tua sconfitta insegna che devi ancora maturare come leader."
       }
     }
   },
@@ -975,7 +1003,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "IA pehua yaoyotl",
           "Tlatlaniz tlein quichihua 3 tlamahuichihualiztli"
         ],
-        aiDifficulty: "Momachtiani (Yamanqui)"
+        aiDifficulty: "Momachtiani (Yamanqui)",
+        winQuote: "¿Tlein?! ¿Otictlaniz? ¡Otic-hackeado yaoyotl! Ahnozo lag... nelli lag.",
+        loseQuote: "¡Hahaha! Xihuallauh yancuic yaotl tonalpan ticpiaz motepalcatl icah ahmo tictlalia café."
       },
       'Solar': {
         displayName: "Solar",
@@ -988,7 +1018,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "IA pehua yaoyotl",
           "Tlatlaniz tlein quichihua 6 tlamahuichihualiztli"
         ],
-        aiDifficulty: "Momachtiani (Yamanqui)"
+        aiDifficulty: "Momachtiani (Yamanqui)",
+        winQuote: "Mochicahuiliz yehyecoltzin tonatiuh itemachtiliz. Tonatiuh xitlanextia motlatlaniliz.",
+        loseQuote: "Tonatiuh tlatlaniliz ixpan nochi yaotl. Ximomachti, nemi chicahuiliz ipan motlatlaniliz."
       },
       'IrwingElSabio': {
         displayName: "Irwing Tlamatiliztli",
@@ -1001,7 +1033,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "IA pehua yaoyotl",
           "Tlatlaniz tlein quichihua 9 tlamahuichihualiztli"
         ],
-        aiDifficulty: "Momachtiani (Yamanqui)"
+        aiDifficulty: "Momachtiani (Yamanqui)",
+        winQuote: "Chicahuac... motlamachtiliz oquichihua notlahpalo. Ticpiya notenyo, yaotl.",
+        loseQuote: "Omitzyehyeco. Teca otimic ipan nehnemiliztli."
       },
       'Shinigami': {
         displayName: "Shinigami",
@@ -1015,7 +1049,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "IA pehua yaoyotl",
           "Tlatlaniz tlein quichihua 12 tlamahuichihualiztli"
         ],
-        aiDifficulty: "Tlamachtiloni (Ohuih)"
+        aiDifficulty: "Tlamachtiloni (Ohuih)",
+        winQuote: "Axcan otiquixpolo miquiztli... zan xilnamiqui tonalpan yehyecoltzin.",
+        loseQuote: "Mochi yaoyotl tlamiz nochi ce... moyolo axcan miquiztlan ye."
       },
       'Moon': {
         displayName: "Metztli",
@@ -1029,7 +1065,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "IA pehua yaoyotl",
           "Tlatlaniz tlein quichihua 15 tlamahuichihualiztli"
         ],
-        aiDifficulty: "Tlamachtiloni (Ohuih)"
+        aiDifficulty: "Tlamachtiloni (Ohuih)",
+        winQuote: "Agh... tlatlaniliz tlatla. Zan mochicahuiliz quinequi nictlaloceh yaotl tlatlaniliz.",
+        loseQuote: "Eztli tlein chicahuac qualnezqui tlamati yehyecoltzin... axcan tehuatl oticatca noilhuic."
       },
       'Katty': {
         displayName: "Katty",
@@ -1044,7 +1082,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "IA pehua yaoyotl",
           "Tlatlaniz tlein quichihua 18 tlamahuichihualiztli"
         ],
-        aiDifficulty: "Tlamachtiloni (Ohuih)"
+        aiDifficulty: "Tlamachtiloni (Ohuih)",
+        winQuote: "¡Oh, xiquitta quenin oticchihua cualli! ¡Cihuapil yaotl axcan omomachti! Nictenyoa motech.",
+        loseQuote: "Aww, ahmo xichoca... Oticchihua yehyecoltzin chihton. Xihuallauh, nimitzmaca ce dulce inic tihuelitiz cualli."
       },
       'King21': {
         displayName: "Rey 21",
@@ -1059,7 +1099,9 @@ export const storyTranslations: Record<string, StoryTranslation> = {
           "IA pehua yaoyotl",
           "Tlatlaniz tlein quichihua 21 tlamahuichihualiztli"
         ],
-        aiDifficulty: "Tlamachtiloni (Ohuih)"
+        aiDifficulty: "Tlamachtiloni (Ohuih)",
+        winQuote: "Otiquitlacuilo ixtlamatiliztli ihuan teotl tenyotl. Inon altepetl ipan cualli imac yetiaz.",
+        loseQuote: "Notetlayecoltiliz quinequi notlatlaniliz chicahuac. Motlatlaniliz tlamachtia tlein monequi timozcaltiz."
       }
     }
   }

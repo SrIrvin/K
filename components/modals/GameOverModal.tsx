@@ -4,6 +4,7 @@ import { GameContext } from '../../context/GameContext';
 import { Player } from '@/types';
 import { formatGold } from '@/utils/gameUtils';
 import { audioService } from '@/services/audioService';
+import { storyTranslations } from '@/services/storyTranslations';
 
 const playCoinTickSound = () => {
     try {
@@ -127,7 +128,7 @@ interface Particle {
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
     const { state, dispatch } = useContext(GameContext);
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     // Resolve which player is "local" (the human user on this screen)
@@ -140,6 +141,35 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
         }
         return state.currentPlayerId;
     }, [state.gameType, state.localPlayerId, state.currentPlayerId]);
+
+    // Resolve Level Boss Quotes
+    const storyLevelData = useMemo(() => {
+        if (state.gameType !== 'adventure' || !state.storyLevel) return null;
+        
+        // Load i18n language
+        const currentLang = i18n.language || 'es';
+        const trans = storyTranslations[currentLang] || storyTranslations['es'];
+        
+        // Find level entry
+        const guardianNames = [
+            'Piscina De La Muerte',
+            'Solar',
+            'IrwingElSabio',
+            'Shinigami',
+            'Moon',
+            'Katty',
+            'King21'
+        ];
+        const key = guardianNames[state.storyLevel - 1];
+        if (!key) return null;
+        
+        return trans.levels[key];
+    }, [state.gameType, state.storyLevel, i18n.language]);
+
+    const bossQuote = useMemo(() => {
+        if (!storyLevelData) return null;
+        return winner.id === localPlayerIdResolved ? storyLevelData.winQuote : storyLevelData.loseQuote;
+    }, [storyLevelData, winner.id, localPlayerIdResolved]);
 
     const isHumanWinner = winner.id === localPlayerIdResolved;
 
@@ -438,6 +468,25 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
                 } mb-4`}>
                     {winnerName}
                 </p>
+
+                {/* STORY BOSS DEFEAT/VICTORY DIALOGUE QUOTE */}
+                {bossQuote && (
+                    <div className={`mb-5 p-4 rounded-lg bg-[#1C1712] border-2 text-left relative overflow-hidden ${
+                        isHumanWinner ? 'border-yellow-600/50 shadow-[0_0_15px_rgba(202,138,4,0.15)]' : 'border-red-900/60 shadow-[0_0_15px_rgba(127,29,29,0.15)]'
+                    }`}>
+                        {/* Decorative quote mark */}
+                        <div className="absolute right-2 bottom-2 text-6xl text-[#ffffff]/3 font-serif pointer-events-none select-none">”</div>
+                        <div className="flex items-center gap-2 mb-1.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${isHumanWinner ? 'bg-yellow-500' : 'bg-red-500'} animate-pulse`} />
+                            <span className="text-[11px] uppercase tracking-wider font-extrabold text-[#D8C49A]">
+                                {storyLevelData?.displayName}
+                            </span>
+                        </div>
+                        <p className="text-xs text-[#E1D4B7] italic leading-relaxed pl-3.5 border-l border-[#D8C49A]/30">
+                            "{bossQuote}"
+                        </p>
+                    </div>
+                )}
 
                 {/* GOLD REWARDS SUMMARY PANEL */}
                 <div className={`bg-[#120f0b]/95 border ${

@@ -127,6 +127,39 @@ export const checkForWinner = (state: GameState): GameState => {
   if (player1.damage >= target) {
     return { ...state, winner: player2, gameMode: 'game_over' };
   }
+
+  // Case: Run out of cards in both deck and hand
+  const p1OutOfCards = player1.deck.length === 0 && player1.hand.length === 0;
+  const p2OutOfCards = player2.deck.length === 0 && player2.hand.length === 0;
+
+  if (p1OutOfCards || p2OutOfCards) {
+    // Damage done BY player1 to player2 is player2.damage
+    // Damage done BY player2 to player1 is player1.damage
+    if (player2.damage > player1.damage) {
+      return { 
+        ...state, 
+        winner: player1, 
+        gameMode: 'game_over', 
+        log: [...state.log, `¡Fin de juego por falta de cartas! Gana ${player1.name} por haber hecho mayor daño (${player2.damage} vs ${player1.damage}).`]
+      };
+    } else if (player1.damage > player2.damage) {
+      return { 
+        ...state, 
+        winner: player2, 
+        gameMode: 'game_over', 
+        log: [...state.log, `¡Fin de juego por falta de cartas! Gana ${player2.name} por haber hecho mayor daño (${player1.damage} vs ${player2.damage}).`]
+      };
+    } else {
+      // In case of a tie in damage, the player who still has cards (did not run out) wins, or default to player1
+      const winner = p1OutOfCards ? player2 : player1;
+      return { 
+        ...state, 
+        winner, 
+        gameMode: 'game_over', 
+        log: [...state.log, `¡Fin de juego por falta de cartas! Empate en daño (${player1.damage} vs ${player2.damage}). Gana ${winner.name}.`]
+      };
+    }
+  }
   
   return state;
 };

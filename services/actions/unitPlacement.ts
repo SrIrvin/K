@@ -37,14 +37,16 @@ export const placeUnit = (state: GameState, payload: { row: number, col: number 
   if (!targetCell) {
     const stateWithPlacedUnit = mutators.placeUnitOnBoard(stateWithRemovedCard, row, col, newUnit);
     const withActionSpent = mutators.spendAction(stateWithPlacedUnit);
-    return mutators.addLog(withActionSpent, `Placed ${cardInHand.rank} of ${cardInHand.suit}.`);
+    const withLog = mutators.addLog(withActionSpent, `Placed ${cardInHand.rank} of ${cardInHand.suit}.`);
+    return mutators.checkForWinner(withLog);
   }
 
   // Case 2: Cell is occupied by an enemy
   if (targetCell.color !== currentPlayer.color) {
     // Combat takes care of the board state updates
     const postCombatState = handleCombat(stateWithRemovedCard, newUnit, targetCell);
-    return mutators.spendAction(postCombatState);
+    const withActionSpent = mutators.spendAction(postCombatState);
+    return mutators.checkForWinner(withActionSpent);
   }
 
   // Case 3: Cell is occupied by a friendly unit

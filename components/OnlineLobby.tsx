@@ -21,6 +21,7 @@ import {
   subscribeToLobbyRooms, 
   getLeaderboard,
   getTopRankedPlayers,
+  getPlayerStats,
   LobbyRoom, 
   GameRecord,
   PlayerStats
@@ -228,7 +229,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     return connection;
   };
 
-  const handleCreateRoom = () => {
+  const handleCreateRoom = async () => {
     if (!playerName.trim()) {
       setErrorMsg('Debes ingresar tu nombre de héroe.');
       return;
@@ -236,6 +237,20 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     
     setConnecting(true);
     setErrorMsg(null);
+
+    // Verify gold first (at least 100 gold required to bet/play online)
+    try {
+      const stats = await getPlayerStats(playerName);
+      const playerGold = stats?.gold ?? 0;
+      if (playerGold < 100) {
+        setErrorMsg(`¡No tienes suficiente oro para apostar! Necesitas al menos 100 de oro para crear un portal de duelo. Tienes: ${playerGold} Oro. Juega contra la IA o la campaña para conseguir oro.`);
+        setConnecting(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('Could not verify gold from DB, continuing as fallback:', err);
+    }
+
     setIsHost(true);
     setOpponentName(null);
 
@@ -291,7 +306,7 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
     });
   };
 
-  const handleJoinRoomByCode = (code: string) => {
+  const handleJoinRoomByCode = async (code: string) => {
     if (!playerName.trim()) {
       setErrorMsg(t('lobby.name_required', 'Debes ingresar tu nombre de héroe.'));
       return;
@@ -299,6 +314,20 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
 
     setConnecting(true);
     setErrorMsg(null);
+
+    // Verify gold first (at least 100 gold required to bet/play online)
+    try {
+      const stats = await getPlayerStats(playerName);
+      const playerGold = stats?.gold ?? 0;
+      if (playerGold < 100) {
+        setErrorMsg(`¡No tienes suficiente oro para apostar! Necesitas al menos 100 de oro para unirte a un portal de duelo. Tienes: ${playerGold} Oro. Juega contra la IA o la campaña para conseguir oro.`);
+        setConnecting(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('Could not verify gold from DB, continuing as fallback:', err);
+    }
+
     setIsHost(false);
     setOpponentName(null);
     setStatusText(t('lobby.searching_portal', 'Buscando el portal {{code}}...', { code: code }));
@@ -589,13 +618,16 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                               </span>
                               <span className="font-bold text-[#D8C49A]">{player.name}</span>
                             </div>
-                            <div className="flex gap-4 font-mono text-[10px] text-right">
+                            <div className="flex gap-3 font-mono text-[10px] text-right items-center">
+                              <div className="text-yellow-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                                🪙 {player.gold ?? 0} <span className="text-[9px] text-amber-500/70 font-normal">Oro</span>
+                              </div>
                               <div>
                                 <span className="text-green-500 font-bold">{player.wins} {t('lobby.wins_short', 'V')}</span>
                                 <span className="text-[#9A8B72]/50 mx-1">/</span>
                                 <span className="text-red-500">{player.losses} {t('lobby.losses_short', 'D')}</span>
                               </div>
-                              <div className="text-[#9A8B72] font-semibold w-16 text-right">
+                              <div className="text-[#9A8B72] font-semibold text-right">
                                 {t('lobby.total_games_short', 'PG')}: {player.totalGames}
                               </div>
                             </div>
@@ -622,8 +654,13 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                             <span className="text-[#9A8B72]/65"> {t('lobby.record_defeated', 'derrotó a')} </span>
                             <span className="font-bold text-[#D8C49A]">{record.loserName}</span>
                           </div>
-                          <div className="font-mono text-[10px] text-[#8A6938] font-bold">
-                            {record.winnerDamage} - {record.loserDamage}
+                          <div className="flex items-center gap-3">
+                            <div className="font-mono text-[9px] text-yellow-500/90 font-semibold" title="Oro ganado (Ganador - Perdedor)">
+                              🪙 {record.winnerGold ?? 0} - {record.loserGold ?? 0}
+                            </div>
+                            <div className="font-mono text-[10px] text-[#8A6938] font-bold">
+                              {record.winnerDamage} - {record.loserDamage}
+                            </div>
                           </div>
                         </div>
                       ))

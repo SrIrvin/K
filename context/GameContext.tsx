@@ -124,12 +124,14 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               winnerDamage: winnerPlayer.damage,
               loserName: loserPlayer.name,
               loserDamage: loserPlayer.damage,
-              gameType: nextState.gameType || 'local'
+              gameType: nextState.gameType || 'local',
+              winnerGold: nextState.winnerGold || 0,
+              loserGold: nextState.loserGold || 0
             });
 
             // Update stats for global ranking for all nicknames
-            updatePlayerStats(winnerPlayer.name, true);
-            updatePlayerStats(loserPlayer.name, false);
+            updatePlayerStats(winnerPlayer.name, true, nextState.winnerGold || 0);
+            updatePlayerStats(loserPlayer.name, false, nextState.loserGold || 0);
 
             // Handle adventure level progression
             if (nextState.gameType === 'adventure' && nextState.winner.id === 0) {

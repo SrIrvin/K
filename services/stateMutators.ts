@@ -1,5 +1,6 @@
 import { GameState, Player, Card, Unit } from '@/types';
 import { WIN_DAMAGE } from '@/utils/constants';
+import { calculatePlayerGold } from '@/utils/gameUtils';
 
 /**
  * Pure helper to convert a Unit back to a standard Card representation
@@ -120,45 +121,102 @@ export const checkForWinner = (state: GameState): GameState => {
 
   const target = state.winTarget || WIN_DAMAGE;
 
-  // Rule: A player wins when their opponent accumulates target or more points of damage.
-  if (player2.damage >= target) {
-    return { ...state, winner: player1, gameMode: 'game_over' };
-  }
-  if (player1.damage >= target) {
-    return { ...state, winner: player2, gameMode: 'game_over' };
-  }
+  const isGameOverTriggered = 
+    player2.damage >= target || 
+    player1.damage >= target ||
+    (player1.deck.length === 0 && player1.hand.length === 0) ||
+    (player2.deck.length === 0 && player2.hand.length === 0);
 
-  // Case: Run out of cards in both deck and hand
-  const p1OutOfCards = player1.deck.length === 0 && player1.hand.length === 0;
-  const p2OutOfCards = player2.deck.length === 0 && player2.hand.length === 0;
+  if (isGameOverTriggered) {
+    const gold1 = calculatePlayerGold(player1, state.board);
+    const gold2 = calculatePlayerGold(player2, state.board);
 
-  if (p1OutOfCards || p2OutOfCards) {
-    // Damage done BY player1 to player2 is player2.damage
-    // Damage done BY player2 to player1 is player1.damage
-    if (player2.damage > player1.damage) {
-      return { 
-        ...state, 
-        winner: player1, 
-        gameMode: 'game_over', 
-        log: [...state.log, `¡Fin de juego por falta de cartas! Gana ${player1.name} por haber hecho mayor daño (${player2.damage} vs ${player1.damage}).`]
-      };
-    } else if (player1.damage > player2.damage) {
-      return { 
-        ...state, 
-        winner: player2, 
-        gameMode: 'game_over', 
-        log: [...state.log, `¡Fin de juego por falta de cartas! Gana ${player2.name} por haber hecho mayor daño (${player1.damage} vs ${player2.damage}).`]
-      };
+    let winner: Player;
+    const becauseOfCards = (player1.deck.length === 0 && player1.hand.length === 0) || (player2.deck.length === 0 && player2.hand.length === 0);
+
+    if (gold1.total > gold2.total) {
+      winner = player1;
+    } else if (gold2.total > gold1.total) {
+      winner = player2;
     } else {
-      // In case of a tie in damage, the player who still has cards (did not run out) wins, or default to player1
-      const winner = p1OutOfCards ? player2 : player1;
-      return { 
-        ...state, 
-        winner, 
-        gameMode: 'game_over', 
-        log: [...state.log, `¡Fin de juego por falta de cartas! Empate en daño (${player1.damage} vs ${player2.damage}). Gana ${winner.name}.`]
-      };
+      // Tie in gold, use damage / standard fallback
+      let standardWinner = player1;
+      if (player1.damage > player2.damage) {
+        // Player 1 has more damage (i.e. has suffered more damage, so player 2 wins)
+        standardWinner = player2;
+      } else if (player2.damage > player1.damage) {
+        standardWinner = player1;
+      } else {
+        // Tied in damage, the one with remaining cards wins, otherwise player 1
+        const p1OutOfCards = player1.deck.length === 0 && player1.hand.length === 0;
+        standardWinner = p1OutOfCards ? player2 : player1;
+      }
+      winner = standardWinner;
     }
+
+    const loser = state.players.find(p => p.id !== winner.id)!;
+    const isWinnerP1 = winner.id === player1.id;
+    const wGoldDetails = isWinnerP1 ? gold1 : gold2;
+    const lGoldDetails = isWinnerP1 ? gold2 : gold1;
+
+    let winnerBonusGold = 0;
+    let loserBonusGold = 0;
+    let bonusReason = '';
+
+    if (state.gameType === 'ai') {
+      if (winner.id === 0) { // Human won against AI
+        if (state.aiDifficulty === 'easy') {
+          winnerBonusGold = 50;
+          bonusReason = ' (Bono Victoria IA Fácil +50)';
+        } else if (state.aiDifficulty === 'hard') {
+          winnerBonusGold = 70;
+          bonusReason = ' (Bono Victoria IA Difícil +70)';
+        }
+      }
+    } else if (state.gameType === 'adventure') {
+      if (winner.id === 0) { // Human won Campaign level
+        const level = state.storyLevel || state.hostedPortalLevel || 1;
+        winnerBonusGold = 100 + level * 30;
+        bonusReason = ` (Bono Victoria Campaña Nvl ${level} +${winnerBonusGold})`;
+      }
+    } else if (state.gameType === 'online') {
+      // Betting >100 gold -> let's make it a 100 gold bet
+      winnerBonusGold = 100;
+      loserBonusGold = -100;
+      bonusReason = ' (Apuesta Multijugador +100)';
+    }
+
+    const netWinnerGold = wGoldDetails.total + winnerBonusGold;
+    const netLoserGold = lGoldDetails.total + loserBonusGold;
+
+    const endReason = becauseOfCards 
+      ? `Falta de cartas` 
+      : `Límite de daño alcanzado (${player2.damage >= target ? player2.name : player1.name} llegó a ${target} de daño)`;
+
+    const logMsg = `¡Fin de la batalla! (${endReason}) ¡${winner.name} GANA POR ORO! Oros de ${winner.name}: ${netWinnerGold}${bonusReason}. Oros de ${loser.name}: ${netLoserGold}${state.gameType === 'online' ? ' (Apuesta Multijugador -100)' : ''}.`;
+
+    return { 
+      ...state, 
+      winner, 
+      gameMode: 'game_over', 
+      winnerGold: netWinnerGold,
+      loserGold: netLoserGold,
+      winnerGoldDetails: { 
+        conserved: wGoldDetails.conservedCount, 
+        effects: wGoldDetails.effectsCount,
+        jokers: wGoldDetails.conservedJokersCount,
+        kings: wGoldDetails.conservedKingsCount,
+        bonus: winnerBonusGold
+      },
+      loserGoldDetails: { 
+        conserved: lGoldDetails.conservedCount, 
+        effects: lGoldDetails.effectsCount,
+        jokers: lGoldDetails.conservedJokersCount,
+        kings: lGoldDetails.conservedKingsCount,
+        bonus: loserBonusGold
+      },
+      log: [...state.log, logMsg]
+    };
   }
   
   return state;

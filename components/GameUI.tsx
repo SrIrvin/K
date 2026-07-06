@@ -235,7 +235,9 @@ const GameUI: React.FC = () => {
 
     const [activeGuardianQuote, setActiveGuardianQuote] = useState<string>('');
     const [showStoryBubble, setShowStoryBubble] = useState<boolean>(false);
+    const prevDamageRef = useRef<number | null>(null);
 
+    // Initial game-start quote trigger
     useEffect(() => {
         if (state.gameType !== 'adventure' || !state.storyLevel) return;
         const levelIdx = state.storyLevel - 1;
@@ -250,16 +252,38 @@ const GameUI: React.FC = () => {
             setShowStoryBubble(true);
         }, 3000);
 
-        const interval = setInterval(() => {
-            setActiveGuardianQuote(getRandomQuote());
-            setShowStoryBubble(true);
-        }, 50000); // 50 seconds
-
         return () => {
             clearTimeout(initialTimeout);
-            clearInterval(interval);
         };
     }, [state.gameType, state.storyLevel, guardianQuotePools]);
+
+    // Quote trigger when the boss inflicts damage to the human player
+    const p0Damage = state.players[0]?.damage || 0;
+    useEffect(() => {
+        if (state.gameType !== 'adventure' || !state.storyLevel) return;
+
+        // On first run, store initial damage and do not trigger
+        if (prevDamageRef.current === null) {
+            prevDamageRef.current = p0Damage;
+            return;
+        }
+
+        // If human player's damage increased, the boss has inflicted damage!
+        if (p0Damage > prevDamageRef.current) {
+            const levelIdx = state.storyLevel - 1;
+            const pool = guardianQuotePools[levelIdx];
+            if (pool && pool.length > 0) {
+                const getRandomQuote = () => pool[Math.floor(Math.random() * pool.length)];
+                // Slightly delay the comment so it aligns beautifully with the score/damage animation
+                const timeout = setTimeout(() => {
+                    setActiveGuardianQuote(getRandomQuote());
+                    setShowStoryBubble(true);
+                }, 1000);
+                return () => clearTimeout(timeout);
+            }
+        }
+        prevDamageRef.current = p0Damage;
+    }, [p0Damage, state.gameType, state.storyLevel, guardianQuotePools]);
 
 
     

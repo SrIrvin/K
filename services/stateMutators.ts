@@ -134,24 +134,34 @@ export const checkForWinner = (state: GameState): GameState => {
     let winner: Player;
     const becauseOfCards = (player1.deck.length === 0 && player1.hand.length === 0) || (player2.deck.length === 0 && player2.hand.length === 0);
 
-    if (gold1.total > gold2.total) {
-      winner = player1;
-    } else if (gold2.total > gold1.total) {
+    const p1ReachedTarget = player1.damage >= target;
+    const p2ReachedTarget = player2.damage >= target;
+
+    if (p1ReachedTarget && !p2ReachedTarget) {
       winner = player2;
+    } else if (p2ReachedTarget && !p1ReachedTarget) {
+      winner = player1;
     } else {
-      // Tie in gold, use damage / standard fallback
-      let standardWinner = player1;
-      if (player1.damage > player2.damage) {
-        // Player 1 has more damage (i.e. has suffered more damage, so player 2 wins)
-        standardWinner = player2;
-      } else if (player2.damage > player1.damage) {
-        standardWinner = player1;
+      // End due to lack of cards, or both (unlikely) reached target: determine by gold
+      if (gold1.total > gold2.total) {
+        winner = player1;
+      } else if (gold2.total > gold1.total) {
+        winner = player2;
       } else {
-        // Tied in damage, the one with remaining cards wins, otherwise player 1
-        const p1OutOfCards = player1.deck.length === 0 && player1.hand.length === 0;
-        standardWinner = p1OutOfCards ? player2 : player1;
+        // Tie in gold, use damage / standard fallback
+        let standardWinner = player1;
+        if (player1.damage > player2.damage) {
+          // Player 1 has more damage (i.e. has suffered more damage, so player 2 wins)
+          standardWinner = player2;
+        } else if (player2.damage > player1.damage) {
+          standardWinner = player1;
+        } else {
+          // Tied in damage, the one with remaining cards wins, otherwise player 1
+          const p1OutOfCards = player1.deck.length === 0 && player1.hand.length === 0;
+          standardWinner = p1OutOfCards ? player2 : player1;
+        }
+        winner = standardWinner;
       }
-      winner = standardWinner;
     }
 
     const loser = state.players.find(p => p.id !== winner.id)!;
@@ -193,7 +203,8 @@ export const checkForWinner = (state: GameState): GameState => {
       ? `Falta de cartas` 
       : `Límite de daño alcanzado (${player2.damage >= target ? player2.name : player1.name} llegó a ${target} de daño)`;
 
-    const logMsg = `¡Fin de la batalla! (${endReason}) ¡${winner.name} GANA POR ORO! Oros de ${winner.name}: ${netWinnerGold}${bonusReason}. Oros de ${loser.name}: ${netLoserGold}${state.gameType === 'online' ? ' (Apuesta Multijugador -100)' : ''}.`;
+    const winTypeStr = becauseOfCards ? "GANA POR ORO" : "GANA LA BATALLA";
+    const logMsg = `¡Fin de la batalla! (${endReason}) ¡${winner.name} ${winTypeStr}! Oros de ${winner.name}: ${netWinnerGold}${bonusReason}. Oros de ${loser.name}: ${netLoserGold}${state.gameType === 'online' ? ' (Apuesta Multijugador -100)' : ''}.`;
 
     return { 
       ...state, 

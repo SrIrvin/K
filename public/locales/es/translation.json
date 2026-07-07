@@ -70,7 +70,10 @@
     "terms_title": "TÉRMINOS Y CONDICIONES",
     "credits_title": "CRÉDITOS Y CREADORES",
     "terms_tab": "Términos",
-    "credits_tab": "Créditos"
+    "credits_tab": "Créditos",
+    "path_single": "Senda Individual",
+    "path_multi": "Arena Multijugador",
+    "path_records": "Leyes y Registro"
   },
   "audio": {
     "title": "AJUSTES DEL JUEGO",

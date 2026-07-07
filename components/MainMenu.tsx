@@ -52,6 +52,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'hard'>('easy');
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<'single' | 'multi' | 'records' | null>('single');
 
   // Listen to Authentication changes to update Google Profile
   useEffect(() => {
@@ -137,7 +138,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
 
       {/* Language Selector in Top-Left Corner */}
       <div className="fixed top-4 left-4 z-40 flex items-center gap-1.5 bg-[#1e1a14]/80 border border-[#8A6938]/60 px-3 py-1.5 rounded-full shadow-lg">
-        <span className="text-[#D8C49A] text-xs">🌐</span>
         <select
           value={i18n.language}
           onChange={(e) => {
@@ -199,7 +199,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <span className="text-[#D8C49A] shrink-0">👤</span>
+                  <span className="text-[#D8C49A] shrink-0 font-bold">[U]</span>
                 )}
                 <span className="text-[#9A8B72] text-[9px] font-mono truncate max-w-[120px]">
                   Google: {currentUser.email}
@@ -240,83 +240,172 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
           )}
         </div>
 
-        {/* Buttons carved in stone */}
-        <div className="flex flex-col gap-4 w-full max-w-xs">
-          <button 
-            onClick={() => {
-              audioService.playSFX('click');
-              dispatch({ type: 'SET_GAME_MODE', payload: 'adventure_map' });
-            }}
-            className="stone-button w-full py-3.5 text-sm font-bold text-[#E6C687] bg-gradient-to-r from-[#4d321c] to-[#2c1d10] border-[#D8C49A] hover:from-[#5a3a20] hover:to-[#382414] shadow-[0_0_15px_rgba(216,196,154,0.15)] flex items-center justify-center gap-2"
-          >
-            {tMenu.campaign}
-          </button>
-
-          {/* AI Section with Difficulty Selection */}
-          <div className="bg-[#1c1812]/90 border border-[#8A6938]/30 rounded-lg p-2.5 flex flex-col gap-2.5 items-center shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
-            <button 
-              onClick={() => startGame('ai')} 
-              className="stone-button w-full py-3 text-sm"
+        {/* Grouped Accordion Menu Options */}
+        <div className="flex flex-col gap-3 w-full max-w-xs select-none">
+          
+          {/* 1. SENDA INDIVIDUAL (Single Player Path) */}
+          <div className="flex flex-col border border-[#574d3c]/40 rounded-xl p-1.5 bg-[#120f0c]/60 shadow-inner">
+            <button
+              onClick={() => {
+                audioService.playSFX('click');
+                setExpandedSection(expandedSection === 'single' ? null : 'single');
+              }}
+              className={`w-full py-2.5 px-4 font-ancient-header font-bold text-xs md:text-sm tracking-wider flex items-center justify-between transition-all border rounded-lg cursor-pointer ${
+                expandedSection === 'single'
+                  ? 'bg-[#8A6938] text-[#1e1a14] border-[#D8C49A] shadow-[0_0_12px_rgba(216,196,154,0.35)]'
+                  : 'bg-[#181410] text-[#D8C49A] border-[#574d3c]/30 hover:border-[#8A6938] hover:text-white'
+              }`}
             >
-              {tMenu.playAi}
+              <span>{t('menu.path_single', 'Senda Individual')}</span>
+              <span className="font-orbitron text-[10px]">{expandedSection === 'single' ? '▼' : '▶'}</span>
             </button>
-            <div className="flex items-center justify-between w-full px-1 text-[10px] text-[#9A8B72] font-orbitron">
-              <span className="tracking-wide">{tMenu.aiDifficulty}</span>
-              <div className="flex gap-1.5">
-                <button
-                  onClick={() => setAiDifficulty('easy')}
-                  className={`px-2 py-0.5 rounded text-[8px] font-bold border transition-all ${
-                    aiDifficulty === 'easy'
-                      ? 'bg-green-950/80 text-green-400 border-green-600/60 font-extrabold shadow-[0_0_5px_rgba(34,197,94,0.4)]'
-                      : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
-                  }`}
+            
+            <div 
+              className={`transition-all duration-300 ease-in-out overflow-hidden flex flex-col gap-2.5 ${
+                expandedSection === 'single' 
+                  ? 'max-h-[350px] opacity-100 mt-2.5 mb-1.5 px-1' 
+                  : 'max-h-0 opacity-0 pointer-events-none'
+              }`}
+            >
+              <button 
+                onClick={() => {
+                  audioService.playSFX('click');
+                  dispatch({ type: 'SET_GAME_MODE', payload: 'adventure_map' });
+                }}
+                className="stone-button w-full py-3 text-xs font-bold text-[#E6C687] bg-gradient-to-r from-[#4d321c] to-[#2c1d10] border-[#D8C49A] hover:from-[#5a3a20] hover:to-[#382414] flex items-center justify-center gap-1.5"
+              >
+                {tMenu.campaign}
+              </button>
+
+              <div className="bg-[#1c1812]/90 border border-[#8A6938]/30 rounded-lg p-2 flex flex-col gap-2 items-center shadow-inner">
+                <button 
+                  onClick={() => startGame('ai')} 
+                  className="stone-button w-full py-2.5 text-xs"
                 >
-                  {tMenu.easy}
+                  {tMenu.playAi}
                 </button>
-                <button
-                  onClick={() => setAiDifficulty('hard')}
-                  className={`px-2 py-0.5 rounded text-[8px] font-bold border transition-all ${
-                    aiDifficulty === 'hard'
-                      ? 'bg-red-950/80 text-red-400 border-red-600/60 font-extrabold shadow-[0_0_5px_rgba(239,68,68,0.4)]'
-                      : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
-                  }`}
-                >
-                  {tMenu.hard}
-                </button>
+                <div className="flex items-center justify-between w-full px-1 text-[9px] text-[#9A8B72] font-orbitron">
+                  <span className="tracking-wide">{tMenu.aiDifficulty}</span>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => setAiDifficulty('easy')}
+                      className={`px-2 py-0.5 rounded text-[8px] font-bold border transition-all ${
+                        aiDifficulty === 'easy'
+                          ? 'bg-green-950/80 text-green-400 border-green-600/60 font-extrabold shadow-[0_0_5px_rgba(34,197,94,0.4)]'
+                          : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
+                      }`}
+                    >
+                      {tMenu.easy}
+                    </button>
+                    <button
+                      onClick={() => setAiDifficulty('hard')}
+                      className={`px-2 py-0.5 rounded text-[8px] font-bold border transition-all ${
+                        aiDifficulty === 'hard'
+                          ? 'bg-red-950/80 text-red-400 border-red-600/60 font-extrabold shadow-[0_0_5px_rgba(239,68,68,0.4)]'
+                          : 'bg-[#2A2A2A]/40 text-[#9A8B72]/70 border-transparent hover:border-[#8A6938]/30'
+                      }`}
+                    >
+                      {tMenu.hard}
+                    </button>
+                  </div>
+                </div>
               </div>
+
+              <button 
+                onClick={() => dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' })} 
+                className="stone-button w-full py-3 text-xs"
+              >
+                {tMenu.tutorial}
+              </button>
             </div>
           </div>
 
-          <button 
-            onClick={onOnlineMode} 
-            className="stone-button stone-button-blue w-full py-3 text-sm"
-          >
-            {tMenu.onlineLobby}
-          </button>
+          {/* 2. ARENA MULTIJUGADOR (Multiplayer Arena) */}
+          <div className="flex flex-col border border-[#574d3c]/40 rounded-xl p-1.5 bg-[#120f0c]/60 shadow-inner">
+            <button
+              onClick={() => {
+                audioService.playSFX('click');
+                setExpandedSection(expandedSection === 'multi' ? null : 'multi');
+              }}
+              className={`w-full py-2.5 px-4 font-ancient-header font-bold text-xs md:text-sm tracking-wider flex items-center justify-between transition-all border rounded-lg cursor-pointer ${
+                expandedSection === 'multi'
+                  ? 'bg-[#8A6938] text-[#1e1a14] border-[#D8C49A] shadow-[0_0_12px_rgba(216,196,154,0.35)]'
+                  : 'bg-[#181410] text-[#D8C49A] border-[#574d3c]/30 hover:border-[#8A6938] hover:text-white'
+              }`}
+            >
+              <span>{t('menu.path_multi', 'Arena Multijugador')}</span>
+              <span className="font-orbitron text-[10px]">{expandedSection === 'multi' ? '▼' : '▶'}</span>
+            </button>
+            
+            <div 
+              className={`transition-all duration-300 ease-in-out overflow-hidden flex flex-col gap-2.5 ${
+                expandedSection === 'multi' 
+                  ? 'max-h-[200px] opacity-100 mt-2.5 mb-1.5 px-1' 
+                  : 'max-h-0 opacity-0 pointer-events-none'
+              }`}
+            >
+              <button 
+                onClick={onOnlineMode} 
+                className="stone-button stone-button-blue w-full py-3 text-xs"
+              >
+                {tMenu.onlineLobby}
+              </button>
 
-          <button 
-            onClick={() => startGame('p2')} 
-            className="stone-button w-full py-3 text-sm"
-          >
-            {tMenu.playP2}
-          </button>
+              <button 
+                onClick={() => startGame('p2')} 
+                className="stone-button w-full py-3 text-xs"
+              >
+                {tMenu.playP2}
+              </button>
+            </div>
+          </div>
 
-          <button 
-            onClick={() => dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' })} 
-            className="stone-button w-full py-3 text-sm"
-          >
-            {tMenu.tutorial}
-          </button>
+          {/* 3. LEYES Y REGISTRO (Laws & Registry) */}
+          <div className="flex flex-col border border-[#574d3c]/40 rounded-xl p-1.5 bg-[#120f0c]/60 shadow-inner">
+            <button
+              onClick={() => {
+                audioService.playSFX('click');
+                setExpandedSection(expandedSection === 'records' ? null : 'records');
+              }}
+              className={`w-full py-2.5 px-4 font-ancient-header font-bold text-xs md:text-sm tracking-wider flex items-center justify-between transition-all border rounded-lg cursor-pointer ${
+                expandedSection === 'records'
+                  ? 'bg-[#8A6938] text-[#1e1a14] border-[#D8C49A] shadow-[0_0_12px_rgba(216,196,154,0.35)]'
+                  : 'bg-[#181410] text-[#D8C49A] border-[#574d3c]/30 hover:border-[#8A6938] hover:text-white'
+              }`}
+            >
+              <span>{t('menu.path_records', 'Leyes y Registro')}</span>
+              <span className="font-orbitron text-[10px]">{expandedSection === 'records' ? '▼' : '▶'}</span>
+            </button>
+            
+            <div 
+              className={`transition-all duration-300 ease-in-out overflow-hidden flex flex-col gap-2.5 ${
+                expandedSection === 'records' 
+                  ? 'max-h-[200px] opacity-100 mt-2.5 mb-1.5 px-1' 
+                  : 'max-h-0 opacity-0 pointer-events-none'
+              }`}
+            >
+              <button 
+                onClick={() => {
+                  audioService.playSFX('click');
+                  setIsAchievementsOpen(true);
+                }} 
+                className="stone-button w-full py-3 text-xs flex items-center justify-center gap-1.5 text-[#E6C687] bg-gradient-to-r from-[#3e2c1c] to-[#20150b] border-amber-600/40 hover:border-amber-500 shadow-[inset_0_0_10px_rgba(217,119,6,0.15)]"
+              >
+                {t('menu.achievements_button', 'Logros')}
+              </button>
 
-          <button 
-            onClick={() => {
-              audioService.playSFX('click');
-              setIsAchievementsOpen(true);
-            }} 
-            className="stone-button w-full py-3 text-sm flex items-center justify-center gap-1.5 text-[#E6C687] bg-gradient-to-r from-[#3e2c1c] to-[#20150b] border-amber-600/40 hover:border-amber-500 shadow-[inset_0_0_10px_rgba(217,119,6,0.15)]"
-          >
-            🏆 {t('menu.achievements_button', 'Logros')}
-          </button>
+              <button 
+                onClick={() => {
+                  audioService.playSFX('click');
+                  setIsTermsOpen(true);
+                }} 
+                className="stone-button w-full py-3 text-xs flex items-center justify-center gap-1.5 text-[#E6C687] bg-gradient-to-r from-[#3e2c1c] to-[#20150b] border-amber-600/40 hover:border-amber-500 shadow-[inset_0_0_10px_rgba(217,119,6,0.15)]"
+              >
+                {t('menu.terms_credits_button', 'Términos y Créditos')}
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -341,7 +430,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             }}
             className="text-[#D8C49A] hover:text-[#fff] transition-all border-b border-dashed border-[#D8C49A]/30 hover:border-[#fff] cursor-pointer"
           >
-            ⚖️ {t('menu.terms_credits_button', 'Términos y Créditos')}
+            {t('menu.terms_credits_button', 'Términos y Créditos')}
           </button>
           <span className="text-[#574d3c]/40">|</span>
           <a 
@@ -350,7 +439,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             rel="noopener noreferrer"
             className="text-[#D8C49A] hover:text-[#fff] transition-all flex items-center gap-1 border-b border-dashed border-[#D8C49A]/30 hover:border-[#fff]"
           >
-            <span>💼</span> linkedin.com/in/sr-irvin/
+            linkedin.com/in/sr-irvin/
           </a>
         </div>
       </div>

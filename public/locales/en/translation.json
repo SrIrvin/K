@@ -70,7 +70,10 @@
     "terms_title": "TERMS AND CONDITIONS",
     "credits_title": "CREDITS AND CREATORS",
     "terms_tab": "Terms",
-    "credits_tab": "Credits"
+    "credits_tab": "Credits",
+    "path_single": "Single Player Path",
+    "path_multi": "Multiplayer Arena",
+    "path_records": "Laws & Registry"
   },
   "audio": {
     "title": "GAME SETTINGS",

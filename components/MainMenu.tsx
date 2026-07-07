@@ -8,6 +8,7 @@ import {
 import { audioService } from '../services/audioService';
 import { useTranslation } from 'react-i18next';
 import { AchievementsModal } from './modals/AchievementsModal';
+import { TermsAndCreditsModal } from './modals/TermsAndCreditsModal';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -50,6 +51,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   });
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'hard'>('easy');
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   // Listen to Authentication changes to update Google Profile
   useEffect(() => {
@@ -323,17 +325,34 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
         onClose={() => setIsAchievementsOpen(false)} 
       />
 
+      <TermsAndCreditsModal 
+        isOpen={isTermsOpen} 
+        onClose={() => setIsTermsOpen(false)} 
+      />
+
       {/* Footer / Copyright in runic style & Contact */}
       <div className="absolute bottom-4 z-20 flex flex-col items-center gap-1 text-[9px] md:text-xs tracking-widest text-[#9A8B72] font-ancient-header opacity-75">
         <div>{tMenu.footer}</div>
-        <a 
-          href="https://linkedin.com/in/sr-irvin/" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-[#D8C49A] hover:text-[#fff] transition-all flex items-center gap-1 font-orbitron text-[8px] tracking-normal mt-0.5 border-b border-dashed border-[#D8C49A]/30 hover:border-[#fff]"
-        >
-          <span>💼</span> linkedin.com/in/sr-irvin/
-        </a>
+        <div className="flex gap-4 mt-0.5 font-orbitron text-[8px] tracking-normal">
+          <button 
+            onClick={() => {
+              audioService.playSFX('click');
+              setIsTermsOpen(true);
+            }}
+            className="text-[#D8C49A] hover:text-[#fff] transition-all border-b border-dashed border-[#D8C49A]/30 hover:border-[#fff] cursor-pointer"
+          >
+            ⚖️ {t('menu.terms_credits_button', 'Términos y Créditos')}
+          </button>
+          <span className="text-[#574d3c]/40">|</span>
+          <a 
+            href="https://linkedin.com/in/sr-irvin/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[#D8C49A] hover:text-[#fff] transition-all flex items-center gap-1 border-b border-dashed border-[#D8C49A]/30 hover:border-[#fff]"
+          >
+            <span>💼</span> linkedin.com/in/sr-irvin/
+          </a>
+        </div>
       </div>
     </div>
   );

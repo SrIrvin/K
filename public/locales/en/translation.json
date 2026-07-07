@@ -64,7 +64,13 @@
     "play_p2": "Local Duel",
     "tutorial": "Tutorial",
     "footer": "A.D. MMXXVI • SACRED ARTIFACT",
-    "default_hero": "Hero"
+    "default_hero": "Hero",
+    "terms_credits_button": "Terms & Credits",
+    "modal_ritual_title": "📜 Laws & Annals of the Temple 📜",
+    "terms_title": "TERMS AND CONDITIONS",
+    "credits_title": "CREDITS AND CREATORS",
+    "terms_tab": "Terms",
+    "credits_tab": "Credits"
   },
   "audio": {
     "title": "GAME SETTINGS",

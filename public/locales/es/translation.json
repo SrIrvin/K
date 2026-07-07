@@ -64,7 +64,13 @@
     "play_p2": "Duelo Local",
     "tutorial": "Tutorial",
     "footer": "A.D. MMXXVI • ARTEFACTO SAGRADO",
-    "default_hero": "Héroe"
+    "default_hero": "Héroe",
+    "terms_credits_button": "Términos y Créditos",
+    "modal_ritual_title": "📜 Leyes y Anales del Templo 📜",
+    "terms_title": "TÉRMINOS Y CONDICIONES",
+    "credits_title": "CRÉDITOS Y CREADORES",
+    "terms_tab": "Términos",
+    "credits_tab": "Créditos"
   },
   "audio": {
     "title": "AJUSTES DEL JUEGO",

@@ -133,6 +133,19 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
                 </div>
               </div>
 
+              <div className="bg-[#1d1812] border border-[#8a6938] p-5 rounded shadow-md text-center max-w-md mx-auto">
+                <div className="text-3xl mb-2">🎨</div>
+                <h3 className="text-[#e5c9a4] font-bold font-orbitron text-base uppercase tracking-wide">
+                  ShinigamiIOs
+                </h3>
+                <p className="text-xs text-amber-500/70 font-semibold uppercase tracking-wider mb-3">
+                  Co-diseñador e Ilustrador
+                </p>
+                <p className="text-xs text-[#b8a68b] leading-relaxed">
+                  Participó activamente en el co-diseño de las mecánicas del juego de cartas, generó la estética e imágenes del lore y diseñó visualmente el místico aspecto de las cartas.
+                </p>
+              </div>
+
               <div className="bg-[#120f0c]/60 border border-[#3d3328] p-4 rounded shadow-inner text-center max-w-md mx-auto">
                 <h4 className="text-amber-500 font-bold font-orbitron text-xs uppercase tracking-wider mb-2">
                   🙏 AGRADECIMIENTOS ESPECIALES

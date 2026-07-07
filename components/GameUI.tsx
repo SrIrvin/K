@@ -500,7 +500,7 @@ const GameUI: React.FC = () => {
 
     return (
         <div 
-          className="ancient-bg flex h-screen w-screen overflow-hidden text-white relative" 
+          className="ancient-bg flex h-screen h-[100dvh] w-screen w-[100dvw] overflow-hidden text-white relative" 
           onClick={resetIdleTimer}
         >
             {/* Visual Overlays */}
@@ -596,10 +596,22 @@ const GameUI: React.FC = () => {
                           𐎠 Rival 📊
                         </button>
                         
-                        <div className="flex items-center gap-1.5 font-orbitron text-[10px] sm:text-xs">
-                          <span className="font-extrabold">{currentPlayer.name.split(' ')[0]} ({currentPlayer.damage}D)</span>
-                          <span className="text-yellow-500 font-bold">Acc: {actionsRemaining}</span>
-                          <span className="font-extrabold">vs {opponentPlayer.name.split(' ')[0]} ({opponentPlayer.damage}D)</span>
+                        <div className="flex items-center gap-1.5 font-orbitron text-[9px] sm:text-xs">
+                          <span className="font-bold text-white">
+                            {currentPlayer.name.split(' ')[0]} 
+                            <span className="text-[#ff5252] font-black bg-red-950/60 px-1 py-0.5 rounded border border-red-500/30 ml-1">
+                              {currentPlayer.damage}D
+                            </span>
+                          </span>
+                          <span className="text-yellow-400 font-black bg-yellow-950/60 px-1.5 py-0.5 rounded border border-yellow-500/30 animate-pulse ml-0.5">
+                            Acc: {actionsRemaining}
+                          </span>
+                          <span className="font-bold text-white">
+                            vs {opponentPlayer.name.split(' ')[0]} 
+                            <span className="text-[#ff5252] font-black bg-red-950/60 px-1 py-0.5 rounded border border-red-500/30 ml-1">
+                              {opponentPlayer.damage}D
+                            </span>
+                          </span>
                         </div>
 
                         <button 
@@ -674,7 +686,7 @@ const GameUI: React.FC = () => {
 
                     {/* Current Player's Active Hand (tactile slots) */}
                     {state.gameMode === 'playing' && (
-                        <div className="w-full max-w-2xl bg-[#1e1a14]/60 p-2 rounded-lg border-2 border-[#574d3c] flex flex-col gap-2 relative shadow-inner shadow-black mb-1.5 flex-shrink-0 z-20">
+                        <div className="w-full max-w-2xl bg-[#1e1a14]/60 p-1.5 md:p-2 rounded-lg border-2 border-[#574d3c] flex flex-col gap-1 md:gap-2 relative shadow-inner shadow-black mb-1 md:mb-1.5 flex-shrink-0 z-20">
                             {/* Special Ability Targeting Floating HUD - Positioned over/covering the hand */}
                             {state.isTargeting && (
                               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 max-w-sm w-[95%] pointer-events-none">
@@ -737,15 +749,16 @@ const GameUI: React.FC = () => {
                               });
 
                               return (
-                                <div className="flex justify-between items-center gap-4 h-[125px] sm:h-[135px] md:h-[160px] w-full">
-                                     {/* Unit Cards Area (Left) - 50% width */}
-                                     <div className={`${isRightCollapsed ? 'w-[40%] sm:w-[42%] md:w-[42%]' : 'w-1/2'} flex gap-4 overflow-x-auto h-full pr-3 border-r border-[#574d3c]/40 items-start pt-1.5`}>
+                                <>
+                                 <div className="flex justify-between items-center gap-2 sm:gap-4 h-[110px] sm:h-[130px] md:h-[160px] w-full">
+                                      {/* Unit Cards Area (Left) */}
+                                      <div className={`${isRightCollapsed ? 'w-[50%] md:w-[42%]' : 'w-1/2'} flex gap-3 sm:gap-4 overflow-x-auto h-full pr-1.5 sm:pr-3 border-r border-[#574d3c]/40 items-start pt-1.5`}>
                                          {unitCards.length === 0 && !lastUnitInDiscard ? (
                                              <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
                                                Sin cartas de unidad
                                              </div>
                                          ) : (
-                                             <>
+                                              <>
                                               {Object.entries(groupedUnitCards).map(([rank, cards]) => {
                                                   const isHovered = hoveredRank === rank;
                                                   const stackWidth = isHovered 
@@ -764,7 +777,6 @@ const GameUI: React.FC = () => {
                                                         onMouseEnter={() => setHoveredRank(rank)}
                                                         onMouseLeave={() => setHoveredRank(null)}
                                                       >
-                                                          {/* Stack Wrapper */}
                                                           <div className="relative w-full flex-grow flex items-center justify-start">
                                                               {cards.map((card, index) => {
                                                                   const translateX = isHovered ? index * cardSpacing : index * 3;
@@ -812,14 +824,12 @@ const GameUI: React.FC = () => {
                                                               })}
                                                           </div>
 
-                                                          {/* Count Badge (only when stacked and > 1) */}
                                                           {!isHovered && cards.length > 1 && (
                                                               <div className="absolute top-1 right-1 z-25 bg-[#8A6938] text-white border border-[#D8C49A] text-[9px] font-orbitron font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-lg pointer-events-none animate-pulse">
                                                                 {cards.length}
                                                               </div>
                                                           )}
 
-                                                          {/* Clicking the stacked pile when not hovered selects/deselects the top card */}
                                                           {!isHovered && cards.length > 1 && (
                                                               <div 
                                                                 className="absolute inset-0 z-20 cursor-pointer"
@@ -830,7 +840,6 @@ const GameUI: React.FC = () => {
                                                   );
                                               })}
 
-                                              {/* Ghost Card for Queen's Resurrection ability */}
                                               {hasQueenInHand && lastUnitInDiscard && (
                                                 <div 
                                                   className="flex-shrink-0 relative opacity-40 hover:opacity-85 border-2 border-dashed border-yellow-600/70 rounded-lg cursor-pointer transform hover:scale-[1.03] transition-all duration-300 group shadow-lg flex flex-col justify-center"
@@ -847,7 +856,6 @@ const GameUI: React.FC = () => {
                                                       });
                                                     }
                                                   }}
-                                                  title="Haz clic para resucitar a tu mano usando tu Reina (Q)"
                                                 >
                                                     <div className="w-full h-full max-h-[80%] pointer-events-none filter sepia contrast-125 brightness-75 stone-card-container">
                                                         <GameCard 
@@ -855,20 +863,18 @@ const GameUI: React.FC = () => {
                                                             isSelected={false}
                                                         />
                                                     </div>
-                                                    {/* Golden runic text overlay */}
-                                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-[#D8C49A] font-bold text-center text-[9px] sm:text-[10px] pointer-events-none p-1 font-orbitron select-none">
+                                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-[#D8C49A] font-bold text-center text-[8px] pointer-events-none p-1 font-orbitron">
                                                       <span>RESUCITAR</span>
-                                                      <span className="text-[8px] opacity-75 font-mono">({lastUnitInDiscard.rank} de {lastUnitInDiscard.suit})</span>
-                                                      <span className="text-[7px] text-yellow-500 mt-1 px-1 bg-yellow-950/70 border border-yellow-600/40 rounded uppercase tracking-wider">Cuesta Q (1)</span>
+                                                      <span className="text-[7px] text-yellow-500">Cuesta Q</span>
                                                     </div>
                                                 </div>
                                               )}
                                             </>
                                          )}
-                                     </div>
+                                      </div>
  
-                                     {/* Special Cards Area (Right) - 50% width */}
-                                     <div className={`${isRightCollapsed ? 'w-[40%] sm:w-[42%] md:w-[42%]' : 'w-1/2'} flex gap-4 overflow-x-auto h-full pl-3 items-start pt-1.5`}>
+                                     {/* Special Cards Area (Right) */}
+                                     <div className={`${isRightCollapsed ? 'w-[50%] md:w-[42%]' : 'w-1/2'} flex gap-3 sm:gap-4 overflow-x-auto h-full pl-1.5 sm:pl-3 items-start pt-1.5`}>
                                          {specialCards.length === 0 ? (
                                              <div className="flex items-center justify-center w-full h-full text-xs text-[#9A8B72]/40 italic">
                                                Sin habilidades
@@ -890,7 +896,6 @@ const GameUI: React.FC = () => {
                                                        onMouseEnter={() => setHoveredRank(rank)}
                                                        onMouseLeave={() => setHoveredRank(null)}
                                                      >
-                                                         {/* Stack Wrapper */}
                                                          <div className="relative w-full flex-grow flex items-center justify-start">
                                                              {cards.map((card, index) => {
                                                                  const translateX = isHovered ? index * cardSpacing : index * 3;
@@ -904,7 +909,6 @@ const GameUI: React.FC = () => {
                                                                        className="absolute left-0 top-0 flex flex-col items-center justify-start transition-all duration-300 ease-out cursor-pointer"
                                                                        style={{ 
                                                                            width: `${cardWidth}px`,
-
                                                                            transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
                                                                            zIndex: isHovered ? index + 10 : index,
                                                                        }}
@@ -934,14 +938,13 @@ const GameUI: React.FC = () => {
                                                                              />
                                                                          </div>
                                                                          
-                                                                         {/* Show buttons only when expanded (hovered) or if it's the top card of a stack of 1 */}
                                                                          {(isHovered || cards.length === 1) && (
                                                                              <button 
                                                                                onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card } })} 
                                                                                disabled={!canAct} 
-                                                                               className={`stone-button stone-button-blue text-[7px] sm:text-[8px] py-0.5 px-1 mt-1 w-full ${isCardHinted ? 'idle-hint-glow' : ''} shadow-md`}
+                                                                               className={`stone-button stone-button-blue text-[8px] sm:text-[9px] py-0.5 px-2 mt-1 w-full ${isCardHinted ? 'idle-hint-glow' : ''}`}
                                                                              >
-                                                                               Activar (1)
+                                                                               Activar ({cards.length})
                                                                              </button>
                                                                          )}
                                                                      </div>
@@ -949,14 +952,12 @@ const GameUI: React.FC = () => {
                                                              })}
                                                          </div>
 
-                                                         {/* Count Badge (only when stacked and > 1) */}
                                                          {!isHovered && cards.length > 1 && (
                                                              <div className="absolute top-1 right-1 z-25 bg-[#8A6938] text-white border border-[#D8C49A] text-[9px] font-orbitron font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-lg pointer-events-none animate-pulse">
                                                                {cards.length}
                                                              </div>
                                                          )}
 
-                                                         {/* Single Activar button under the stack when not hovered (only for stack > 1) */}
                                                          {!isHovered && cards.length > 1 && (
                                                              <button 
                                                                onClick={() => dispatch({ type: 'PLAY_SPECIAL_CARD', payload: { card: cards[cards.length - 1] } })} 
@@ -971,41 +972,77 @@ const GameUI: React.FC = () => {
                                              })
                                          )}
                                      </div>
+                                     
+                                     {isRightCollapsed && (
+                                           <div className="hidden md:flex w-[16%] flex-col justify-center gap-1.5 h-full pl-2 sm:pl-3 border-l border-[#574d3c]/40 font-orbitron flex-shrink-0">
+                                               {isLocalTurn && gameMode === 'playing' ? (
+                                                   <>
+                                                       <button 
+                                                         onClick={() => dispatch({ type: 'DRAW_CARD'})} 
+                                                         disabled={!canAct || !currentPlayer || currentPlayer.deck.length === 0} 
+                                                         className={`stone-button w-full py-1.5 text-[8px] sm:text-[9px] text-[#1e1a14] ${
+                                                           currentPlayer && currentPlayer.deck.length === 0 ? 'bg-red-950/40 text-red-500 border-red-900/80 cursor-not-allowed hover:scale-100 hover:border-red-900/80' : ''
+                                                         } ${
+                                                           showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''
+                                                         }`}
+                                                       >
+                                                         {currentPlayer && currentPlayer.deck.length === 0 ? '¡Sin cartas!' : `Robar (${actionsRemaining})`}
+                                                       </button>
+                                                       <button 
+                                                         onClick={() => dispatch({ type: 'END_TURN'})} 
+                                                         disabled={kingMoveState?.isMoving} 
+                                                         className={`stone-button stone-button-red w-full py-1.5 text-[8px] sm:text-[9px] ${
+                                                           showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''
+                                                         }`}
+                                                       >
+                                                         {t('game_ui.end_turn')}
+                                                       </button>
+                                                   </>
+                                               ) : (
+                                                   <div className="w-full text-center py-3 bg-[#2A2A2A]/20 border border-[#574d3c]/20 rounded-md">
+                                                       <span className="text-[7px] sm:text-[8px] text-[#9A8B72] uppercase tracking-wider block animate-pulse">Rival</span>
+                                                   </div>
+                                               )}
+                                           </div>
+                                       )}
+                                 </div>
 
-                                      {isRightCollapsed && (
-                                          <div className="w-[20%] sm:w-[16%] flex flex-col justify-center gap-1.5 h-full pl-2 sm:pl-3 border-l border-[#574d3c]/40 font-orbitron flex-shrink-0">
-                                              {isLocalTurn && gameMode === 'playing' ? (
-                                                  <>
-                                                      <button 
-                                                        onClick={() => dispatch({ type: 'DRAW_CARD'})} 
-                                                        disabled={!canAct || !currentPlayer || currentPlayer.deck.length === 0} 
-                                                        className={`stone-button w-full py-1.5 text-[8px] sm:text-[9px] text-[#1e1a14] ${
-                                                          currentPlayer && currentPlayer.deck.length === 0 ? 'bg-red-950/40 text-red-500 border-red-900/80 cursor-not-allowed hover:scale-100 hover:border-red-900/80' : ''
-                                                        } ${
-                                                          showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''
-                                                        }`}
-                                                      >
-                                                        {currentPlayer && currentPlayer.deck.length === 0 ? '¡Sin cartas!' : `Robar (${actionsRemaining})`}
-                                                      </button>
-                                                      <button 
-                                                        onClick={() => dispatch({ type: 'END_TURN'})} 
-                                                        disabled={kingMoveState?.isMoving} 
-                                                        className={`stone-button stone-button-red w-full py-1.5 text-[8px] sm:text-[9px] ${
-                                                          showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''
-                                                        }`}
-                                                      >
-                                                        {t('game_ui.end_turn')}
-                                                      </button>
-                                                  </>
-                                              ) : (
-                                                  <div className="w-full text-center py-3 bg-[#2A2A2A]/20 border border-[#574d3c]/20 rounded-md">
-                                                      <span className="text-[7px] sm:text-[8px] text-[#9A8B72] uppercase tracking-wider block animate-pulse">Rival</span>
-                                                  </div>
-                                              )}
-                                          </div>
-                                      )}
-
-                                </div>
+                                 {/* Mobile-only action buttons */}
+                                 {isRightCollapsed && (
+                                     <div className="md:hidden flex gap-2 w-full mt-1.5 font-orbitron select-none">
+                                         {isLocalTurn && gameMode === 'playing' ? (
+                                             <>
+                                                 <button 
+                                                   onClick={() => dispatch({ type: 'DRAW_CARD'})} 
+                                                   disabled={!canAct || !currentPlayer || currentPlayer.deck.length === 0} 
+                                                   className={`stone-button flex-1 py-1.5 text-[10px] sm:text-xs text-[#1e1a14] font-black ${
+                                                     currentPlayer && currentPlayer.deck.length === 0 ? 'bg-red-950/40 text-red-500 border-red-900/80 cursor-not-allowed hover:scale-100 hover:border-red-900/80' : ''
+                                                   } ${
+                                                     showHints && actionsRemaining > 0 && !selectedCardIdInHand && !selectedUnitIdOnBoard ? 'idle-hint-glow' : ''
+                                                   }`}
+                                                   style={{ borderBottomWidth: '3px' }}
+                                                 >
+                                                   {currentPlayer && currentPlayer.deck.length === 0 ? '¡Mazo Vacío!' : `Robar (${actionsRemaining})`}
+                                                 </button>
+                                                 <button 
+                                                   onClick={() => dispatch({ type: 'END_TURN'})} 
+                                                   disabled={kingMoveState?.isMoving} 
+                                                   className={`stone-button stone-button-red flex-1 py-1.5 text-[10px] sm:text-xs font-black ${
+                                                     showHints && actionsRemaining === 0 ? 'idle-hint-glow' : ''
+                                                   }`}
+                                                   style={{ borderBottomWidth: '3px' }}
+                                                 >
+                                                   {t('game_ui.end_turn')}
+                                                 </button>
+                                             </>
+                                         ) : (
+                                             <div className="w-full text-center py-1.5 bg-[#2A2A2A]/20 border border-[#574d3c]/20 rounded-md">
+                                                 <span className="text-[10px] text-[#9A8B72] uppercase tracking-wider block animate-pulse">Rival jugando...</span>
+                                             </div>
+                                         )}
+                                     </div>
+                                 )}
+                               </>
                               );
                             })()}
                         </div>

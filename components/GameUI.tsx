@@ -52,7 +52,13 @@ const GameUI: React.FC = () => {
     
     useEffect(() => {
         if (state.log.length === 0) return;
-        const latest = state.log[0].toUpperCase();
+        let latest = state.log[0].toUpperCase();
+        
+        // Strip the player name tag (e.g. "[KING21] ") to avoid false positives with player names
+        const closeBracketIdx = latest.indexOf(']');
+        if (closeBracketIdx !== -1) {
+            latest = latest.substring(closeBracketIdx + 1).trim();
+        }
         
         if (latest.includes('QUEEN') || latest.includes('REINA') || latest.includes('HEAL') || latest.includes('CURÓ') || latest.includes('CURACIÓN')) {
             setActiveEffect('queen_purify');
@@ -696,17 +702,19 @@ const GameUI: React.FC = () => {
                                   </h2>
                                   <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
                                   <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
-                                    {state.isTargeting === 'queen' && "REINA: Haz clic en una unidad aliada en el tablero para curarla/potenciarla."}
-                                    {state.isTargeting === 'jack' && "JOTA: Haz clic en una unidad aliada para darle +1 de velocidad en su próximo movimiento."}
-                                    {state.isTargeting === 'joker' && "JOKER: Haz clic en una unidad enemiga en el tablero para eliminarla instantáneamente."}
+                                    {state.isTargeting === 'queen' && (isLocalTurn && isCurrentPlayerTurn ? "REINA: Haz clic en una unidad aliada en el tablero para curarla/potenciarla." : "El oponente está invocando el poder de la REINA...")}
+                                    {state.isTargeting === 'jack' && (isLocalTurn && isCurrentPlayerTurn ? "JOTA: Haz clic en una unidad aliada para darle +1 de velocidad en su próximo movimiento." : "El oponente está invocando la velocidad del JOTA...")}
+                                    {state.isTargeting === 'joker' && (isLocalTurn && isCurrentPlayerTurn ? "JOKER: Haz clic en una unidad enemiga en el tablero para eliminarla instantáneamente." : "El oponente está invocando el filo del JOKER...")}
                                   </p>
                                   
-                                  <button
-                                    onClick={() => dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } })}
-                                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
-                                  >
-                                    Cancelar Habilidad
-                                  </button>
+                                  {isLocalTurn && isCurrentPlayerTurn && (
+                                    <button
+                                      onClick={() => dispatch({ type: 'SELECT_CARD_IN_HAND', payload: { cardId: null } })}
+                                      className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
+                                    >
+                                      Cancelar Habilidad
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -720,15 +728,19 @@ const GameUI: React.FC = () => {
                                   </h2>
                                   <div className="h-0.5 w-12 bg-[#8A6938] mb-2" />
                                   <p className="text-xs text-[#D8C49A] font-runic-text leading-snug">
-                                    Avanza tus unidades (ortogonal). Las unidades no movidas serán destruidas al finalizar la orden.
+                                    {isLocalTurn && isCurrentPlayerTurn 
+                                      ? "Avanza tus unidades (ortogonal). Las unidades no movidas serán destruidas al finalizar la orden."
+                                      : "Alineando fuerzas rivales bajo la orden del soberano..."}
                                   </p>
                                   
-                                  <button
-                                    onClick={() => dispatch({type: 'FINISH_KING_MOVE'})}
-                                    className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
-                                  >
-                                    Terminar Orden ({kingMoveState.unitsToMove.length} pendientes)
-                                  </button>
+                                  {isLocalTurn && isCurrentPlayerTurn && (
+                                    <button
+                                      onClick={() => dispatch({type: 'FINISH_KING_MOVE'})}
+                                      className="stone-button stone-button-red text-xs py-1.5 px-6 mt-3 shadow-md"
+                                    >
+                                      Terminar Orden ({kingMoveState.unitsToMove.length} pendientes)
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             )}

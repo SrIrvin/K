@@ -73,7 +73,15 @@
     "credits_tab": "Créditos",
     "path_single": "Senda Individual",
     "path_multi": "Arena Multijugador",
-    "path_records": "Leyes y Registro"
+    "path_records": "Leyes y Registro",
+    "achievements_button": "Logros",
+    "achievements_title": "SISTEMA DE LOGROS",
+    "achievements_ritual_title": "Registro de Hazañas",
+    "achievements_current_gold": "Oro actual: ",
+    "achievements_online_wins": "Victorias Online: ",
+    "achievements_loading": "Consultando anales y registros...",
+    "achievements_completed": "COMPLETADO",
+    "achievements_players_suffix": "Jugadores"
   },
   "audio": {
     "title": "AJUSTES DEL JUEGO",
@@ -109,7 +117,8 @@
     "kings_label": "Reyes conservados",
     "victory_bonus_label": "Bono de Victoria",
     "bet_loss_label": "Pérdida por Apuesta",
-    "bet_bonus_label": "Bono por Apuesta"
+    "bet_bonus_label": "Bono por Apuesta",
+    "return_to_duel": "VOLVER AL MENÚ"
   },
   "lobby": {
     "portal_level": "Portal {{level}}",
@@ -161,5 +170,21 @@
     "active_portals": "3. Portales Activos en el Templo",
     "live_badge": "EN VIVO",
     "no_portals": "No hay portales abiertos en este momento. ¡Abre uno!"
+  },
+  "achievements": {
+    "tutorial_title": "Iniciación Rúnica",
+    "tutorial_desc": "Completa el tutorial de aprendizaje",
+    "gold_1k_title": "Bolsa de Monedas",
+    "gold_1k_desc": "Acumula un total de 1,000 de oro",
+    "online_win_1_title": "Guerrero de la Red",
+    "online_win_1_desc": "Gana tu primer duelo en el modo online",
+    "online_win_3_title": "Tríada de Victorias",
+    "online_win_3_desc": "Gana 3 duelos en el modo online",
+    "story_title": "Héroe del Reino",
+    "story_desc": "Termina el modo historia derrotando al Rey en el Nivel 7",
+    "gold_1m_title": "Riqueza de Reyes",
+    "gold_1m_desc": "Acumula un gran total de 1,000,000 de oro",
+    "rank_1_title": "Soberano Absoluto",
+    "rank_1_desc": "Sé el primer lugar en el top de posiciones (tabla de líderes)"
   }
 }

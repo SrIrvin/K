@@ -73,7 +73,15 @@
     "credits_tab": "Credits",
     "path_single": "Single Player Path",
     "path_multi": "Multiplayer Arena",
-    "path_records": "Laws & Registry"
+    "path_records": "Laws & Registry",
+    "achievements_button": "Achievements",
+    "achievements_title": "ACHIEVEMENTS SYSTEM",
+    "achievements_ritual_title": "Record of Feats",
+    "achievements_current_gold": "Current Gold: ",
+    "achievements_online_wins": "Online Wins: ",
+    "achievements_loading": "Consulting annals and records...",
+    "achievements_completed": "COMPLETED",
+    "achievements_players_suffix": "Players"
   },
   "audio": {
     "title": "GAME SETTINGS",
@@ -109,7 +117,8 @@
     "kings_label": "Conserved Kings",
     "victory_bonus_label": "Victory Bonus",
     "bet_loss_label": "Bet Loss",
-    "bet_bonus_label": "Bet Bonus"
+    "bet_bonus_label": "Bet Bonus",
+    "return_to_duel": "BACK TO MENU"
   },
   "lobby": {
     "portal_level": "Portal {{level}}",
@@ -161,5 +170,21 @@
     "active_portals": "3. Active Portals in the Temple",
     "live_badge": "LIVE",
     "no_portals": "There are no open portals at this moment. Open one!"
+  },
+  "achievements": {
+    "tutorial_title": "Runic Initiation",
+    "tutorial_desc": "Complete the learning tutorial",
+    "gold_1k_title": "Bag of Coins",
+    "gold_1k_desc": "Accumulate a total of 1,000 gold",
+    "online_win_1_title": "Net Warrior",
+    "online_win_1_desc": "Win your first online duel",
+    "online_win_3_title": "Triad of Victories",
+    "online_win_3_desc": "Win 3 online duels",
+    "story_title": "Hero of the Realm",
+    "story_desc": "Finish story mode by defeating the King at Level 7",
+    "gold_1m_title": "Wealth of Kings",
+    "gold_1m_desc": "Accumulate a grand total of 1,000,000 gold",
+    "rank_1_title": "Absolute Sovereign",
+    "rank_1_desc": "Be first place in the rankings (leaderboard)"
   }
 }

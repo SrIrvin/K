@@ -190,7 +190,7 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, on
         {/* Modal Header */}
         <div className="text-center mb-4 relative z-10">
           <div className="text-[10px] text-amber-500/70 tracking-[0.3em] uppercase font-orbitron mb-1">
-            ✨ Registro de Hazañas ✨
+            ✨ {t('menu.achievements_ritual_title', 'Registro de Hazañas')} ✨
           </div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-widest text-[#D8C49A] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-ancient-header uppercase">
             {t('menu.achievements_title', 'SISTEMA DE LOGROS')}
@@ -201,11 +201,11 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, on
         {/* Stats strip */}
         <div className="flex justify-around items-center bg-[#211a14]/90 border border-[#524335] rounded px-4 py-2 mb-4 text-xs text-[#9a8b72] font-orbitron">
           <div>
-            🪙 Oro actual: <span className="text-yellow-500 font-bold font-mono">{playerGold.toLocaleString()}</span>
+            🪙 {t('menu.achievements_current_gold', 'Oro actual: ')}<span className="text-yellow-500 font-bold font-mono">{playerGold.toLocaleString()}</span>
           </div>
           <div className="w-px h-4 bg-[#524335]" />
           <div>
-            ⚔️ Victorias Online: <span className="text-[#a5b4fc] font-bold font-mono">{playerOnlineWins}</span>
+            ⚔️ {t('menu.achievements_online_wins', 'Victorias Online: ')}<span className="text-[#a5b4fc] font-bold font-mono">{playerOnlineWins}</span>
           </div>
         </div>
 
@@ -214,7 +214,7 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, on
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 space-y-3">
               <div className="w-10 h-10 border-4 border-[#8a6938] border-t-amber-500 rounded-full animate-spin" />
-              <p className="text-[#9a8b72] text-xs font-orbitron animate-pulse">Consultando anales y registros...</p>
+              <p className="text-[#9a8b72] text-xs font-orbitron animate-pulse">{t('menu.achievements_loading', 'Consultando anales y registros...')}</p>
             </div>
           ) : (
             achievements.map((item) => (
@@ -249,7 +249,7 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, on
                     </h3>
                     {item.isUnlocked && (
                       <span className="text-[10px] bg-green-500/10 border border-green-500/20 text-green-400 font-bold px-2 py-0.5 rounded font-orbitron animate-pulse shrink-0 ml-2">
-                        COMPLETADO
+                        {t('menu.achievements_completed', 'COMPLETADO')}
                       </span>
                     )}
                   </div>
@@ -264,7 +264,7 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({ isOpen, on
                     {item.globalPercentage}%
                   </span>
                   <span className="text-[8px] text-[#8c7a64] font-orbitron uppercase tracking-tighter mt-0.5">
-                    Jugadores
+                    {t('menu.achievements_players_suffix', 'Jugadores')}
                   </span>
                 </div>
               </div>

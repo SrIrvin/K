@@ -81,7 +81,12 @@
     "achievements_online_wins": "Online Wins: ",
     "achievements_loading": "Consulting annals and records...",
     "achievements_completed": "COMPLETED",
-    "achievements_players_suffix": "Players"
+    "achievements_players_suffix": "Players",
+    "name_reserved_character": "This is a reserved character name.",
+    "name_taken_by_email": "This name is registered by another email.",
+    "name_invalid": "Invalid hero name.",
+    "name_checking": "Checking name...",
+    "name_available": "Name available"
   },
   "audio": {
     "title": "GAME SETTINGS",

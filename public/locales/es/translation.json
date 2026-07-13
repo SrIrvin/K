@@ -81,7 +81,12 @@
     "achievements_online_wins": "Victorias Online: ",
     "achievements_loading": "Consultando anales y registros...",
     "achievements_completed": "COMPLETADO",
-    "achievements_players_suffix": "Jugadores"
+    "achievements_players_suffix": "Jugadores",
+    "name_reserved_character": "Este es un nombre de personaje reservado.",
+    "name_taken_by_email": "Este nombre está registrado por otro correo.",
+    "name_invalid": "Nombre de héroe no válido.",
+    "name_checking": "Verificando nombre...",
+    "name_available": "Nombre disponible"
   },
   "audio": {
     "title": "AJUSTES DEL JUEGO",

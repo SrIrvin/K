@@ -176,6 +176,12 @@ export const updatePlayerStats = async (
       updateData.storyCompleted = storyCompleted;
     }
 
+    // If current authenticated user has an email, associate it to reserve the name
+    const user = auth.currentUser;
+    if (user && user.email) {
+      updateData.associatedEmail = user.email;
+    }
+
     await setDoc(playerRef, updateData, { merge: true });
     console.log(`[Firebase] Updated stats and gold for ${playerName}`);
   } catch (error) {
@@ -375,4 +381,54 @@ export const subscribeToRoomDetail = (roomId: string, callback: (room: LobbyRoom
   return () => {
     off(roomRef, 'value', listener);
   };
+};
+
+/**
+ * Check if a player name is available for use.
+ * A name is unavailable if it matches a reserved story character name
+ * or if it is already associated with a different user email.
+ */
+export const checkNameAvailability = async (
+  playerName: string,
+  currentUserEmail: string | null
+): Promise<{ available: boolean; reason?: 'reserved_character' | 'taken_by_email' | 'invalid' }> => {
+  const nameTrimmed = playerName.trim();
+  if (!nameTrimmed) {
+    return { available: false, reason: 'invalid' };
+  }
+
+  // 1. Check reserved character names (case-insensitive, ignoring spacing)
+  const normalized = nameTrimmed.toLowerCase().replace(/\s+/g, '');
+  const RESERVED_NAMES = [
+    'piscinadelamuerte',
+    'solar',
+    'irwingelsabio',
+    'shinigami',
+    'moon',
+    'katty',
+    'king21'
+  ];
+  if (RESERVED_NAMES.includes(normalized)) {
+    return { available: false, reason: 'reserved_character' };
+  }
+
+  // 2. Check in Firestore players_stats
+  try {
+    const playerRef = doc(db, 'players_stats', nameTrimmed);
+    const snapshot = await getDoc(playerRef);
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      const associatedEmail = data.associatedEmail;
+      if (associatedEmail) {
+        // If it is reserved by an email, and current user has a different email or no email
+        if (!currentUserEmail || currentUserEmail.toLowerCase() !== associatedEmail.toLowerCase()) {
+          return { available: false, reason: 'taken_by_email' };
+        }
+      }
+    }
+  } catch (error) {
+    console.error('[Firebase] Error checking name availability:', error);
+  }
+
+  return { available: true };
 };

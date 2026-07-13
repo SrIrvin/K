@@ -25,7 +25,9 @@ import {
   getPlayerStats,
   LobbyRoom, 
   GameRecord,
-  PlayerStats
+  PlayerStats,
+  getCurrentUser,
+  checkNameAvailability
 } from '../services/firebaseService';
 
 interface OnlineLobbyProps {
@@ -39,6 +41,47 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
   const [playerName, setPlayerName] = useState(() => {
     return localStorage.getItem('k_player_name') || `Héroe_${Math.floor(1000 + Math.random() * 9000)}`;
   });
+  
+  const [nameStatus, setNameStatus] = useState<{ available: boolean; reason?: string } | null>(null);
+  const [isValidatingName, setIsValidatingName] = useState(false);
+
+  // Real-time name checking with debounce
+  useEffect(() => {
+    const nameTrimmed = playerName.trim();
+    if (!nameTrimmed) {
+      setNameStatus({ available: false, reason: t('menu.name_invalid', 'Nombre de héroe no válido.') });
+      return;
+    }
+
+    setIsValidatingName(true);
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const currentUser = getCurrentUser();
+        const res = await checkNameAvailability(nameTrimmed, currentUser?.email || null);
+        if (res.available) {
+          setNameStatus({ available: true });
+        } else {
+          let reasonText = '';
+          if (res.reason === 'reserved_character') {
+            reasonText = t('menu.name_reserved_character', 'Este es un nombre de personaje reservado.');
+          } else if (res.reason === 'taken_by_email') {
+            reasonText = t('menu.name_taken_by_email', 'Este nombre está registrado por otro correo.');
+          } else {
+            reasonText = t('menu.name_invalid', 'Nombre de héroe no válido.');
+          }
+          setNameStatus({ available: false, reason: reasonText });
+        }
+      } catch (err) {
+        console.error('Error validating name availability in lobby:', err);
+      } finally {
+        setIsValidatingName(false);
+      }
+    }, 450);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [playerName, t]);
+
+  const isNameInvalid = nameStatus !== null && !nameStatus.available;
   
   const [roomCodeInput, setRoomCodeInput] = useState('');
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
@@ -231,6 +274,10 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
   };
 
   const handleCreateRoom = async () => {
+    if (isNameInvalid) {
+      audioService.playSFX('error');
+      return;
+    }
     if (!playerName.trim()) {
       setErrorMsg('Debes ingresar tu nombre de héroe.');
       return;
@@ -308,6 +355,10 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
   };
 
   const handleJoinRoomByCode = async (code: string) => {
+    if (isNameInvalid) {
+      audioService.playSFX('error');
+      return;
+    }
     if (!playerName.trim()) {
       setErrorMsg(t('lobby.name_required', 'Debes ingresar tu nombre de héroe.'));
       return;
@@ -362,6 +413,10 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isNameInvalid) {
+      audioService.playSFX('error');
+      return;
+    }
     if (!roomCodeInput.trim()) {
       setErrorMsg('Debes ingresar el código de la sala.');
       return;
@@ -466,13 +521,26 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
               <label className="text-xs font-orbitron font-bold text-[#D8C49A] uppercase tracking-wider">
                 {t('lobby.nickname_label', 'Tu Nombre de Héroe:')}
               </label>
-              <input
-                type="text"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                maxLength={18}
-                className="bg-[#2c241b] border border-[#8A6938] text-[#D8C49A] font-bold text-sm px-3 py-1.5 rounded w-full sm:w-60 focus:outline-none focus:ring-1 focus:ring-[#D8C49A]"
-              />
+              <div className="flex flex-col w-full sm:w-60 items-end">
+                <input
+                  type="text"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  maxLength={18}
+                  className="bg-[#2c241b] border border-[#8A6938] text-[#D8C49A] font-bold text-sm px-3 py-1.5 rounded w-full focus:outline-none focus:ring-1 focus:ring-[#D8C49A]"
+                />
+                {playerName.trim() && (
+                  <div className="text-[9px] font-bold tracking-wider uppercase font-orbitron mt-1 text-right w-full">
+                    {isValidatingName ? (
+                      <span className="text-[#9A8B72] animate-pulse">{t('menu.name_checking', 'Verificando nombre...')}</span>
+                    ) : nameStatus?.available ? (
+                      <span className="text-green-500">✓ {t('menu.name_available', 'Nombre disponible')}</span>
+                    ) : (
+                      <span className="text-red-500">✗ {nameStatus?.reason}</span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -488,7 +556,8 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                 </div>
                 <button 
                   onClick={handleCreateRoom}
-                  className="stone-button text-xs py-2 w-full mt-2"
+                  disabled={isNameInvalid}
+                  className={`stone-button text-xs py-2 w-full mt-2 ${isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''}`}
                 >
                   {t('lobby.create_btn', 'Abrir Portal')}
                 </button>
@@ -511,7 +580,11 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                     />
                   </div>
                 </div>
-                <button type="submit" className="stone-button stone-button-blue text-xs py-2 w-full mt-2">
+                <button 
+                  type="submit" 
+                  disabled={isNameInvalid}
+                  className={`stone-button stone-button-blue text-xs py-2 w-full mt-2 ${isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''}`}
+                >
                   {t('lobby.join_btn', 'Cruzar Portal')}
                 </button>
               </form>
@@ -550,7 +623,8 @@ const OnlineLobby: React.FC<OnlineLobbyProps> = ({ onBack, onGameJoined }) => {
                       </div>
                       <button
                         onClick={() => handleJoinRoomByCode(room.id)}
-                        className="stone-button stone-button-blue text-[9px] py-1 px-3"
+                        disabled={isNameInvalid}
+                        className={`stone-button stone-button-blue text-[9px] py-1 px-3 ${isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''}`}
                       >
                         {t('lobby.join_action_btn', 'UNIRSE')}
                       </button>

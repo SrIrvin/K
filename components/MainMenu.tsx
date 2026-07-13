@@ -3,7 +3,8 @@ import { GameContext } from '../context/GameContext';
 import { 
   loginWithGoogle, 
   logoutUser, 
-  subscribeToAuthChanges 
+  subscribeToAuthChanges,
+  checkNameAvailability
 } from '../services/firebaseService';
 import { audioService } from '../services/audioService';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +54,46 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<'single' | 'multi' | 'records' | null>('single');
+  
+  const [nameStatus, setNameStatus] = useState<{ available: boolean; reason?: string } | null>(null);
+  const [isValidatingName, setIsValidatingName] = useState(false);
+
+  // Real-time name checking with debounce
+  useEffect(() => {
+    const nameTrimmed = playerName.trim();
+    if (!nameTrimmed) {
+      setNameStatus({ available: false, reason: t('menu.name_invalid', 'Nombre de héroe no válido.') });
+      return;
+    }
+
+    setIsValidatingName(true);
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await checkNameAvailability(nameTrimmed, currentUser?.email || null);
+        if (res.available) {
+          setNameStatus({ available: true });
+        } else {
+          let reasonText = '';
+          if (res.reason === 'reserved_character') {
+            reasonText = t('menu.name_reserved_character', 'Este es un nombre de personaje reservado.');
+          } else if (res.reason === 'taken_by_email') {
+            reasonText = t('menu.name_taken_by_email', 'Este nombre está registrado por otro correo.');
+          } else {
+            reasonText = t('menu.name_invalid', 'Nombre de héroe no válido.');
+          }
+          setNameStatus({ available: false, reason: reasonText });
+        }
+      } catch (err) {
+        console.error('Error validating name availability:', err);
+      } finally {
+        setIsValidatingName(false);
+      }
+    }, 450);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [playerName, currentUser, t]);
+
+  const isNameInvalid = nameStatus !== null && !nameStatus.available;
 
   // Listen to Authentication changes to update Google Profile
   useEffect(() => {
@@ -186,6 +227,18 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             placeholder={tMenu.nicknamePlaceholder}
           />
           
+          {playerName.trim() && (
+            <div className="text-[9px] font-bold tracking-wider uppercase font-orbitron mt-0.5">
+              {isValidatingName ? (
+                <span className="text-[#9A8B72] animate-pulse">{t('menu.name_checking', 'Verificando nombre...')}</span>
+              ) : nameStatus?.available ? (
+                <span className="text-green-500">✓ {t('menu.name_available', 'Nombre disponible')}</span>
+              ) : (
+                <span className="text-red-500">✗ {nameStatus?.reason}</span>
+              )}
+            </div>
+          )}
+          
           <div className="h-px bg-[#574d3c]/40 my-1 w-full" />
           
           {currentUser && !currentUser.isAnonymous ? (
@@ -269,18 +322,34 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
             >
               <button 
                 onClick={() => {
+                  if (isNameInvalid) {
+                    audioService.playSFX('error');
+                    return;
+                  }
                   audioService.playSFX('click');
                   dispatch({ type: 'SET_GAME_MODE', payload: 'adventure_map' });
                 }}
-                className="stone-button w-full py-3 text-xs font-bold text-[#E6C687] bg-gradient-to-r from-[#4d321c] to-[#2c1d10] border-[#D8C49A] hover:from-[#5a3a20] hover:to-[#382414] flex items-center justify-center gap-1.5"
+                disabled={isNameInvalid}
+                className={`stone-button w-full py-3 text-xs font-bold text-[#E6C687] bg-gradient-to-r from-[#4d321c] to-[#2c1d10] border-[#D8C49A] hover:from-[#5a3a20] hover:to-[#382414] flex items-center justify-center gap-1.5 ${
+                  isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''
+                }`}
               >
                 {tMenu.campaign}
               </button>
 
               <div className="bg-[#1c1812]/90 border border-[#8A6938]/30 rounded-lg p-2 flex flex-col gap-2 items-center shadow-inner">
                 <button 
-                  onClick={() => startGame('ai')} 
-                  className="stone-button w-full py-2.5 text-xs"
+                  onClick={() => {
+                    if (isNameInvalid) {
+                      audioService.playSFX('error');
+                      return;
+                    }
+                    startGame('ai');
+                  }} 
+                  disabled={isNameInvalid}
+                  className={`stone-button w-full py-2.5 text-xs ${
+                    isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''
+                  }`}
                 >
                   {tMenu.playAi}
                 </button>
@@ -312,8 +381,17 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
               </div>
 
               <button 
-                onClick={() => dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' })} 
-                className="stone-button w-full py-3 text-xs"
+                onClick={() => {
+                  if (isNameInvalid) {
+                    audioService.playSFX('error');
+                    return;
+                  }
+                  dispatch({ type: 'SET_GAME_MODE', payload: 'tutorial' });
+                }} 
+                disabled={isNameInvalid}
+                className={`stone-button w-full py-3 text-xs ${
+                  isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''
+                }`}
               >
                 {tMenu.tutorial}
               </button>
@@ -345,15 +423,33 @@ const MainMenu: React.FC<MainMenuProps> = ({ onOnlineMode }) => {
               }`}
             >
               <button 
-                onClick={onOnlineMode} 
-                className="stone-button stone-button-blue w-full py-3 text-xs"
+                onClick={() => {
+                  if (isNameInvalid) {
+                    audioService.playSFX('error');
+                    return;
+                  }
+                  onOnlineMode();
+                }} 
+                disabled={isNameInvalid}
+                className={`stone-button stone-button-blue w-full py-3 text-xs ${
+                  isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''
+                }`}
               >
                 {tMenu.onlineLobby}
               </button>
 
               <button 
-                onClick={() => startGame('p2')} 
-                className="stone-button w-full py-3 text-xs"
+                onClick={() => {
+                  if (isNameInvalid) {
+                    audioService.playSFX('error');
+                    return;
+                  }
+                  startGame('p2');
+                }} 
+                disabled={isNameInvalid}
+                className={`stone-button w-full py-3 text-xs ${
+                  isNameInvalid ? 'opacity-40 cursor-not-allowed border-[#574d3c]/40' : ''
+                }`}
               >
                 {tMenu.playP2}
               </button>

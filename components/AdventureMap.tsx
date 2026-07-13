@@ -64,8 +64,8 @@ const levelsData: LevelData[] = [
   {
     level: 4,
     name: 'Shinigami',
-    subtitle: 'El Antiguo Dios de la Muerte',
-    description: 'Una entidad tan antigua como el tiempo mismo. No pelea por odio ni por gloria; simplemente considera que toda vida termina perteneciendo a su reino.\n\n"Toda partida termina igual... solo cambia cuánto tardas en aceptarlo."',
+    subtitle: 'El Viajero',
+    description: 'En una época de guerras continuas, comenzó a escucharse el nombre de Shinigami, un misterioso viajero solitario con un viejo báculo de guayabo al hombro.\n\nDecían que ejércitos enteros no lograban detener uno solo de sus pasos. No buscaba la gloria ni el poder; su calma aterraba a los generales.\n\n"Solo quiero encontrar un árbol que dé buena sombra... y dormir una siesta sin que nadie necesite que empuñe este viejo palo."\n\nPero si la guerra se cruza en su camino, todos comprenden que el conflicto acaba de cambiar.',
     modifiers: [
       '4 Tanques blindados enemigos bloqueando la fila 1',
       'La IA inicia con un Jack (J) en su mano',
@@ -221,7 +221,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
   });
 
   return (
-    <div className="ancient-bg flex flex-col items-center justify-between h-screen text-white p-4 relative overflow-y-auto md:overflow-hidden">
+    <div className="history-map-bg flex flex-col items-center justify-between h-screen text-white p-4 relative overflow-y-auto md:overflow-hidden">
       {/* Visual Overlay layers */}
       <div className="archaeological-vignette" />
       <div className="rune-overlay" />
@@ -262,7 +262,15 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-amber-950/10 opacity-60 pointer-events-none" />
           
           {/* Map Grid / Canvas Container */}
-          <div className="relative w-full h-full max-w-[500px] max-h-[500px] aspect-square">
+          <div className="relative w-full h-full max-w-[500px] max-h-[500px] aspect-square border border-[#8a6938]/30 rounded-lg overflow-hidden shadow-lg">
+            {/* Map image overlay with 33% opacity */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center pointer-events-none"
+              style={{ 
+                backgroundImage: "url('/images/map.jpg')", 
+                opacity: 0.33 
+              }} 
+            />
             
             {/* SVG Path linking the portals */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -384,7 +392,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({ onBack, dispatch, st
 
                 <div className="h-px bg-gradient-to-r from-transparent via-[#8A6938]/60 to-transparent my-2" />
                 
-                <p className="text-xs text-[#D8C49A]/80 leading-relaxed mb-4">
+                <p className="text-xs text-[#D8C49A]/80 leading-relaxed whitespace-pre-line mb-4">
                   {selectedLevelResolved.description}
                 </p>
 

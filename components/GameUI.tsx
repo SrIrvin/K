@@ -34,10 +34,11 @@ import { CardInfoModal } from './modals/CardInfoModal';
 import { GameOverModal } from './modals/GameOverModal';
 import { SwitchTurnModal } from './modals/SwitchTurnModal';
 import { LogChroniclesModal } from './modals/LogChroniclesModal';
+import { SHINIGAMI_QUOTES } from '../services/shinigamiQuotes';
 
 
 const GameUI: React.FC = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { state, dispatch } = useContext(GameContext);
     const { players, currentPlayerId, board, selectedUnitIdOnBoard, gameMode, winner, selectedCardIdInHand, kingMoveState, actionsRemaining } = state;
     
@@ -139,7 +140,7 @@ const GameUI: React.FC = () => {
       { name: "Piscina De La Muerte", title: "El Mercenario Burlón", image: "Piscina De La Muerte.png" },
       { name: "Solar", title: "El Guardián del Sol", image: "Solar.png" },
       { name: "IrwingElSabio", title: "Irwing El Sabio", image: "IrwingElSabio.png" },
-      { name: "Shinigami", title: "El Antiguo Dios de la Muerte", image: "Shinigami.png" },
+      { name: "Shinigami", title: "El Viajero", image: "Shinigami.png" },
       { name: "Moon", title: "La Princesa Carmesí", image: "Moon.png" },
       { name: "Katty", title: "La Diosa del Conocimiento", image: "Katty.png" },
       { name: "King21", title: "El Jerarca Divino", image: "King21.png" },
@@ -239,57 +240,176 @@ const GameUI: React.FC = () => {
       ]
     ], []);
 
+    const currentLang = useMemo(() => {
+        return (i18n.language && i18n.language.startsWith('en')) ? 'en' : 'es';
+    }, [i18n.language]);
+
     const [activeGuardianQuote, setActiveGuardianQuote] = useState<string>('');
     const [showStoryBubble, setShowStoryBubble] = useState<boolean>(false);
-    const prevDamageRef = useRef<number | null>(null);
+    const prevP0DamageRef = useRef<number | null>(null);
+    const prevP1DamageRef = useRef<number | null>(null);
 
     // Initial game-start quote trigger
     useEffect(() => {
         if (state.gameType !== 'adventure' || !state.storyLevel) return;
         const levelIdx = state.storyLevel - 1;
-        const pool = guardianQuotePools[levelIdx];
-        if (!pool) return;
-
-        const getRandomQuote = () => pool[Math.floor(Math.random() * pool.length)];
+        
+        const getRandomQuote = () => {
+            if (state.storyLevel === 4) {
+                const shinigamiList = SHINIGAMI_QUOTES[currentLang] || SHINIGAMI_QUOTES['es'];
+                const pool = shinigamiList.inicio;
+                return pool[Math.floor(Math.random() * pool.length)];
+            } else {
+                const pool = guardianQuotePools[levelIdx];
+                return pool ? pool[Math.floor(Math.random() * pool.length)] : '';
+            }
+        };
         
         // Show first quote after 3 seconds so the board finishes opening
         const initialTimeout = setTimeout(() => {
-            setActiveGuardianQuote(getRandomQuote());
-            setShowStoryBubble(true);
+            const quote = getRandomQuote();
+            if (quote) {
+                setActiveGuardianQuote(quote);
+                setShowStoryBubble(true);
+            }
         }, 3000);
 
         return () => {
             clearTimeout(initialTimeout);
         };
-    }, [state.gameType, state.storyLevel, guardianQuotePools]);
+    }, [state.gameType, state.storyLevel, guardianQuotePools, currentLang]);
 
-    // Quote trigger when the boss inflicts damage to the human player
+    // Quote trigger when the boss inflicts damage to the human player (P0 damage increases)
     const p0Damage = state.players[0]?.damage || 0;
     useEffect(() => {
         if (state.gameType !== 'adventure' || !state.storyLevel) return;
 
         // On first run, store initial damage and do not trigger
-        if (prevDamageRef.current === null) {
-            prevDamageRef.current = p0Damage;
+        if (prevP0DamageRef.current === null) {
+            prevP0DamageRef.current = p0Damage;
             return;
         }
 
         // If human player's damage increased, the boss has inflicted damage!
-        if (p0Damage > prevDamageRef.current) {
+        if (p0Damage > prevP0DamageRef.current) {
             const levelIdx = state.storyLevel - 1;
-            const pool = guardianQuotePools[levelIdx];
-            if (pool && pool.length > 0) {
-                const getRandomQuote = () => pool[Math.floor(Math.random() * pool.length)];
+            
+            const getRandomQuote = () => {
+                if (state.storyLevel === 4) {
+                    const shinigamiList = SHINIGAMI_QUOTES[currentLang] || SHINIGAMI_QUOTES['es'];
+                    const pool = shinigamiList.anota;
+                    return pool[Math.floor(Math.random() * pool.length)];
+                } else {
+                    const pool = guardianQuotePools[levelIdx];
+                    return pool ? pool[Math.floor(Math.random() * pool.length)] : '';
+                }
+            };
+
+            const quote = getRandomQuote();
+            if (quote) {
                 // Slightly delay the comment so it aligns beautifully with the score/damage animation
                 const timeout = setTimeout(() => {
-                    setActiveGuardianQuote(getRandomQuote());
+                    setActiveGuardianQuote(quote);
                     setShowStoryBubble(true);
                 }, 1000);
                 return () => clearTimeout(timeout);
             }
         }
-        prevDamageRef.current = p0Damage;
-    }, [p0Damage, state.gameType, state.storyLevel, guardianQuotePools]);
+        prevP0DamageRef.current = p0Damage;
+    }, [p0Damage, state.gameType, state.storyLevel, guardianQuotePools, currentLang]);
+
+    // Quote trigger when the human player inflicts damage to the boss (P1 damage increases)
+    const p1Damage = state.players[1]?.damage || 0;
+    useEffect(() => {
+        if (state.gameType !== 'adventure' || !state.storyLevel) return;
+
+        // On first run, store initial damage and do not trigger
+        if (prevP1DamageRef.current === null) {
+            prevP1DamageRef.current = p1Damage;
+            return;
+        }
+
+        // If boss's damage increased, the human player has scored!
+        if (p1Damage > prevP1DamageRef.current) {
+            if (state.storyLevel === 4) {
+                const shinigamiList = SHINIGAMI_QUOTES[currentLang] || SHINIGAMI_QUOTES['es'];
+                const pool = shinigamiList.leAnotan;
+                const quote = pool[Math.floor(Math.random() * pool.length)];
+                
+                const timeout = setTimeout(() => {
+                    setActiveGuardianQuote(quote);
+                    setShowStoryBubble(true);
+                }, 1000);
+                return () => clearTimeout(timeout);
+            }
+        }
+        prevP1DamageRef.current = p1Damage;
+    }, [p1Damage, state.gameType, state.storyLevel, currentLang]);
+
+    // Shinigami unit destruction quote trigger
+    useEffect(() => {
+        if (state.gameType !== 'adventure' || state.storyLevel !== 4 || state.log.length === 0) return;
+        
+        const latestLog = state.log[0].toUpperCase();
+        
+        // Check if log contains keywords for unit destruction
+        const isDestruction = latestLog.includes('DESTROYED') || 
+                              latestLog.includes('ELIMINATED') || 
+                              latestLog.includes('ELIMINÓ') || 
+                              latestLog.includes('DESTRUIDA') || 
+                              latestLog.includes('DESTRUIDAS') || 
+                              latestLog.includes('DISCARDED') ||
+                              latestLog.includes('ELIMINAR');
+                              
+        if (isDestruction) {
+            const shinigamiList = SHINIGAMI_QUOTES[currentLang] || SHINIGAMI_QUOTES['es'];
+            const pool = shinigamiList.destruida;
+            const quote = pool[Math.floor(Math.random() * pool.length)];
+            
+            const timeout = setTimeout(() => {
+                setActiveGuardianQuote(quote);
+                setShowStoryBubble(true);
+            }, 1200);
+            
+            return () => clearTimeout(timeout);
+        }
+    }, [state.log, state.gameType, state.storyLevel, currentLang]);
+
+    // Shinigami AI turn start quote trigger (Neutral, Lore, Lore Oculto, Lore Ultra Oculto)
+    useEffect(() => {
+        if (state.gameType !== 'adventure' || state.storyLevel !== 4 || gameMode !== 'playing' || currentPlayerId !== 1 || winner) {
+            return;
+        }
+        
+        // Trigger a quote at the start of AI's turn with a 35% probability
+        if (Math.random() < 0.35) {
+            const shinigamiList = SHINIGAMI_QUOTES[currentLang] || SHINIGAMI_QUOTES['es'];
+            const roll = Math.random();
+            let quote = '';
+            
+            if (roll < 0.000001) { // 0.000001% ultra-rare Easter Egg
+                const pool = shinigamiList.loreUltraOculto;
+                quote = pool[Math.floor(Math.random() * pool.length)];
+            } else if (roll < 0.05) { // 5% chance of hidden lore
+                const pool = shinigamiList.loreOculto;
+                quote = pool[Math.floor(Math.random() * pool.length)];
+            } else if (roll < 0.20) { // 15% chance of standard lore
+                const pool = shinigamiList.lore;
+                quote = pool[Math.floor(Math.random() * pool.length)];
+            } else { // 80% chance of neutral/idle comment within the 35% overall trigger
+                const pool = shinigamiList.neutral;
+                quote = pool[Math.floor(Math.random() * pool.length)];
+            }
+            
+            if (quote) {
+                const timeout = setTimeout(() => {
+                    setActiveGuardianQuote(quote);
+                    setShowStoryBubble(true);
+                }, 1500);
+                return () => clearTimeout(timeout);
+            }
+        }
+    }, [currentPlayerId, state.gameType, state.storyLevel, gameMode, winner, currentLang]);
 
 
     

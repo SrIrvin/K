@@ -5,6 +5,7 @@ import { Player } from '@/types';
 import { formatGold } from '@/utils/gameUtils';
 import { audioService } from '@/services/audioService';
 import { storyTranslations } from '@/services/storyTranslations';
+import { SHINIGAMI_QUOTES } from '../../services/shinigamiQuotes';
 
 const playCoinTickSound = () => {
     try {
@@ -168,8 +169,21 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({ winner }) => {
 
     const bossQuote = useMemo(() => {
         if (!storyLevelData) return null;
+        if (state.gameType === 'adventure' && state.storyLevel === 4) {
+            const currentLang = (i18n.language && i18n.language.startsWith('en')) ? 'en' : 'es';
+            const shinigamiList = SHINIGAMI_QUOTES[currentLang] || SHINIGAMI_QUOTES['es'];
+            if (winner.id === localPlayerIdResolved) {
+                // Human won, Shinigami lost -> "pierde"
+                const pool = shinigamiList.pierde;
+                return pool[Math.floor(Math.random() * pool.length)];
+            } else {
+                // Shinigami won -> "gana"
+                const pool = shinigamiList.gana;
+                return pool[Math.floor(Math.random() * pool.length)];
+            }
+        }
         return winner.id === localPlayerIdResolved ? storyLevelData.winQuote : storyLevelData.loseQuote;
-    }, [storyLevelData, winner.id, localPlayerIdResolved]);
+    }, [storyLevelData, winner.id, localPlayerIdResolved, state.gameType, state.storyLevel, i18n.language]);
 
     const isHumanWinner = winner.id === localPlayerIdResolved;
 

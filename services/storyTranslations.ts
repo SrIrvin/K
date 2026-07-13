@@ -5,6 +5,8 @@ export interface StoryLevelTranslation {
   quote: string;
   modifiers: string[];
   aiDifficulty: string;
+  winQuote?: string;
+  loseQuote?: string;
 }
 
 export interface StoryUITranslation {
@@ -85,8 +87,8 @@ export const storyTranslations: Record<string, StoryTranslation> = {
       },
       'Shinigami': {
         displayName: "Shinigami",
-        subtitle: "El Antiguo Dios de la Muerte",
-        description: "Una entidad tan antigua como el tiempo mismo. No pelea por odio ni por gloria; simplemente considera que toda vida termina perteneciendo a su reino.",
+        subtitle: "El Viajero",
+        description: "En una época de guerras continuas, comenzó a escucharse el nombre de Shinigami, un misterioso viajero solitario con un viejo báculo de guayabo al hombro.\n\nDecían que ejércitos enteros no lograban detener uno solo de sus pasos. No buscaba la gloria ni el poder; su calma aterraba a los generales.\n\n\"Solo quiero encontrar un árbol que dé buena sombra... y dormir una siesta sin que nadie necesite que empuñe este viejo palo.\"\n\nPero si la guerra se cruza en su camino, todos comprenden que el conflicto acaba de cambiar.",
         quote: "Toda partida termina igual... solo cambia cuánto tardas en aceptarlo.",
         modifiers: [
           "4 Tanques blindados enemigos bloqueando la fila 1",
@@ -206,8 +208,8 @@ export const storyTranslations: Record<string, StoryTranslation> = {
       },
       'Shinigami': {
         displayName: "Shinigami",
-        subtitle: "The Ancient God of Death",
-        description: "An entity as ancient as time itself. He does not fight out of hatred or glory; he simply considers all life destined to belong to his realm.",
+        subtitle: "The Traveler",
+        description: "In an era of endless wars, the name of Shinigami began to spread—a mysterious traveler carrying an old guava staff.\n\nThey said entire armies could not stop a single one of his steps. He sought neither glory nor power; his serene calm terrified generals.\n\n\"I just want to find a tree with good shade... and take a nap without anyone needing me to wield this old stick.\"\n\nBut if war crosses his path, everyone understands that the conflict has just changed.",
         quote: "Every game ends the same way... only how long it takes you to accept it changes.",
         modifiers: [
           "4 armored enemy Tanks blocking row 1",

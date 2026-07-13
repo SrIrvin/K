@@ -64,7 +64,29 @@
     "play_p2": "本地对决",
     "tutorial": "新手教程",
     "footer": "公元 MMXXVI • 神圣神器",
-    "default_hero": "英雄"
+    "default_hero": "英雄",
+    "terms_credits_button": "条款与制作群",
+    "modal_ritual_title": "法律协议与制作群",
+    "terms_title": "服务条款与隐私政策",
+    "credits_title": "项目制作群",
+    "terms_tab": "条款",
+    "credits_tab": "制作群",
+    "path_single": "单人之路",
+    "path_multi": "多人竞技场",
+    "path_records": "律法与记录",
+    "achievements_button": "成就",
+    "achievements_title": "成就系统",
+    "achievements_ritual_title": "功绩记录",
+    "achievements_current_gold": "当前金币: ",
+    "achievements_online_wins": "联机胜利: ",
+    "achievements_loading": "正在查询典籍记录...",
+    "achievements_completed": "已完成",
+    "achievements_players_suffix": "玩家",
+    "name_reserved_character": "此角色名称已被系统保留。",
+    "name_taken_by_email": "该名称已被其他用户绑定。",
+    "name_invalid": "无效的英雄名称。",
+    "name_checking": "正在验证名称...",
+    "name_available": "名称可用"
   },
   "audio": {
     "title": "游戏设置",
@@ -97,7 +119,8 @@
     "kings_label": "保留的国王",
     "victory_bonus_label": "胜利奖励",
     "bet_loss_label": "下注损失",
-    "bet_bonus_label": "下注奖励"
+    "bet_bonus_label": "下注奖励",
+    "return_to_duel": "返回菜单"
   },
   "lobby": {
     "portal_level": "传送门 {{level}}",
@@ -149,5 +172,21 @@
     "active_portals": "3. 圣殿中的活跃传送门",
     "live_badge": "在线",
     "no_portals": "目前没有开启的传送门。快去开启一个吧！"
+  },
+  "achievements": {
+    "tutorial_title": "符文启蒙",
+    "tutorial_desc": "完成新手教学关卡",
+    "gold_1k_title": "金币袋",
+    "gold_1k_desc": "累计获得 1,000 金币",
+    "online_win_1_title": "网络斗士",
+    "online_win_1_desc": "赢得首场联机决斗的胜利",
+    "online_win_3_title": "连胜三捷",
+    "online_win_3_desc": "联机决斗累计胜出 3 场",
+    "story_title": "王国英雄",
+    "story_desc": "在第 7 关中击败国王以完成故事模式",
+    "gold_1m_title": "帝王财富",
+    "gold_1m_desc": "累计获得 1,000,000 金币的巨款",
+    "rank_1_title": "至高无上",
+    "rank_1_desc": "在排行榜（积分榜）中名列第一"
   }
 }

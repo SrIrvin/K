@@ -64,7 +64,29 @@
     "play_p2": "Duello Locale",
     "tutorial": "Tutorial",
     "footer": "A.D. MMXXVI • ARTEFATTO SACRO",
-    "default_hero": "Eroe"
+    "default_hero": "Eroe",
+    "terms_credits_button": "Termini e Crediti",
+    "modal_ritual_title": "Accordi Legali e Crediti",
+    "terms_title": "TERMINI DI SERVIZIO E PRIVACY",
+    "credits_title": "CREDITI DEL PROGETTO",
+    "terms_tab": "Termini",
+    "credits_tab": "Crediti",
+    "path_single": "Sentiero Singolo",
+    "path_multi": "Arena Multigiocatore",
+    "path_records": "Leggi e Registro",
+    "achievements_button": "Obiettivi",
+    "achievements_title": "SISTEMA DI OBIETTIVI",
+    "achievements_ritual_title": "Registro delle Imprese",
+    "achievements_current_gold": "Oro attuale: ",
+    "achievements_online_wins": "Vittorie Online: ",
+    "achievements_loading": "Consultazione degli annali...",
+    "achievements_completed": "COMPLETATO",
+    "achievements_players_suffix": "Giocatori",
+    "name_reserved_character": "Questo nome di personaggio è riservato.",
+    "name_taken_by_email": "Questo nome è registrato da un altro utente.",
+    "name_invalid": "Nome dell'eroe non valido.",
+    "name_checking": "Verifica del nome...",
+    "name_available": "Nome disponibile"
   },
   "audio": {
     "title": "IMPOSTAZIONI GIOCO",
@@ -97,7 +119,8 @@
     "kings_label": "Re conservati",
     "victory_bonus_label": "Bonus Vittoria",
     "bet_loss_label": "Perdita Scommessa",
-    "bet_bonus_label": "Bonus Scommessa"
+    "bet_bonus_label": "Bonus Scommessa",
+    "return_to_duel": "TORNA AL MENU"
   },
   "lobby": {
     "portal_level": "Portale {{level}}",
@@ -149,5 +172,21 @@
     "active_portals": "3. Portali Attivi nel Tempio",
     "live_badge": "DAL VIVO",
     "no_portals": "Non ci sono portali aperti al momento. Aprine uno!"
+  },
+  "achievements": {
+    "tutorial_title": "Iniziazione Runica",
+    "tutorial_desc": "Completa il tutorial di apprendimento",
+    "gold_1k_title": "Sacchetto di Monete",
+    "gold_1k_desc": "Accumula un totale di 1.000 monete d'oro",
+    "online_win_1_title": "Guerriero della Rete",
+    "online_win_1_desc": "Vinci il tuo primo duello online",
+    "online_win_3_title": "Triade di Vittorie",
+    "online_win_3_desc": "Vinci 3 duelli online",
+    "story_title": "Eroe del Regno",
+    "story_desc": "Termina la modalità storia sconfiggendo il Re al Livello 7",
+    "gold_1m_title": "Ricchezza da Re",
+    "gold_1m_desc": "Accumula un totale di 1.000.000 monete d'oro",
+    "rank_1_title": "Sovrano Assoluto",
+    "rank_1_desc": "Raggiungi il primo posto in classifica (leaderboard)"
   }
 }

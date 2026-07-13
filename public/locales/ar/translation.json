@@ -64,7 +64,29 @@
     "play_p2": "مبارزة محلية",
     "tutorial": "البرنامج التعليمي",
     "footer": "عام ٢٠٢٦ ميلادي • أثر مقدس",
-    "default_hero": "بطل"
+    "default_hero": "بطل",
+    "terms_credits_button": "الشروط والحقوق",
+    "modal_ritual_title": "الاتفاقيات القانونية والحقوق",
+    "terms_title": "شروط الخدمة والخصوصية",
+    "credits_title": "حقوق المشروع",
+    "terms_tab": "الشروط",
+    "credits_tab": "الحقوق",
+    "path_single": "مسار اللاعب الفردي",
+    "path_multi": "ساحة اللعب الجماعي",
+    "path_records": "القوانين والسجل",
+    "achievements_button": "الإنجازات",
+    "achievements_title": "نظام الإنجازات",
+    "achievements_ritual_title": "سجل المآثر",
+    "achievements_current_gold": "الذهب الحالي: ",
+    "achievements_online_wins": "الانتصارات عبر الإنترنت: ",
+    "achievements_loading": "جاري البحث في السجلات...",
+    "achievements_completed": "مكتمل",
+    "achievements_players_suffix": "لاعبين",
+    "name_reserved_character": "هذا الاسم محجوز لأحد أبطال اللعبة.",
+    "name_taken_by_email": "هذا الاسم مسجل بواسطة مستخدم آخر.",
+    "name_invalid": "اسم البطل غير صالح.",
+    "name_checking": "جاري التحقق من الاسم...",
+    "name_available": "الاسم متاح"
   },
   "audio": {
     "title": "إعدادات اللعبة",
@@ -97,7 +119,8 @@
     "kings_label": "الملوك المحفوظة",
     "victory_bonus_label": "مكافأة النصر",
     "bet_loss_label": "خسارة الرهان",
-    "bet_bonus_label": "مكافأة الرهان"
+    "bet_bonus_label": "مكافأة الرهان",
+    "return_to_duel": "العودة للقائمة"
   },
   "lobby": {
     "portal_level": "بوابة {{level}}",
@@ -149,5 +172,21 @@
     "active_portals": "٣. البوابات النشطة في المعبد",
     "live_badge": "مباشر",
     "no_portals": "لا توجد بوابات مفتوحة في الوقت الحالي. افتح واحدة!"
+  },
+  "achievements": {
+    "tutorial_title": "المبتدئ الروني",
+    "tutorial_desc": "أكمل البرنامج التعليمي المخصص للتعلم",
+    "gold_1k_title": "كيس من العملات",
+    "gold_1k_desc": "اجمع ما مجموعه 1,000 من الذهب",
+    "online_win_1_title": "محارب الشبكة",
+    "online_win_1_desc": "اربح أول مبارزة لك عبر الإنترنت",
+    "online_win_3_title": "ثلاثية الانتصارات",
+    "online_win_3_desc": "اربح 3 مبارزات عبر الإنترنت",
+    "story_title": "بطل المملكة",
+    "story_desc": "أنهِ طور القصة بهزيمة الملك في المستوى 7",
+    "gold_1m_title": "ثروة الملوك",
+    "gold_1m_desc": "اجمع ما مجموعه 1,000,000 من الذهب",
+    "rank_1_title": "الحاكم المطلق",
+    "rank_1_desc": "كن في المركز الأول في قائمة المتصدرين"
   }
 }

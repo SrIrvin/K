@@ -64,7 +64,29 @@
     "play_p2": "Duelo Local",
     "tutorial": "Tutorial",
     "footer": "A.D. MMXXVI • ARTEFATO SAGRADO",
-    "default_hero": "Herói"
+    "default_hero": "Herói",
+    "terms_credits_button": "Termos e Créditos",
+    "modal_ritual_title": "Acordos Legais e Créditos",
+    "terms_title": "TERMOS DE SERVIÇO E PRIVACIDADE",
+    "credits_title": "CRÉDITOS DO PROJETO",
+    "terms_tab": "Termos",
+    "credits_tab": "Créditos",
+    "path_single": "Senda Individual",
+    "path_multi": "Arena Multijogador",
+    "path_records": "Leis e Registro",
+    "achievements_button": "Conquistas",
+    "achievements_title": "SISTEMA DE CONQUISTAS",
+    "achievements_ritual_title": "Registro de Façanhas",
+    "achievements_current_gold": "Ouro atual: ",
+    "achievements_online_wins": "Vitórias Online: ",
+    "achievements_loading": "Consultando registros...",
+    "achievements_completed": "CONCLUÍDO",
+    "achievements_players_suffix": "Jogadores",
+    "name_reserved_character": "Este é um nome de personagem reservado.",
+    "name_taken_by_email": "Este nome já está registrado por outra conta.",
+    "name_invalid": "Nome de herói inválido.",
+    "name_checking": "Verificando nome...",
+    "name_available": "Nome disponível"
   },
   "audio": {
     "title": "AJUSTES DO JOGO",
@@ -97,7 +119,8 @@
     "kings_label": "Reis conservados",
     "victory_bonus_label": "Bônus de Vitória",
     "bet_loss_label": "Perda por Aposta",
-    "bet_bonus_label": "Bônus por Aposta"
+    "bet_bonus_label": "Bônus por Aposta",
+    "return_to_duel": "VOLTAR AO MENU"
   },
   "lobby": {
     "portal_level": "Portal {{level}}",
@@ -149,5 +172,21 @@
     "active_portals": "3. Portais Ativos no Templo",
     "live_badge": "AO VIVO",
     "no_portals": "Não há portais abertos neste momento. Abra um!"
+  },
+  "achievements": {
+    "tutorial_title": "Iniciação Rúnica",
+    "tutorial_desc": "Conclua o tutorial de aprendizagem",
+    "gold_1k_title": "Saco de Moedas",
+    "gold_1k_desc": "Acumule um total de 1.000 de ouro",
+    "online_win_1_title": "Guerreiro da Rede",
+    "online_win_1_desc": "Vença seu primeiro duelo online",
+    "online_win_3_title": "Tríade de Vitórias",
+    "online_win_3_desc": "Vença 3 duelos online",
+    "story_title": "Herói do Reino",
+    "story_desc": "Termine o modo história derrotando o Rei no Nível 7",
+    "gold_1m_title": "Riqueza de Reis",
+    "gold_1m_desc": "Acumule um grande total de 1.000.000 de ouro",
+    "rank_1_title": "Soberano Absoluto",
+    "rank_1_desc": "Fique em primeiro lugar no ranking de posições (líderes)"
   }
 }

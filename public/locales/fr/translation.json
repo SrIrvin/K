@@ -64,7 +64,29 @@
     "play_p2": "Duel Local",
     "tutorial": "Tutoriel",
     "footer": "A.D. MMXXVI • ARTEFACT SACRÉ",
-    "default_hero": "Héros"
+    "default_hero": "Héros",
+    "terms_credits_button": "Conditions et Crédits",
+    "modal_ritual_title": "Accords Légaux et Crédits",
+    "terms_title": "CONDITIONS D'UTILISATION ET CONFIDENTIALITÉ",
+    "credits_title": "CRÉDITS DU PROJET",
+    "terms_tab": "Conditions",
+    "credits_tab": "Crédits",
+    "path_single": "Voie Solo",
+    "path_multi": "Arène Multijoueur",
+    "path_records": "Lois et Registre",
+    "achievements_button": "Succès",
+    "achievements_title": "SYSTÈME DE SUCCÈS",
+    "achievements_ritual_title": "Registre des Exploits",
+    "achievements_current_gold": "Or actuel : ",
+    "achievements_online_wins": "Victoires en ligne : ",
+    "achievements_loading": "Consultation des annales...",
+    "achievements_completed": "COMPLÉTÉ",
+    "achievements_players_suffix": "Joueurs",
+    "name_reserved_character": "Ce nom de personnage est réservé.",
+    "name_taken_by_email": "Ce nom est réservé par un autre utilisateur.",
+    "name_invalid": "Nom de héros invalide.",
+    "name_checking": "Vérification du nom...",
+    "name_available": "Nom disponible"
   },
   "audio": {
     "title": "PARAMÈTRES DU JEU",
@@ -97,7 +119,8 @@
     "kings_label": "Rois conservés",
     "victory_bonus_label": "Bonus de Victoire",
     "bet_loss_label": "Perte par Pari",
-    "bet_bonus_label": "Bonus par Pari"
+    "bet_bonus_label": "Bonus par Pari",
+    "return_to_duel": "RETOUR AU MENU"
   },
   "lobby": {
     "portal_level": "Portail {{level}}",
@@ -149,5 +172,21 @@
     "active_portals": "3. Portails Actifs dans le Temple",
     "live_badge": "EN DIRECT",
     "no_portals": "Il n'y a pas de portails ouverts pour le moment. Ouvrez-en un !"
+  },
+  "achievements": {
+    "tutorial_title": "Initiation Runique",
+    "tutorial_desc": "Terminer le didacticiel d'apprentissage",
+    "gold_1k_title": "Sac de Pièces",
+    "gold_1k_desc": "Accumuler un total de 1 000 pièces d'or",
+    "online_win_1_title": "Guerrier du Réseau",
+    "online_win_1_desc": "Gagner votre premier duel en ligne",
+    "online_win_3_title": "Triade de Victoires",
+    "online_win_3_desc": "Gagner 3 duels en ligne",
+    "story_title": "Héros du Royaume",
+    "story_desc": "Terminer le mode histoire en battant le Roi au Niveau 7",
+    "gold_1m_title": "Richesse des Rois",
+    "gold_1m_desc": "Accumuler un grand total de 1 000 000 pièces d'or",
+    "rank_1_title": "Souverain Absolu",
+    "rank_1_desc": "Devenir le premier au classement (tableau des leaders)"
   }
 }

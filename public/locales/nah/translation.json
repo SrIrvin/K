@@ -64,7 +64,29 @@
     "play_p2": "Nican Yaotl",
     "tutorial": "Tlamachtiliztli",
     "footer": "A.D. MMXXVI • YOLTOXTLI SACRADO",
-    "default_hero": "Yaotl"
+    "default_hero": "Yaotl",
+    "terms_credits_button": "Nahuatilli ihuan Ixpanyotl",
+    "modal_ritual_title": "Nahuatilli ihuan Tocahyaotl",
+    "terms_title": "NAHUATILLI IHUAN PRIVACIDAD",
+    "credits_title": "TEQUITQUEH IHUAN TOCAHYOTL",
+    "terms_tab": "Nahuatilli",
+    "credits_tab": "Tequitqueh",
+    "path_single": "Cece Yaotl Ohtli",
+    "path_multi": "Calpolli Yaoyotl",
+    "path_records": "Nahuatilli ihuan Tlacuilolli",
+    "achievements_button": "Tlayecoltiliztli",
+    "achievements_title": "MACHIYOTL TLAYECOLTILIZTLI",
+    "achievements_ritual_title": "Tlacuilolli Yaotl",
+    "achievements_current_gold": "Teocuitlatl: ",
+    "achievements_online_wins": "Tlaniliztli Online: ",
+    "achievements_loading": "Tlatemoa...",
+    "achievements_completed": "YECTLI",
+    "achievements_players_suffix": "Yaomeh",
+    "name_reserved_character": "Inin yaotocah tlatzacuilli.",
+    "name_taken_by_email": "Inin yaotocah piya cehquin.",
+    "name_invalid": "Yaotocah ahmo yectli.",
+    "name_checking": "Tlatemoa yaotocah...",
+    "name_available": "Yaotocah cualli"
   },
   "audio": {
     "title": "TLAYECTLALILIZTLI",
@@ -97,7 +119,8 @@
     "kings_label": "Tlahtohqueh",
     "victory_bonus_label": "Tlatlaniliztli nemactli",
     "bet_loss_label": "Tlaxtlahuiztli",
-    "bet_bonus_label": "Nemactli"
+    "bet_bonus_label": "Nemactli",
+    "return_to_duel": "NIMAN MENU"
   },
   "lobby": {
     "portal_level": "Calixcuacalli {{level}}",
@@ -149,5 +172,21 @@
     "active_portals": "3. Calixcuacaltin tlapouhqui ipan Teocalli",
     "live_badge": "YOLTOQUI",
     "no_portals": "Ayacah tlapouhqui calixcuacaltin nican. ¡Xitlapoa ce!"
+  },
+  "achievements": {
+    "tutorial_title": "Machiyotl tlamachtiliztli",
+    "tutorial_desc": "Tzontlia tlamachtiliztli ohtli",
+    "gold_1k_title": "Teocuitlatepozco",
+    "gold_1k_desc": "Ticentlalia 1,000 teocuitlatl",
+    "online_win_1_title": "Yaoquichtli canah Web",
+    "online_win_1_desc": "Tlaniliz achto online yaoyotl",
+    "online_win_3_title": "Eyih tlaniliztli",
+    "online_win_3_desc": "Tlaniliz eyih online yaomeh",
+    "story_title": "Yaoquichtli calpolli",
+    "story_desc": "Tzontlia yaotlacuilolli tlatehuiloa Rey ipan level 7",
+    "gold_1m_title": "Hueyi teocuitlatl",
+    "gold_1m_desc": "Ticentlalia 1,000,000 teocuitlatl",
+    "rank_1_title": "Hueyi Tlahtoani",
+    "rank_1_desc": "Achto yaotl ipan tlaniliztli amatl"
   }
 }

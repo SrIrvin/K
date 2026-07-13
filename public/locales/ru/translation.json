@@ -64,7 +64,29 @@
     "play_p2": "Локальный дуэль",
     "tutorial": "Обучение",
     "footer": "A.D. MMXXVI • СВЯЩЕННЫЙ АРТЕФАКТ",
-    "default_hero": "Герой"
+    "default_hero": "Герой",
+    "terms_credits_button": "Условия и авторы",
+    "modal_ritual_title": "Лицензия и авторы",
+    "terms_title": "УСЛОВИЯ И КОНФИДЕНЦИАЛЬНОСТЬ",
+    "credits_title": "АВТОРЫ ПРОЕКТА",
+    "terms_tab": "Условия",
+    "credits_tab": "Авторы",
+    "path_single": "Одиночный путь",
+    "path_multi": "Мультиплеерная арена",
+    "path_records": "Законы и реестр",
+    "achievements_button": "Достижения",
+    "achievements_title": "СИСТЕМА ДОСТИЖЕНИЙ",
+    "achievements_ritual_title": "Реестр подвигов",
+    "achievements_current_gold": "Текущее золото: ",
+    "achievements_online_wins": "Победители онлайн: ",
+    "achievements_loading": "Обращение к летописям...",
+    "achievements_completed": "ВЫПОЛНЕНО",
+    "achievements_players_suffix": "Игроков",
+    "name_reserved_character": "Это имя персонажа зарезервировано.",
+    "name_taken_by_email": "Этот никнейм занят другим игроком.",
+    "name_invalid": "Недопустимое имя героя.",
+    "name_checking": "Проверка имени...",
+    "name_available": "Имя свободно"
   },
   "audio": {
     "title": "НАСТРОЙКИ ИГРЫ",
@@ -97,7 +119,8 @@
     "kings_label": "Сохраненные короли",
     "victory_bonus_label": "Бонус за победу",
     "bet_loss_label": "Проигрыш по ставке",
-    "bet_bonus_label": "Бонус по ставке"
+    "bet_bonus_label": "Бонус по ставке",
+    "return_to_duel": "В МЕНЮ"
   },
   "lobby": {
     "portal_level": "Портал {{level}}",
@@ -149,5 +172,21 @@
     "active_portals": "3. Активные порталы в храме",
     "live_badge": "В ЭФИРЕ",
     "no_portals": "В данный момент нет открытых порталов. Откройте один!"
+  },
+  "achievements": {
+    "tutorial_title": "Руническое посвящение",
+    "tutorial_desc": "Пройти обучающее руководство",
+    "gold_1k_title": "Кошель монет",
+    "gold_1k_desc": "Собрать в сумме 1 000 золота",
+    "online_win_1_title": "Сетевой боец",
+    "online_win_1_desc": "Выиграть свой первый онлайн-поединок",
+    "online_win_3_title": "Триада побед",
+    "online_win_3_desc": "Выиграть 3 онлайн-поединка",
+    "story_title": "Герой королевства",
+    "story_desc": "Победить Короля на 7-м уровне в режиме истории",
+    "gold_1m_title": "Богатство королей",
+    "gold_1m_desc": "Собрать грандиозную сумму в 1 000 000 золота",
+    "rank_1_title": "Абсолютный монарх",
+    "rank_1_desc": "Занять первое место в таблице лидеров"
   }
 }

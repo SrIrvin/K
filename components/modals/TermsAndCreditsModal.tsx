@@ -25,7 +25,7 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
         {/* Modal Header */}
         <div className="text-center mb-5 relative z-10">
           <div className="text-[10px] text-amber-500/70 tracking-[0.3em] uppercase font-orbitron mb-1">
-            {t('menu.modal_ritual_title', '⚖️ Acuerdos Legales y Créditos ⚖️')}
+            {t('menu.modal_ritual_title', 'Acuerdos Legales y Créditos')}
           </div>
           <h2 className="text-xl md:text-2xl font-bold tracking-widest text-[#D8C49A] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-ancient-header uppercase">
             {activeTab === 'terms' 
@@ -48,7 +48,7 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
                 : 'border-transparent text-[#9a8b72] hover:text-[#D8C49A]'
             }`}
           >
-            ⚖️ {t('menu.terms_tab', 'Términos y Privacidad')}
+            {t('menu.terms_tab', 'Términos y Privacidad')}
           </button>
           <button
             onClick={() => {
@@ -61,7 +61,7 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
                 : 'border-transparent text-[#9a8b72] hover:text-[#D8C49A]'
             }`}
           >
-            🎖️ {t('menu.credits_tab', 'Créditos')}
+            {t('menu.credits_tab', 'Créditos')}
           </button>
         </div>
 
@@ -71,7 +71,7 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
             <div className="space-y-4">
               <div className="bg-[#120f0c]/60 border border-[#3d3328] p-3 md:p-4 rounded shadow-inner">
                 <h3 className="text-amber-500 font-bold font-orbitron text-xs mb-1.5 uppercase tracking-wide">
-                  ⚖️ 1. CONDICIONES DE USO
+                  1. CONDICIONES DE USO
                 </h3>
                 <p>
                   Este software se proporciona de forma gratuita, "tal cual" (as is) y para fines de entretenimiento personal y demostrativo. Queda estrictamente prohibida la ingeniería inversa maliciosa, la manipulación de llamadas de red a la base de datos o el uso de exploits para perturbar el juego en línea.
@@ -80,7 +80,7 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
 
               <div className="bg-[#120f0c]/60 border border-[#3d3328] p-3 md:p-4 rounded shadow-inner">
                 <h3 className="text-amber-500 font-bold font-orbitron text-xs mb-1.5 uppercase tracking-wide">
-                  🔒 2. DECLARACIÓN DE DATOS Y PRIVACIDAD
+                  2. DECLARACIÓN DE DATOS Y PRIVACIDAD
                 </h3>
                 <p className="mb-2">
                   <strong>Datos Guardados:</strong> Para el funcionamiento de los marcadores, logros y estadísticas globales, el juego guarda únicamente tu alias (Nickname), volumen de oro virtual acumulado, logros obtenidos y número de victorias/derrotas. Estos datos son públicos y se almacenan de manera persistente en Firebase Firestore de forma asociada al Nickname elegido. No recopilamos nombres reales, correos electrónicos (salvo para inicio de sesión opcional con Google, en cuyo caso solo se asocia tu ID único de forma segura para conservar tu progreso) ni contraseñas.
@@ -92,7 +92,7 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
 
               <div className="bg-[#120f0c]/60 border border-[#3d3328] p-3 md:p-4 rounded shadow-inner">
                 <h3 className="text-amber-500 font-bold font-orbitron text-xs mb-1.5 uppercase tracking-wide">
-                  🛡️ 3. LIMITACIÓN DE RESPONSABILIDAD LEGAL
+                  3. LIMITACIÓN DE RESPONSABILIDAD LEGAL
                 </h3>
                 <p>
                   Bajo ninguna circunstancia los desarrolladores del juego serán responsables de daños directos, indirectos, incidentales, especiales o consecuentes de cualquier tipo (incluyendo, pero no limitado a, fallas del navegador, latencia en partidas Peer-to-Peer, pérdida de datos de progreso almacenados localmente en localStorage, o interrupción del servicio de Firebase o PeerJS). El uso del juego se realiza bajo el propio riesgo y criterio del usuario.
@@ -101,7 +101,7 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
 
               <div className="bg-[#120f0c]/60 border border-[#3d3328] p-3 md:p-4 rounded shadow-inner">
                 <h3 className="text-amber-500 font-bold font-orbitron text-xs mb-1.5 uppercase tracking-wide">
-                  🍪 4. ALMACENAMIENTO LOCAL (LocalStorage)
+                  4. ALMACENAMIENTO LOCAL (LocalStorage)
                 </h3>
                 <p>
                   El juego utiliza cookies técnicas y el almacenamiento interno (localStorage) de tu navegador para guardar exclusivamente configuraciones locales tales como el estado de volumen (SFX/BGM), tu alias local, tus preferencias de calidad gráfica y registros rápidos de partida. Al continuar navegando y jugando en este sitio web, aceptas el uso de estas configuraciones técnicas.
@@ -111,7 +111,6 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
           ) : (
             <div className="space-y-4">
               <div className="bg-[#1d1812] border border-[#8a6938] p-5 rounded shadow-md text-center max-w-md mx-auto">
-                <div className="text-3xl mb-2">👑</div>
                 <h3 className="text-[#e5c9a4] font-bold font-orbitron text-base uppercase tracking-wide">
                   Irvin (SrIrvin)
                 </h3>
@@ -128,27 +127,35 @@ export const TermsAndCreditsModal: React.FC<TermsAndCreditsModalProps> = ({ isOp
                     rel="noopener noreferrer"
                     className="text-[#D8C49A] hover:text-white border border-[#8a6938]/50 hover:border-amber-500 bg-[#120f0c] text-[10px] font-orbitron px-4 py-1.5 rounded transition-all flex items-center gap-1 shadow-sm hover:shadow-[0_0_10px_rgba(216,196,154,0.3)]"
                   >
-                    <span>💼</span> linkedin.com/in/sr-irvin/
+                    linkedin.com/in/sr-irvin/
+                  </a>
+                </div>
+              </div>
+              <div className="bg-[#1d1812] border border-[#8a6938] p-5 rounded shadow-md text-center max-w-md mx-auto">
+                <h3 className="text-[#e5c9a4] font-bold font-orbitron text-base uppercase tracking-wide">
+                  Gustavo Adolfo Hernández (ShinigamiIOs)
+                </h3>
+                <p className="text-xs text-amber-500/70 font-semibold uppercase tracking-wider mb-3">
+                  Co-diseñador, Ilustrador y Escritor de Lore
+                </p>
+                <p className="text-xs text-[#b8a68b] leading-relaxed">
+                  Participó activamente en el co-diseño de las mecánicas del juego de cartas, diseñó el aspecto místico de las cartas y redactó la historia y diálogos de Shinigami.
+                </p>
+                <div className="mt-4 flex justify-center">
+                  <a
+                    href="https://www.linkedin.com/in/gustavo-adolfo-hernandez"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#D8C49A] hover:text-white border border-[#8a6938]/50 hover:border-amber-500 bg-[#120f0c] text-[10px] font-orbitron px-4 py-1.5 rounded transition-all flex items-center gap-1 shadow-sm hover:shadow-[0_0_10px_rgba(216,196,154,0.3)]"
+                  >
+                    linkedin.com/in/gustavo-adolfo-hernandez
                   </a>
                 </div>
               </div>
 
-              <div className="bg-[#1d1812] border border-[#8a6938] p-5 rounded shadow-md text-center max-w-md mx-auto">
-                <div className="text-3xl mb-2">🎨</div>
-                <h3 className="text-[#e5c9a4] font-bold font-orbitron text-base uppercase tracking-wide">
-                  ShinigamiIOs
-                </h3>
-                <p className="text-xs text-amber-500/70 font-semibold uppercase tracking-wider mb-3">
-                  Co-diseñador e Ilustrador
-                </p>
-                <p className="text-xs text-[#b8a68b] leading-relaxed">
-                  Participó activamente en el co-diseño de las mecánicas del juego de cartas, generó la estética e imágenes del lore y diseñó visualmente el místico aspecto de las cartas.
-                </p>
-              </div>
-
               <div className="bg-[#120f0c]/60 border border-[#3d3328] p-4 rounded shadow-inner text-center max-w-md mx-auto">
                 <h4 className="text-amber-500 font-bold font-orbitron text-xs uppercase tracking-wider mb-2">
-                  🙏 AGRADECIMIENTOS ESPECIALES
+                  AGRADECIMIENTOS ESPECIALES
                 </h4>
                 <p className="text-xs text-[#9a8b72] leading-relaxed">
                   A todos los jugadores que acceden al Altar a desafiar sus mentes, y a los desarrolladores y mantenedores de las bibliotecas de código abierto que facilitan el desarrollo de juegos indie en la web.
